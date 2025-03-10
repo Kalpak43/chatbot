@@ -1,13 +1,11 @@
 export const sendPrompt = async (
-  prompt: string,
+  chatHistory: { role: "user" | "ai"; text: string }[],
   onMessage: (msg: string) => void
 ) => {
-  const response = await fetch("http://localhost:8080/chat", {
+  const response = await fetch("http://127.0.0.1:8080/chat", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ prompt }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ history: chatHistory }),
   });
 
   if (!response.ok) {
@@ -18,10 +16,7 @@ export const sendPrompt = async (
   const reader = response.body?.getReader();
   const decoder = new TextDecoder();
 
-  if (!reader) {
-    console.error("Stream reader not available");
-    return;
-  }
+  if (!reader) return;
 
   try {
     while (true) {
@@ -29,8 +24,6 @@ export const sendPrompt = async (
       if (done) break;
 
       const chunk = decoder.decode(value, { stream: true });
-
-      // Extract actual message from SSE format
       chunk.split("\n").forEach((line) => {
         if (line.startsWith("data: ")) {
           const parsedData = JSON.parse(line.replace("data: ", ""));

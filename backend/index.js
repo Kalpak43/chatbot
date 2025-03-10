@@ -25,10 +25,10 @@ const ai = genkit({
 });
 
 app.post("/chat", async (req, res) => {
-  const { prompt } = req.body;
+  const { history } = req.body;
 
-  if (!prompt) {
-    return res.status(400).send({ msg: "No Prompt Provided" });
+  if (!history || !Array.isArray(history)) {
+    return res.status(400).send({ msg: "Invalid chat history" });
   }
 
   res.setHeader("Content-Type", "text/event-stream");
@@ -36,7 +36,16 @@ app.post("/chat", async (req, res) => {
   res.setHeader("Connection", "keep-alive");
 
   try {
-    for await (const chunk of ai.generateStream(prompt).stream) {
+    // Convert chat history into a string
+    const formattedHistory = history
+      .map(({ role, text }) => `${role === "user" ? "User" : "AI"}: ${text}`)
+      .join("\n");
+
+    const aiResponseStream = ai.generateStream(
+      `Chat history:\n${formattedHistory}\nAI:`
+    ).stream;
+
+    for await (const chunk of aiResponseStream) {
       const cleanedChunk = chunk.text
         ?.trim()
         .replace(/^```(json)?\n?|```$/g, "");
