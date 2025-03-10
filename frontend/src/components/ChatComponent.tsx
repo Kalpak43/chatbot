@@ -1,15 +1,15 @@
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 import { sendPrompt } from "../utils";
 
 const ChatComponent = () => {
-  const [messages, setMessages] = useState<string[]>([]);
+  const [message, setMessage] = useState(""); // Store entire response as a string
   const [input, setInput] = useState("");
 
   const handleSend = async () => {
-    setMessages([]); // Clear previous messages
-
+    setMessage(""); // Clear previous response
     await sendPrompt(input, (newMessage) => {
-      setMessages((prev) => [...prev, newMessage]);
+      setMessage((prev) => prev + newMessage); // Append streamed chunks
     });
   };
 
@@ -25,9 +25,15 @@ const ChatComponent = () => {
 
       <div>
         <h3>Response:</h3>
-        {messages.map((msg, index) => (
-          <p key={index}>{msg}</p>
-        ))}
+        <div
+          style={{
+            border: "1px solid #ccc",
+            padding: "10px",
+            borderRadius: "5px",
+          }}
+        >
+          <ReactMarkdown>{message}</ReactMarkdown>
+        </div>
       </div>
     </div>
   );
