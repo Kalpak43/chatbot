@@ -29,8 +29,20 @@ const ai = genkit({
   model: gemini20Flash,
 });
 
-app.post("/chat", async (req, res) => {
+app.post("/chat", upload.single("audio"), async (req, res) => {
   const { history } = req.body;
+  let transcript = "";
+
+  if (req.file) {
+    try {
+      transcript = await transcribeAudio(req.file.path);
+      console.log(transcript);
+      fs.unlinkSync(req.file.path); // Delete file after processing
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({ msg: "Audio transcription failed" });
+    }
+  }
 
   if (!history || !Array.isArray(history)) {
     return res.status(400).send({ msg: "Invalid chat history" });
@@ -40,6 +52,13 @@ app.post("/chat", async (req, res) => {
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
 
+  if (transcript.trim() !== "") {
+    history.push({
+      role: "user",
+      text: transcript,
+    });
+  }
+  
   try {
     // Convert chat history into a string
     const formattedHistory = history
