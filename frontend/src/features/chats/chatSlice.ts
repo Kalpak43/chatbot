@@ -2,12 +2,6 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
-export type ChatType = {
-  id: string;
-  messages: MessageType[];
-  created_at: Date;
-};
-
 type ChatState = {
   chats: ChatType[];
   activeChatId: string | null;
@@ -29,6 +23,7 @@ const chatSlice = createSlice({
       const chat = state.chats.find((c) => c.id === action.payload.chatId);
       if (chat) {
         if (
+          action.payload.message.role == "ai" &&
           chat.messages.length > 0 &&
           chat.messages[chat.messages.length - 1].role === "ai"
         ) {
@@ -38,9 +33,9 @@ const chatSlice = createSlice({
         chat.messages.push(action.payload.message);
       }
     },
-    createChat: (state) => {
+    createChat: (state, action: PayloadAction<string>) => {
       const newChat: ChatType = {
-        id: Date.now().toString(),
+        id: action.payload,
         messages: [],
         created_at: new Date(),
       };

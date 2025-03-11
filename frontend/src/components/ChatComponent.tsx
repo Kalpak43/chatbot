@@ -7,9 +7,9 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
 import AudioRecorder from "./AudioRecorder";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { addMessage, createChat } from "../features/chats/chatSlice";
+import { addMessage } from "../features/chats/chatSlice";
 
-const ChatComponent = ({ activeChatId }: { activeChatId?: string }) => {
+const ChatComponent = ({ activeChatId }: { activeChatId: string }) => {
   const dispatch = useAppDispatch();
   const chats = useAppSelector((state) => state.chat.chats);
   const activeChat = chats.find((c) => c.id === activeChatId) || {
@@ -20,9 +20,9 @@ const ChatComponent = ({ activeChatId }: { activeChatId?: string }) => {
   const [file, setFile] = useState<File | null>(null);
   const [start, setStart] = useState(false);
 
-  useEffect(() => {
-    if (chats.length === 0) dispatch(createChat());
-  }, [dispatch, chats.length]);
+  // useEffect(() => {
+  //   if (chats.length === 0) dispatch(createChat());
+  // }, [dispatch, chats.length]);
 
   const handleSend = async () => {
     if (!input.trim() && !file) return;
