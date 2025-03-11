@@ -10,8 +10,8 @@ export async function transcribeAudio(filePath) {
   const request = {
     audio: { content: audioBytes },
     config: {
-      encoding: "LINEAR16", // Change based on your audio format
-      sampleRateHertz: 16000, // Adjust to match the audio file's sample rate
+      encoding: "MP3", // Change based on your audio format
+      sampleRateHertz: 44100, // Adjust to match the audio file's sample rate
       languageCode: "en-US", // Change this for different languages
     },
   };
