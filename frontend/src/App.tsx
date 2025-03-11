@@ -1,12 +1,12 @@
-import { useEffect } from "react";
 import "./App.css";
-import { sendPrompt } from "./utils";
 import ChatComponent from "./components/ChatComponent";
+import Recorder from "./components/Recorder";
 
 function App() {
   return (
     <main>
       <ChatComponent />
+      <Recorder />
     </main>
   );
 }
