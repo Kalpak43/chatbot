@@ -9,10 +9,9 @@ import AudioRecorder from "./AudioRecorder";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { addMessage, createChat } from "../features/chats/chatSlice";
 
-const ChatComponent = () => {
+const ChatComponent = ({ activeChatId }: { activeChatId?: string }) => {
   const dispatch = useAppDispatch();
   const chats = useAppSelector((state) => state.chat.chats);
-  const activeChatId = useAppSelector((state) => state.chat.activeChatId);
   const activeChat = chats.find((c) => c.id === activeChatId) || {
     messages: [],
   };

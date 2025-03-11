@@ -28,16 +28,6 @@ const chatSlice = createSlice({
     ) => {
       const chat = state.chats.find((c) => c.id === action.payload.chatId);
       if (chat) {
-        // await sendPrompt(
-        //   [...(messages as MessageType[]), newUserMessage as MessageType],
-        //   (chunk) => {
-        //     aiResponse += chunk;
-        //     setMessages((prev) => [
-        //       ...(prev[prev.length - 1].role === "ai" ? prev.slice(0, -1) : prev),
-        //       { role: "ai", text: aiResponse },
-        //     ]); // Update AI message as it streams
-        //   }
-        // );
         if (
           chat.messages.length > 0 &&
           chat.messages[chat.messages.length - 1].role === "ai"
