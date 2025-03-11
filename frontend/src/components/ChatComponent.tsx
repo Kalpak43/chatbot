@@ -13,16 +13,13 @@ const ChatComponent = ({ activeChatId }: { activeChatId: string }) => {
   const dispatch = useAppDispatch();
   const chats = useAppSelector((state) => state.chat.chats);
   const activeChat = chats.find((c) => c.id === activeChatId) || {
+    title: "Untitled",
     messages: [],
   };
 
   const [input, setInput] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [start, setStart] = useState(false);
-
-  // useEffect(() => {
-  //   if (chats.length === 0) dispatch(createChat());
-  // }, [dispatch, chats.length]);
 
   const handleSend = async () => {
     if (!input.trim() && !file) return;
@@ -39,17 +36,6 @@ const ChatComponent = ({ activeChatId }: { activeChatId: string }) => {
     dispatch(addMessage({ chatId: activeChatId!, message: newUserMessage }));
     setInput("");
 
-    // let aiResponse = "";
-    // await sendPrompt(
-    //   [...(messages as MessageType[]), newUserMessage as MessageType],
-    //   (chunk) => {
-    //     aiResponse += chunk;
-    //     setMessages((prev) => [
-    //       ...(prev[prev.length - 1].role === "ai" ? prev.slice(0, -1) : prev),
-    //       { role: "ai", text: aiResponse },
-    //     ]); // Update AI message as it streams
-    //   }
-    // );
     let aiResponse = "";
     await sendPrompt([...activeChat.messages, newUserMessage], (chunk) => {
       aiResponse += chunk;
@@ -76,15 +62,14 @@ const ChatComponent = ({ activeChatId }: { activeChatId: string }) => {
   }
 
   useEffect(() => {
-    console.log(file);
     if (file) handleSend();
   }, [file]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-      <div className="w-full bg-white shadow-md rounded-lg p-6">
+    <div className="">
+      <div className="">
         <h2 className="text-xl font-semibold text-gray-700 mb-4">
-          Chat with AI
+          {activeChat.title}
         </h2>
 
         <div className="border rounded-lg p-4 bg-gray-50 min-h-[200px] overflow-y-auto">
@@ -97,6 +82,14 @@ const ChatComponent = ({ activeChatId }: { activeChatId: string }) => {
                   : "bg-gray-200 text-gray-800"
               }`}
             >
+              {msg.file && (
+                <audio controls>
+                  <source
+                    src={URL.createObjectURL(msg.file)}
+                    type="audio/mpeg"
+                  />
+                </audio>
+              )}
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{

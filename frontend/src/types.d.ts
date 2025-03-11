@@ -6,6 +6,7 @@ interface MessageType {
 
 interface ChatType {
   id: string;
+  title: string;
   messages: MessageType[];
-  created_at: Date;
+  created_at: number;
 }

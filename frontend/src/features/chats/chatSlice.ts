@@ -22,12 +22,15 @@ const chatSlice = createSlice({
     ) => {
       const chat = state.chats.find((c) => c.id === action.payload.chatId);
       if (chat) {
+        if (chat.messages.length == 0) {
+          chat.title = action.payload.message.text;
+        }
+
         if (
           action.payload.message.role == "ai" &&
           chat.messages.length > 0 &&
           chat.messages[chat.messages.length - 1].role === "ai"
         ) {
-          console.log(1);
           chat.messages.splice(chat.messages.length - 1, 1); // Remove the last AI message
         }
         chat.messages.push(action.payload.message);
@@ -35,9 +38,10 @@ const chatSlice = createSlice({
     },
     createChat: (state, action: PayloadAction<string>) => {
       const newChat: ChatType = {
+        title: "Untitled",
         id: action.payload,
         messages: [],
-        created_at: new Date(),
+        created_at: new Date().getTime(),
       };
       state.chats.push(newChat);
       state.activeChatId = newChat.id;
