@@ -6,12 +6,24 @@ import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
 import AudioRecorder from "./AudioRecorder";
+import { useAppDispatch, useAppSelector } from "../app/hooks";
+import { addMessage, createChat } from "../features/chats/chatSlice";
 
 const ChatComponent = () => {
-  const [messages, setMessages] = useState<MessageType[]>([]);
+  const dispatch = useAppDispatch();
+  const chats = useAppSelector((state) => state.chat.chats);
+  const activeChatId = useAppSelector((state) => state.chat.activeChatId);
+  const activeChat = chats.find((c) => c.id === activeChatId) || {
+    messages: [],
+  };
+
   const [input, setInput] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [start, setStart] = useState(false);
+
+  useEffect(() => {
+    if (chats.length === 0) dispatch(createChat());
+  }, [dispatch, chats.length]);
 
   const handleSend = async () => {
     if (!input.trim() && !file) return;
@@ -25,21 +37,30 @@ const ChatComponent = () => {
       };
     }
 
-    setMessages((prev) => [...prev, newUserMessage as MessageType]);
-
+    dispatch(addMessage({ chatId: activeChatId!, message: newUserMessage }));
     setInput("");
 
+    // let aiResponse = "";
+    // await sendPrompt(
+    //   [...(messages as MessageType[]), newUserMessage as MessageType],
+    //   (chunk) => {
+    //     aiResponse += chunk;
+    //     setMessages((prev) => [
+    //       ...(prev[prev.length - 1].role === "ai" ? prev.slice(0, -1) : prev),
+    //       { role: "ai", text: aiResponse },
+    //     ]); // Update AI message as it streams
+    //   }
+    // );
     let aiResponse = "";
-    await sendPrompt(
-      [...(messages as MessageType[]), newUserMessage as MessageType],
-      (chunk) => {
-        aiResponse += chunk;
-        setMessages((prev) => [
-          ...(prev[prev.length - 1].role === "ai" ? prev.slice(0, -1) : prev),
-          { role: "ai", text: aiResponse },
-        ]); // Update AI message as it streams
-      }
-    );
+    await sendPrompt([...activeChat.messages, newUserMessage], (chunk) => {
+      aiResponse += chunk;
+      dispatch(
+        addMessage({
+          chatId: activeChatId!,
+          message: { role: "ai", text: aiResponse },
+        })
+      );
+    });
   };
 
   async function handleStopRecording(recordedData: {
@@ -68,12 +89,12 @@ const ChatComponent = () => {
         </h2>
 
         <div className="border rounded-lg p-4 bg-gray-50 min-h-[200px] overflow-y-auto">
-          {messages.map((msg, index) => (
+          {activeChat.messages.map((msg, index) => (
             <div
               key={index}
               className={`p-2 my-1 rounded-lg ${
                 msg.role === "user"
-                  ? "bg-blue-500 text-white self-end"
+                  ? "bg-blue-500 text-white"
                   : "bg-gray-200 text-gray-800"
               }`}
             >
@@ -111,7 +132,7 @@ const ChatComponent = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message..."
-            className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 p-2 border rounded-lg"
             rows={5}
           />
           <button
@@ -121,9 +142,7 @@ const ChatComponent = () => {
             Send
           </button>
           <AudioRecorder
-            onStart={() => {
-              setStart(true);
-            }}
+            onStart={() => setStart(true)}
             onStop={handleStopRecording}
           >
             <span className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">

@@ -1,11 +1,13 @@
+import { Route, Routes } from "react-router";
 import "./App.css";
-import ChatComponent from "./components/ChatComponent";
+import Homepage from "./pages/Homepage";
 
 function App() {
   return (
-    <main>
-      <ChatComponent />
-    </main>
+    <Routes>
+      <Route path="/" element={<Homepage />} />
+      <Route path="/chat/:chatId" element={<Homepage />} />
+    </Routes>
   );
 }
 
