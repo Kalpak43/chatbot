@@ -3,6 +3,7 @@ import Sidebar from "../components/Sidebar";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { useEffect } from "react";
 import { createChat } from "../features/chats/chatSlice";
+import { v4 as uuidv4 } from "uuid";
 
 function Homepage() {
   const navigate = useNavigate();
@@ -15,12 +16,12 @@ function Homepage() {
       if (chats[chats.length - 1].messages.length === 0) {
         navigate(`/chat/${chats[chats.length - 1].id}`);
       } else {
-        const id = new Date().toISOString();
+        const id = uuidv4();
         dispatch(createChat(id));
         navigate(`/chat/${id}`);
       }
     } else {
-      const id = new Date().toISOString();
+      const id = uuidv4();
       dispatch(createChat(id));
       navigate(`/chat/${id}`);
     }
