@@ -1,3 +1,6 @@
 *.env
 
 node_modules
+
+/trip-advisor-e46fa-8cff2b0d5397.json
+/uploads

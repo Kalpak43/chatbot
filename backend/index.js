@@ -4,6 +4,11 @@ import cors from "cors";
 import { genkit } from "genkit";
 import env from "dotenv";
 import morgan from "morgan";
+import { transcribeAudio } from "./utils.js";
+import multer from "multer";
+import fs from "fs";
+
+const upload = multer({ dest: "uploads/" });
 
 env.config();
 
@@ -59,6 +64,29 @@ app.post("/chat", async (req, res) => {
     res.write(`data: ${JSON.stringify({ error: "An error occurred." })}\n\n`);
     res.end();
   }
+});
+
+app.post("/transcribe", upload.single("audio"), async (req, res) => {
+  let transcript = "";
+
+  console.log(req.file.path);
+
+  if (req.file) {
+    try {
+      transcript = await transcribeAudio(req.file.path);
+      console.log(transcript);
+      fs.unlinkSync(req.file.path); // Delete file after processing
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({ msg: "Audio transcription failed" });
+    }
+  } else {
+    return res.status(400).send({ msg: "No File provided" });
+  }
+
+  return res.status(200).send({
+    msg: transcript,
+  });
 });
 
 app.listen(port, () => {
