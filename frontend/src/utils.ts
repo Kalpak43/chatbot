@@ -2,13 +2,25 @@ import { Mp3Encoder } from "@breezystack/lamejs";
 import axios from "axios";
 
 export const sendPrompt = async (
-  chatHistory: { role: "user" | "ai"; text: string }[],
+  chatHistory: MessageType[],
   onMessage: (msg: string) => void
 ) => {
+  console.log(chatHistory);
+  const formData = new FormData();
+
+  // Append chat history as a JSON string
+  formData.append("history", JSON.stringify(chatHistory));
+
+  const lastMessage = chatHistory[chatHistory.length - 1];
+  if (lastMessage.file) {
+    formData.append("audio", lastMessage.file);
+  }
+
+  console.log(lastMessage);
+
   const response = await fetch("http://127.0.0.1:8080/chat", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ history: chatHistory }),
+    body: formData, // No need to set `Content-Type`, `fetch` will handle it
   });
 
   if (!response.ok) {

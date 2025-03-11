@@ -1,34 +1,37 @@
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { sendPrompt } from "../utils";
+import { convertToMp3, sendPrompt } from "../utils";
 import remarkGfm from "remark-gfm";
 
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
+import AudioRecorder from "./AudioRecorder";
 
 const ChatComponent = () => {
-  const [messages, setMessages] = useState<
-    { role: "user" | "ai"; text: string }[]
-  >([]);
+  const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [start, setStart] = useState(false);
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() && !file) return;
 
-    const newUserMessage = { role: "user", text: input };
-    setMessages((prev) => [
-      ...prev,
-      newUserMessage as { role: "user" | "ai"; text: string },
-    ]);
+    let newUserMessage: MessageType = { role: "user", text: input };
+
+    if (file) {
+      newUserMessage = {
+        ...newUserMessage,
+        file: file,
+      };
+    }
+
+    setMessages((prev) => [...prev, newUserMessage as MessageType]);
 
     setInput("");
 
     let aiResponse = "";
     await sendPrompt(
-      [
-        ...(messages as { role: "user" | "ai"; text: string }[]),
-        newUserMessage as { role: "user" | "ai"; text: string },
-      ],
+      [...(messages as MessageType[]), newUserMessage as MessageType],
       (chunk) => {
         aiResponse += chunk;
         setMessages((prev) => [
@@ -39,9 +42,23 @@ const ChatComponent = () => {
     );
   };
 
+  async function handleStopRecording(recordedData: {
+    duration: number;
+    audioBlob: Blob;
+  }) {
+    const mp3Blob = await convertToMp3(recordedData.audioBlob);
+    const audioFile = new File([mp3Blob], "recording.mp3", {
+      type: "audio/mp3",
+    });
+
+    setFile(audioFile);
+    setStart(false);
+  }
+
   useEffect(() => {
-    console.log(messages);
-  }, [messages]);
+    console.log(file);
+    if (file) handleSend();
+  }, [file]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
@@ -103,6 +120,16 @@ const ChatComponent = () => {
           >
             Send
           </button>
+          <AudioRecorder
+            onStart={() => {
+              setStart(true);
+            }}
+            onStop={handleStopRecording}
+          >
+            <span className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+              {start ? "Stop" : "Record"}
+            </span>
+          </AudioRecorder>
         </div>
       </div>
     </div>

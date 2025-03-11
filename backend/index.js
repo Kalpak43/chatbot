@@ -30,7 +30,8 @@ const ai = genkit({
 });
 
 app.post("/chat", upload.single("audio"), async (req, res) => {
-  const { history } = req.body;
+  const { history: h } = req.body;
+  let history = JSON.parse(h);
   let transcript = "";
 
   if (req.file) {
@@ -58,7 +59,7 @@ app.post("/chat", upload.single("audio"), async (req, res) => {
       text: transcript,
     });
   }
-  
+
   try {
     // Convert chat history into a string
     const formattedHistory = history
