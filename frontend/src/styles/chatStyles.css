@@ -1,0 +1,38 @@
+.chat ul {
+  list-style-type: disc; /* Ensures disc markers */
+  list-style-position: inside; /* Keeps bullets aligned with text */
+  padding-left: 1rem; /* Adds indentation */
+}
+
+.chat table {
+  width: 100%;
+  border-collapse: collapse; /* Ensures no extra spacing between borders */
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  background-color: #f9f9f9; /* Light background for better readability */
+}
+
+.chat th,
+.chat td {
+  border: 1px solid #ddd; /* Light gray border */
+  padding: 8px;
+  text-align: left;
+}
+
+.chat th {
+  background-color: #4a90e2; /* Blue header */
+  color: white;
+  font-weight: bold;
+}
+
+.chat tr:nth-child(even) {
+  background-color: #f2f2f2; /* Zebra striping */
+}
+
+.chat tr:hover {
+  background-color: #ddd; /* Row hover effect */
+}
+
+.chat ul p {
+    display: inline;
+}

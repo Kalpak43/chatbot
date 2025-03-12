@@ -106,3 +106,11 @@ export const convertToMp3 = async (blob: Blob) => {
 
   return mp3Blob;
 };
+
+export const cleanMarkdown = (text: string) => {
+  return text
+    .replace(/^```(json|javascript|html|css)?\n?/gm, "```$1\n") // Fix code block syntax
+    .replace(/\*\*([^\*]+)\*?$/gm, "**$1**") // Fix unclosed bold
+    .replace(/^-{3,}$/gm, "---") // Normalize horizontal rules
+    .trim();
+};
