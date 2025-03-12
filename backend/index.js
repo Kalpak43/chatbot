@@ -69,12 +69,14 @@ app.post("/chat", upload.single("audio"), async (req, res) => {
     const aiResponseStream = ai.generateStream(
       `Chat history:\n${formattedHistory}\nAI: Please respond in a well-structured markdown format without using "Response" as a title or "Main Answer" as a section.  
       
-      Format your response as:  
-      - A direct answer at the beginning (without a heading).  
-      - Follow with additional details if necessary.  
-      - Provide suggestions or alternatives where applicable.  
-      - Use bullet points, code blocks, or tables for better clarity.  
-      - Keep responses concise (maximum 500 words unless requested otherwise).`
+        Format your response as:  
+        - A direct answer at the beginning (without a heading).  
+        - Follow with additional details if necessary.  
+        - Provide suggestions or alternatives where applicable.  
+        - Use bullet points, code blocks, or tables for better clarity.  
+        - Keep responses concise (maximum 500 words unless requested otherwise).  
+        - Add a horizontal rule (**\`---\`**) after each section to separate content clearly.  
+        - Ensure there are **two blank lines** between sections for readability.`
     ).stream;
 
     for await (const chunk of aiResponseStream) {
