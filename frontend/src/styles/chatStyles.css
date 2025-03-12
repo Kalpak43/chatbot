@@ -4,11 +4,22 @@
   themes: light --default, dark --prefersdark, sunset;
 }
 
-.chat ul {
+.chat ul,
+.chat ol {
   @apply list-disc list-inside pl-4;
 }
 
-.chat ul p {
+.chat ol {
+  @apply list-decimal;
+}
+.chat ol li::marker {
+  content: counter(list-item) ". ";
+  font-size: 1em;
+  padding-right: 1em; /* Adjust spacing between number and text */
+}
+
+.chat ul p,
+.chat ol p {
   @apply inline;
 }
 
@@ -17,7 +28,7 @@
 }
 
 .chat th {
-  @apply bg-accent text-white font-bold p-2;
+  @apply bg-neutral text-white font-bold p-2;
 }
 
 .chat td {
@@ -32,7 +43,8 @@
   @apply hover:bg-base-300;
 }
 
-.chat ul strong {
+.chat ul strong,
+.chat ol strong {
   @apply text-base-content text-base leading-loose;
 }
 
@@ -41,5 +53,11 @@
 }
 
 .chat hr {
-    @apply my-4 bg-base-300;
+  @apply my-4 bg-base-300;
+}
+
+.chat h1,
+h2,
+h3 {
+  @apply leading-loose;
 }

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { v4 as uuidv4 } from "uuid";
 import { createChat } from "../features/chats/chatSlice";
@@ -7,6 +7,7 @@ function Sidebar() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { chats } = useAppSelector((state) => state.chat);
+  const location = useLocation();
 
   const handleCreateNew = () => {
     if (chats[chats.length - 1].messages.length > 0) {
@@ -38,7 +39,11 @@ function Sidebar() {
               <li key={chat.id} className="w-full">
                 <Link
                   to={`/chat/${chat.id}`}
-                  className="block truncate hover:text-primary w-full"
+                  className={`block truncate hover:text-primary w-full px-4 py-2 rounded ${
+                    location.pathname === `/chat/${chat.id}`
+                      ? "bg-neutral text-primary"
+                      : ""
+                  }`}
                 >
                   {chat.title}
                 </Link>

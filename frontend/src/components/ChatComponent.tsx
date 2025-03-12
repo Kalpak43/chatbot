@@ -79,13 +79,17 @@ const ChatComponent = ({ activeChatId }: { activeChatId: string }) => {
     if (file) handleSend();
   }, [file]);
 
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     if (chatRef.current) {
-  //       chatRef.current.scrollIntoView({ behavior: "smooth" });
-  //     }
-  //   }, 1000);
-  // }, [activeChat.messages]);
+  useEffect(() => {
+    setTimeout(() => {
+      if (chatRef.current) {
+        chatRef.current.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 1000);
+  }, [activeChat.messages]);
+
+  useEffect(() => {
+    console.log(activeChat.messages);
+  }, [activeChat]);
 
   return (
     <div className="h-[100dvh] relative flex flex-col bg-base-100">
@@ -106,7 +110,9 @@ const ChatComponent = ({ activeChatId }: { activeChatId: string }) => {
             >
               <div
                 className={`chat-bubble p-3 ${
-                  msg.role === "user" ? "chat-bubble-primary" : ""
+                  msg.role === "user"
+                    ? "chat-bubble-primary"
+                    : " overflow-x-auto"
                 }`}
               >
                 {msg.file && (
@@ -227,7 +233,9 @@ const ChatComponent = ({ activeChatId }: { activeChatId: string }) => {
             <p className="text-sm text-gray-400">Send a message to begin</p>
           </div>
         )}
-        <div ref={chatRef} className="h-0" />
+        {activeChat.messages.length > 0 && (
+          <div ref={chatRef} className="h-0" />
+        )}
       </div>
 
       {/* Chat Input Section */}
