@@ -8,6 +8,7 @@ import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
 import AudioRecorder from "./AudioRecorder";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { addMessage } from "../features/chats/chatSlice";
+import { Mic, MicOff, SendHorizontal } from "lucide-react";
 
 const ChatComponent = ({ activeChatId }: { activeChatId: string }) => {
   const dispatch = useAppDispatch();
@@ -35,6 +36,7 @@ const ChatComponent = ({ activeChatId }: { activeChatId: string }) => {
 
     dispatch(addMessage({ chatId: activeChatId!, message: newUserMessage }));
     setInput("");
+    setFile(null);
 
     let aiResponse = "";
     await sendPrompt([...activeChat.messages, newUserMessage], (chunk) => {
@@ -66,20 +68,20 @@ const ChatComponent = ({ activeChatId }: { activeChatId: string }) => {
   }, [file]);
 
   return (
-    <div className="">
-      <div className="">
-        <h2 className="text-xl font-semibold text-gray-700 mb-4">
-          {activeChat.title}
-        </h2>
+    <div className="h-[100dvh] relative bg-gray-200 flex flex-col">
+      <h2 className="text-xl font-semibold text-gray-700 mb-4 sticky top-0 inset-x-0 bg-white  p-4 border-b">
+        {activeChat.title}
+      </h2>
 
-        <div className="border rounded-lg p-4 bg-gray-50 min-h-[200px] overflow-y-auto">
-          {activeChat.messages.map((msg, index) => (
+      <div className="px-4 flex-1 min-h-[200px] overflow-y-auto">
+        {activeChat.messages.length > 0 ? (
+          activeChat.messages.map((msg, index) => (
             <div
               key={index}
-              className={`p-2 my-1 rounded-lg ${
+              className={`p-2 my-4 max-w-2/3 rounded-lg ${
                 msg.role === "user"
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-800"
+                  ? "bg-blue-500 text-white ml-auto"
+                  : "bg-gray-300 text-gray-800 mr-auto"
               }`}
             >
               {msg.file && (
@@ -116,32 +118,36 @@ const ChatComponent = ({ activeChatId }: { activeChatId: string }) => {
                 {msg.text}
               </ReactMarkdown>
             </div>
-          ))}
-        </div>
+          ))
+        ) : (
+          <div className="h-full w-full flex items-center justify-center">
+            Start a chat
+          </div>
+        )}
+      </div>
 
-        <div className="flex space-x-2 mt-4">
-          <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your message..."
-            className="flex-1 p-2 border rounded-lg"
-            rows={5}
-          />
-          <button
-            onClick={handleSend}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-          >
-            Send
-          </button>
-          <AudioRecorder
-            onStart={() => setStart(true)}
-            onStop={handleStopRecording}
-          >
-            <span className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
-              {start ? "Stop" : "Record"}
-            </span>
-          </AudioRecorder>
-        </div>
+      <div className="flex space-x-2 mt-4 sticky bottom-0 inset-x-0  bg-white p-4 border-t">
+        <textarea
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Type your message..."
+          className="flex-1 p-2 border rounded-lg mb-2"
+          rows={1}
+        />
+        <button
+          onClick={handleSend}
+          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition mb-2"
+        >
+          <SendHorizontal />
+        </button>
+        <AudioRecorder
+          onStart={() => setStart(true)}
+          onStop={handleStopRecording}
+        >
+          <span className="block px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition mb-2">
+            {start ? <MicOff /> : <Mic />}
+          </span>
+        </AudioRecorder>
       </div>
     </div>
   );

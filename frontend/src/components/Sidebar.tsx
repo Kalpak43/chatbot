@@ -30,18 +30,16 @@ function Sidebar() {
       </button>
       <div className=" divide-y-1 divide-gray-200">
         <h4 className="text-lg font-semibold text-gray-700 mb-4">Recents:</h4>
-        {chats
-  
-          .map((chat) => {
-            return (
-              <Link
-                to={`/chat/${chat.id}`}
-                className="block p-2 mb-2 text-gray-800 no-underlinebg-gray-100 rounded hover:bg-gray-200 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-              >
-                <span className="line-clamp-1">{chat.title}</span>
-              </Link>
-            );
-          })}
+        {chats.map((chat) => {
+          return (
+            <Link
+              to={`/chat/${chat.id}`}
+              className="block p-2 mb-2 text-gray-800 no-underlinebg-gray-100 rounded hover:bg-gray-200 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+            >
+              <span className="line-clamp-1">{chat.title}</span>
+            </Link>
+          );
+        })}
       </div>
     </nav>
   );

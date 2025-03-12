@@ -5,9 +5,9 @@ function Chatpage() {
   const { chatId } = useParams();
 
   return (
-    <main>
+    <>
       <ChatComponent activeChatId={chatId!} />
-    </main>
+    </>
   );
 }
 
