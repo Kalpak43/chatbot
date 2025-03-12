@@ -9,13 +9,16 @@ import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
 import AudioRecorder from "./AudioRecorder";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { addMessage } from "../features/chats/chatSlice";
-import { Check, Copy, Mic, MicOff, SendHorizontal } from "lucide-react";
+import {
+  Check,
+  Copy,
+  MessageCircleMore,
+  Mic,
+  MicOff,
+  SendHorizontal,
+} from "lucide-react";
 
 import "../styles/chatStyles.css";
-
-{
-  /* <Copy />; */
-}
 
 const ChatComponent = ({ activeChatId }: { activeChatId: string }) => {
   const dispatch = useAppDispatch();
@@ -76,164 +79,174 @@ const ChatComponent = ({ activeChatId }: { activeChatId: string }) => {
     if (file) handleSend();
   }, [file]);
 
-  useEffect(() => {
-    if (chatRef.current) {
-      chatRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [activeChat.messages]);
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     if (chatRef.current) {
+  //       chatRef.current.scrollIntoView({ behavior: "smooth" });
+  //     }
+  //   }, 1000);
+  // }, [activeChat.messages]);
 
   return (
-    <div className="h-[100dvh] relative bg-gray-200 flex flex-col">
-      <h2 className="text-xl font-semibold text-gray-700 mb-4 sticky top-0 inset-x-0 bg-white  p-4 border-b">
+    <div className="h-[100dvh] relative flex flex-col bg-base-100">
+      {/* Chat Header */}
+      <h2 className="text-xl font-semibold p-4 sticky top-0 inset-x-0 border-b bg-base-200 shadow-md">
         {activeChat.title}
       </h2>
 
-      <div className="px-4 flex-1 min-h-[200px] overflow-y-auto chat p-4">
+      {/* Chat Messages */}
+      <div className="px-4 flex-1 min-h-[200px] overflow-y-auto chat p-4 space-y-4">
         {activeChat.messages.length > 0 ? (
           activeChat.messages.map((msg, index) => (
             <div
               key={index}
-              className={`p-2 my-4 max-w-2/3 rounded-lg space-y-4 ${
-                msg.role === "user"
-                  ? "bg-blue-500 text-white ml-auto"
-                  : "bg-gray-300 text-gray-800 mr-auto"
+              className={`chat leading-loose ${
+                msg.role === "user" ? "chat-end" : "chat-start"
               }`}
             >
-              {msg.file && (
-                <audio controls>
-                  <source
-                    src={URL.createObjectURL(msg.file)}
-                    type="audio/mpeg"
-                  />
-                </audio>
-              )}
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                rehypePlugins={[rehypeRaw]}
-                components={{
-                  code({ node, className, children, ...props }) {
-                    const match = /language-(\w+)/.exec(className || "");
-                    const [copied, setCopied] = useState(false);
-
-                    const handleCopy = (text: string) => {
-                      navigator.clipboard
-                        .writeText(text) // Copy text to clipboard
-                        .then(() => {
-                          setCopied(true);
-                          setTimeout(() => setCopied(false), 2000);
-                        })
-                        .catch((err) => console.error("Failed to copy: ", err));
-                    };
-
-                    return match ? (
-                      <div className="relative">
-                        {/* Copy Button */}
-                        <button
-                          onClick={() =>
-                            handleCopy(String(children).replace(/\n$/, ""))
-                          }
-                          className="cursor-pointer absolute top-2 right-2 bg-gray-700 text-white p-1 rounded-md hover:bg-gray-600 transition"
-                        >
-                          {copied ? (
-                            <Check size={16} className="text-green-400" />
-                          ) : (
-                            <Copy size={16} />
-                          )}
-                        </button>
-
-                        {/* Code Block */}
-                        <SyntaxHighlighter
-                          // @ts-ignore
-                          style={dracula}
-                          language={match[1]}
-                          PreTag="div"
-                          {...props}
-                          className="rounded-md p-2"
-                        >
-                          {String(children).replace(/\n$/, "")}
-                        </SyntaxHighlighter>
-                      </div>
-                    ) : (
-                      <code
-                        className={`bg-gray-200 px-1 py-0.5 rounded text-sm ${
-                          className || ""
-                        }`}
-                        {...props}
-                      >
-                        {children}
-                      </code>
-                    );
-                  },
-                  blockquote({ children }) {
-                    return (
-                      <blockquote className="border-l-4 border-gray-500 italic pl-3 text-gray-600">
-                        {children}
-                      </blockquote>
-                    );
-                  },
-                  a({ href, children }) {
-                    return (
-                      <a href={href} className="text-blue-500 underline">
-                        {children}
-                      </a>
-                    );
-                  },
-                  ul({ children }) {
-                    return (
-                      <ul className="list-disc list-inside ml-4">{children}</ul>
-                    );
-                  },
-                  ol({ children }) {
-                    return (
-                      <ol className="list-decimal list-inside ml-4">
-                        {children}
-                      </ol>
-                    );
-                  },
-                  h1({ children }) {
-                    return <h1 className="text-2xl font-bold">{children}</h1>;
-                  },
-                  h2({ children }) {
-                    return (
-                      <h2 className="text-xl font-semibold">{children}</h2>
-                    );
-                  },
-                  h3({ children }) {
-                    return <h3 className="text-lg font-medium">{children}</h3>;
-                  },
-                }}
+              <div
+                className={`chat-bubble p-3 ${
+                  msg.role === "user" ? "chat-bubble-primary" : ""
+                }`}
               >
-                {msg.text}
-              </ReactMarkdown>
+                {msg.file && (
+                  <audio controls className="mt-2">
+                    <source
+                      src={URL.createObjectURL(msg.file)}
+                      type="audio/mpeg"
+                    />
+                  </audio>
+                )}
+
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeRaw]}
+                  components={{
+                    code({ className, children, ...props }) {
+                      const match = /language-(\w+)/.exec(className || "");
+                      const [copied, setCopied] = useState(false);
+
+                      const handleCopy = (text: string) => {
+                        navigator.clipboard
+                          .writeText(text)
+                          .then(() => {
+                            setCopied(true);
+                            setTimeout(() => setCopied(false), 2000);
+                          })
+                          .catch((err) =>
+                            console.error("Failed to copy: ", err)
+                          );
+                      };
+
+                      return match ? (
+                        <div className="relative">
+                          {/* Copy Button */}
+                          <button
+                            onClick={() =>
+                              handleCopy(String(children).replace(/\n$/, ""))
+                            }
+                            className="absolute top-2 right-2 btn btn-xs btn-ghost"
+                          >
+                            {copied ? (
+                              <Check size={16} className="text-green-400" />
+                            ) : (
+                              <Copy size={16} />
+                            )}
+                          </button>
+
+                          {/* Code Block */}
+                          <SyntaxHighlighter
+                            // @ts-ignore
+                            style={dracula}
+                            language={match[1]}
+                            PreTag="div"
+                            {...props}
+                            className="rounded-lg p-2"
+                          >
+                            {String(children).replace(/\n$/, "")}
+                          </SyntaxHighlighter>
+                        </div>
+                      ) : (
+                        <code className="bg-neutral p-1 rounded">
+                          {children}
+                        </code>
+                      );
+                    },
+                    blockquote({ children }) {
+                      return (
+                        <blockquote className="border-l-4 border-gray-500 italic pl-3">
+                          {children}
+                        </blockquote>
+                      );
+                    },
+                    a({ href, children }) {
+                      return (
+                        <a href={href} className="text-primary underline">
+                          {children}
+                        </a>
+                      );
+                    },
+                    ul({ children }) {
+                      return <ul className="list-disc ml-4">{children}</ul>;
+                    },
+                    ol({ children }) {
+                      return <ol className="list-decimal ml-4">{children}</ol>;
+                    },
+                    h1({ children }) {
+                      return (
+                        <h1 className="text-4xl font-bold text-primary">
+                          {children}
+                        </h1>
+                      );
+                    },
+                    h2({ children }) {
+                      return (
+                        <h2 className="text-3xl font-semibold text-secondary">
+                          {children}
+                        </h2>
+                      );
+                    },
+                    h3({ children }) {
+                      return (
+                        <h3 className="text-2xl font-medium text-accent">
+                          {children}
+                        </h3>
+                      );
+                    },
+                  }}
+                >
+                  {msg.text}
+                </ReactMarkdown>
+              </div>
             </div>
           ))
         ) : (
-          <div className="h-full w-full flex items-center justify-center">
-            Start a chat
+          <div className="h-full w-full flex flex-col items-center justify-center text-gray-500">
+            <MessageCircleMore className="w-12 h-12 text-gray-400 mb-2" />
+            <p className="text-lg font-medium text-gray-600">Start a chat</p>
+            <p className="text-sm text-gray-400">Send a message to begin</p>
           </div>
         )}
-        <div ref={chatRef} />
+        <div ref={chatRef} className="h-0" />
       </div>
 
-      <div className="flex space-x-2 mt-4 sticky bottom-0 inset-x-0  bg-white p-4 border-t">
+      {/* Chat Input Section */}
+      <div className="flex items-end gap-2 sticky bottom-0 inset-x-0 p-4 border-t bg-base-200 shadow-md">
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type your message..."
-          className="flex-1 p-2 border rounded-lg mb-2"
+          className="textarea textarea-bordered flex-1"
           rows={1}
         />
-        <button
-          onClick={handleSend}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition mb-2"
-        >
+        <button onClick={handleSend} className="btn btn-primary">
           <SendHorizontal />
         </button>
         <AudioRecorder
           onStart={() => setStart(true)}
           onStop={handleStopRecording}
         >
-          <span className="block px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition mb-2">
+          <span className="btn btn-primary">
             {start ? <MicOff /> : <Mic />}
           </span>
         </AudioRecorder>

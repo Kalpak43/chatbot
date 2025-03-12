@@ -23,7 +23,10 @@ const chatSlice = createSlice({
       const chat = state.chats.find((c) => c.id === action.payload.chatId);
       if (chat) {
         if (chat.messages.length == 0) {
-          chat.title = action.payload.message.text;
+          chat.title = action.payload.message.text
+            .split(" ")
+            .slice(0, 10)
+            .join(" ");
         }
 
         if (

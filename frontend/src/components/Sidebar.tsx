@@ -20,26 +20,31 @@ function Sidebar() {
   };
 
   return (
-    <nav className="w-1/6 border-r p-4 divide-y-1 divide-gray-400 min-h-full h-[100dvh] overflow-y-auto">
-      <h2 className="text-xl font-semibold text-gray-700 mb-4">Chat with AI</h2>
-      <button
-        className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-200"
-        onClick={handleCreateNew}
-      >
-        New Chat
-      </button>
-      <div className=" divide-y-1 divide-gray-200">
-        <h4 className="text-lg font-semibold text-gray-700 mb-4">Recents:</h4>
-        {chats.map((chat) => {
-          return (
-            <Link
-              to={`/chat/${chat.id}`}
-              className="block p-2 mb-2 text-gray-800 no-underlinebg-gray-100 rounded hover:bg-gray-200 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-            >
-              <span className="line-clamp-1">{chat.title}</span>
-            </Link>
-          );
-        })}
+    <nav className="w-1/5 border-r p-4 min-h-full h-[100dvh] bg-base-200 flex flex-col">
+      <div className="py-4">
+        <h2 className="text-xl font-bold mb-4">Chat with AI</h2>
+        <button className="btn btn-primary w-full" onClick={handleCreateNew}>
+          New Chat
+        </button>
+      </div>
+      <div className="mt-4 flex-1 flex flex-col">
+        <h4 className="text-lg font-semibold mb-2">Recents:</h4>
+        <ul className="menu bg-base-100 rounded-box w-full max-h-[70vh] overflow-y-auto block">
+          {[...chats]
+            .sort((a, b) => {
+              return b.created_at - a.created_at;
+            })
+            .map((chat) => (
+              <li key={chat.id} className="w-full">
+                <Link
+                  to={`/chat/${chat.id}`}
+                  className="block truncate hover:text-primary w-full"
+                >
+                  {chat.title}
+                </Link>
+              </li>
+            ))}
+        </ul>
       </div>
     </nav>
   );

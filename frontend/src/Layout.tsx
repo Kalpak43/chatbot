@@ -5,7 +5,7 @@ function Layout() {
   return (
     <div className="flex min-h-[100dvh] overflow-hidden">
       <Sidebar />
-      <main className="flex-1 max-w-5/6 min-h-full max-h-[100dvh]">
+      <main className="flex-1 min-h-full max-h-[100dvh] mx-auto">
         <Outlet />
       </main>
     </div>
