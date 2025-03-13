@@ -58,6 +58,20 @@ const chatSlice = createSlice({
         state.activeChatId = state.chats.length ? state.chats[0].id : null;
       }
     },
+    editMessage: (
+      state,
+      action: PayloadAction<{
+        chatId: string;
+        messageId: number;
+        newText: string;
+      }>
+    ) => {
+      const { chatId, messageId, newText } = action.payload;
+      const chat = state.chats.find((c) => c.id === chatId);
+
+      if (chat) {
+      }
+    },
   },
 });
 

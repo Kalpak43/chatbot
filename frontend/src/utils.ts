@@ -107,10 +107,28 @@ export const convertToMp3 = async (blob: Blob) => {
   return mp3Blob;
 };
 
-export const cleanMarkdown = (text: string) => {
-  return text
-    .replace(/^```(json|javascript|html|css)?\n?/gm, "```$1\n") // Fix code block syntax
-    .replace(/\*\*([^\*]+)\*?$/gm, "**$1**") // Fix unclosed bold
-    .replace(/^-{3,}$/gm, "---") // Normalize horizontal rules
-    .trim();
-};
+export function cleanMarkdown(markdown: string) {
+  return (
+    markdown
+      // Ensure there's a space after markdown headers (e.g., `##Heading` -> `## Heading`)
+      .replace(/^(#{1,3})([^\s#])/gm, "$1 $2")
+
+      // Ensure a newline after horizontal rules (e.g., `---Text` -> `---\n\nText`)
+      .replace(/(---)(\S)/g, "$1\n\n$2")
+
+      // Ensure triple backticks are properly closed if missing
+      .replace(/```([\s\S]+?)$/g, "```$1\n```")
+
+      // Ensure spacing around markdown elements (e.g., "**bold**word" -> "**bold** word")
+      .replace(/(\*\*|__)(\S)(\*\*|__)(\S)/g, "$1$2 $3$4 ")
+
+      // Ensure code blocks are properly formatted (e.g., ` ```jsconst x = 5;` -> ` ```js\nconst x = 5;`)
+      .replace(/(```[a-z]*)(\S)/gi, "$1\n$2")
+
+      // Add spaces around content within double asterisks (e.g., "**Use Cases:**" -> "** Use Cases: **")
+      .replace(/\*\*(.*?)\*\*/g, "**$1** ")
+
+      // Remove trailing spaces in markdown lines to avoid rendering issues
+      .replace(/[ \t]+$/gm, "")
+  );
+}
