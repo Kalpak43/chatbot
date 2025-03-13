@@ -1,13 +1,13 @@
 import { Link, useLocation, useNavigate } from "react-router";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { v4 as uuidv4 } from "uuid";
-import { createChat } from "../features/chats/chatSlice";
+import { createChat, deleteChat } from "../features/chats/chatSlice";
+import { X } from "lucide-react";
 
 function Sidebar() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { chats } = useAppSelector((state) => state.chat);
-  const location = useLocation();
 
   const handleCreateNew = () => {
     if (chats[chats.length - 1].messages.length > 0) {
@@ -31,24 +31,7 @@ function Sidebar() {
       <div className="mt-4 flex-1 flex flex-col">
         <h4 className="text-lg font-semibold mb-2">Recents:</h4>
         <ul className="menu bg-base-100 rounded-box w-full max-h-[70vh] overflow-y-auto block">
-          {[...chats]
-            .sort((a, b) => {
-              return b.created_at - a.created_at;
-            })
-            .map((chat) => (
-              <li key={chat.id} className="w-full">
-                <Link
-                  to={`/chat/${chat.id}`}
-                  className={`block truncate hover:text-primary w-full px-4 py-2 rounded ${
-                    location.pathname === `/chat/${chat.id}`
-                      ? "bg-neutral text-primary"
-                      : ""
-                  }`}
-                >
-                  {chat.title}
-                </Link>
-              </li>
-            ))}
+          <Recents />
         </ul>
       </div>
     </nav>
@@ -56,3 +39,50 @@ function Sidebar() {
 }
 
 export default Sidebar;
+
+const Recents = () => {
+  const { chats } = useAppSelector((state) => state.chat);
+
+  return (
+    <>
+      {[...chats]
+        .sort((a, b) => {
+          return b.created_at - a.created_at;
+        })
+        .map((chat) => (
+          <li key={chat.id} className="w-full">
+            <ChatButton chat={chat} />
+          </li>
+        ))}
+    </>
+  );
+};
+
+const ChatButton = ({ chat }: { chat: ChatType }) => {
+  const dispatch = useAppDispatch();
+  const location = useLocation();
+
+  return (
+    <Link
+      to={`/chat/${chat.id}`}
+      className={`relative block truncate hover:text-primary w-full px-4 py-2 rounded ${
+        location.pathname === `/chat/${chat.id}`
+          ? "bg-neutral text-primary"
+          : ""
+      }`}
+    >
+      {chat.title}
+      <button
+        className="absolute cursor-pointer inset-y-0 right-0 mr-2 text-neutral-content hover:text-red-400"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          dispatch(deleteChat(chat.id));
+        }}
+      >
+        <X size={12} />
+      </button>
+    </Link>
+  );
+};

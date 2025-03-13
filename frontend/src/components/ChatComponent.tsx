@@ -99,6 +99,26 @@ export const ChatInput = ({
 
     setFile(audioFile);
     setStart(false);
+
+    // Send file for transcription
+    const formData = new FormData();
+    formData.append("audio", audioFile);
+
+    try {
+      const response = await fetch("http://localhost:8080/transcribe", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Transcription request failed");
+      }
+
+      const data = await response.json();
+      setInput(data.msg); // Set the transcribed text to input
+    } catch (error) {
+      console.error("Transcription error:", error);
+    }
   }
 
   const handleSend = async () => {
