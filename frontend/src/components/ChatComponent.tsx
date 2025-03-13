@@ -30,7 +30,6 @@ const ChatComponent = ({ activeChatId }: { activeChatId: string }) => {
 
   const [input, setInput] = useState("");
   const [file, setFile] = useState<File | null>(null);
-  const [start, setStart] = useState(false);
 
   const chatRef = useRef<HTMLDivElement>(null);
 
@@ -62,19 +61,6 @@ const ChatComponent = ({ activeChatId }: { activeChatId: string }) => {
     });
   };
 
-  async function handleStopRecording(recordedData: {
-    duration: number;
-    audioBlob: Blob;
-  }) {
-    const mp3Blob = await convertToMp3(recordedData.audioBlob);
-    const audioFile = new File([mp3Blob], "recording.mp3", {
-      type: "audio/mp3",
-    });
-
-    setFile(audioFile);
-    setStart(false);
-  }
-
   useEffect(() => {
     if (file) handleSend();
   }, [file]);
@@ -91,12 +77,25 @@ const ChatComponent = ({ activeChatId }: { activeChatId: string }) => {
     console.log(activeChat.messages);
   }, [activeChat]);
 
+  const handleMessageSend = async (message: MessageType) => {
+    dispatch(addMessage({ chatId: activeChatId!, message: message }));
+
+    let aiResponse = "";
+    await sendPrompt([...activeChat.messages, message], (chunk) => {
+      aiResponse += chunk;
+      dispatch(
+        addMessage({
+          chatId: activeChatId!,
+          message: { role: "ai", text: aiResponse },
+        })
+      );
+    });
+  };
+
   return (
     <div className="h-[100dvh] relative flex flex-col bg-base-100">
       {/* Chat Header */}
-      <h2 className="text-xl font-semibold p-4 sticky top-0 inset-x-0 border-b bg-base-200 shadow-md">
-        {activeChat.title}
-      </h2>
+      <ChatTitleBar activeChatId={activeChatId} />
 
       {/* Chat Messages */}
       <div className="px-4 flex-1 min-h-[200px] overflow-y-auto chat p-4 space-y-4">
@@ -239,28 +238,85 @@ const ChatComponent = ({ activeChatId }: { activeChatId: string }) => {
       </div>
 
       {/* Chat Input Section */}
-      <div className="flex items-end gap-2 sticky bottom-0 inset-x-0 p-4 border-t bg-base-200 shadow-md">
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your message..."
-          className="textarea textarea-bordered flex-1"
-          rows={1}
-        />
-        <button onClick={handleSend} className="btn btn-primary">
-          <SendHorizontal />
-        </button>
-        <AudioRecorder
-          onStart={() => setStart(true)}
-          onStop={handleStopRecording}
-        >
-          <span className="btn btn-primary">
-            {start ? <MicOff /> : <Mic />}
-          </span>
-        </AudioRecorder>
-      </div>
+      <ChatInput handleMessageSend={handleMessageSend} />
     </div>
   );
 };
 
 export default ChatComponent;
+
+export const ChatTitleBar = ({ activeChatId }: { activeChatId: string }) => {
+  const chats = useAppSelector((state) => state.chat.chats);
+  const activeChat = chats.find((c) => c.id === activeChatId) || {
+    title: "Untitled",
+    messages: [],
+  };
+
+  return (
+    <h2 className="text-xl font-semibold p-4 sticky top-0 inset-x-0 border-b bg-base-200 shadow-md">
+      {activeChat.title}
+    </h2>
+  );
+};
+
+export const ChatInput = ({
+  handleMessageSend,
+}: {
+  handleMessageSend: (message: MessageType) => Promise<void>;
+}) => {
+  const [input, setInput] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [start, setStart] = useState(false);
+
+  async function handleStopRecording(recordedData: {
+    duration: number;
+    audioBlob: Blob;
+  }) {
+    const mp3Blob = await convertToMp3(recordedData.audioBlob);
+    const audioFile = new File([mp3Blob], "recording.mp3", {
+      type: "audio/mp3",
+    });
+
+    setFile(audioFile);
+    setStart(false);
+  }
+
+  const handleSend = async () => {
+    if (!input.trim() && !file) return;
+
+    let newUserMessage: MessageType = { role: "user", text: input };
+
+    if (file) {
+      newUserMessage = {
+        ...newUserMessage,
+        file: file,
+      };
+    }
+
+    setInput("");
+    setFile(null);
+
+    await handleMessageSend(newUserMessage);
+  };
+
+  return (
+    <div className="flex items-end gap-2 sticky bottom-0 inset-x-0 p-4 border-t bg-base-200 shadow-md">
+      <textarea
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder="Type your message..."
+        className="textarea textarea-bordered flex-1"
+        rows={1}
+      />
+      <button onClick={handleSend} className="btn btn-primary">
+        <SendHorizontal />
+      </button>
+      <AudioRecorder
+        onStart={() => setStart(true)}
+        onStop={handleStopRecording}
+      >
+        <span className="btn btn-primary">{start ? <MicOff /> : <Mic />}</span>
+      </AudioRecorder>
+    </div>
+  );
+};

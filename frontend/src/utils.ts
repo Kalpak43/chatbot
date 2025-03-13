@@ -128,6 +128,11 @@ export function cleanMarkdown(markdown: string) {
       // Add spaces around content within double asterisks (e.g., "**Use Cases:**" -> "** Use Cases: **")
       .replace(/\*\*(.*?)\*\*/g, "**$1** ")
 
+      // Add space and new line around content within double and triple hashes (e.g., "##Heading" -> "\n## Heading ") and "###Heading" -> "\n### Heading ")
+      .replace(/(##+|###+)\s*([^#\s].*?)((##+)|(###+))?/g, "\n$1 $2$4")
+
+      .replace(/(?<!\*)\*(?!\*)/g, " *")
+
       // Remove trailing spaces in markdown lines to avoid rendering issues
       .replace(/[ \t]+$/gm, "")
   );
