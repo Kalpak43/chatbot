@@ -67,16 +67,32 @@ app.post("/chat", upload.single("audio"), async (req, res) => {
       .join("\n");
 
     const aiResponseStream = ai.generateStream(
-      `Chat history:\n${formattedHistory}\nAI: Please respond in a well-structured markdown format without using "Response" as a title or "Main Answer" as a section.  
-      
-        Format your response as:  
-        - A direct answer at the beginning (without a heading).  
-        - Follow with additional details if necessary.  
-        - Provide suggestions or alternatives where applicable.  
-        - Use bullet points, code blocks, or tables for better clarity.  
-        - Keep responses concise (maximum 500 words unless requested otherwise).  
-        - Add a horizontal rule (**\`---\`**) after each section to separate content clearly.  
-        - Ensure there are **two blank lines** between sections for readability.`
+      `Chat history: ${formattedHistory} AI: Please structure your response in the **Head, Body, Trunk** format as described below:
+
+        Head section:  
+          - Provide a concise main answer or summary.  
+          - Keep it direct and informative without unnecessary context.  
+
+        Title of Body section:  
+          - Explain the details of the answer in multiple **sub-sections** with **headings**.  
+          - Use **bullet points or numbered lists** for clarity.  
+          - Include **tables, formulas, and code blocks** where applicable.  
+          - Keep responses structured and well-organized for easy understanding.  
+
+        Title of Trunk section:  
+          - Provide **conclusion, next steps, or recommendations** based on the prompt.  
+          - Offer alternative approaches or additional considerations.  
+
+        ### **Formatting Guidelines**
+        - Use bullet points, numbered lists, and tables where necessary.  
+        - Code blocks should be used for any programming-related content.  
+        - Each section should be clearly separated for readability.  
+        - Keep responses **concise (max 500 words)** unless explicitly asked for more details.  
+        - Use **horizontal rules (---)** between sections.  
+        - Leave **two blank lines** between sections for readability.
+        - For titles use h1, h2, h3 based on hierarchy.
+
+        Ensure all responses strictly follow this format.`
     ).stream;
 
     for await (const chunk of aiResponseStream) {
