@@ -66,10 +66,10 @@ app.post("/chat", upload.single("audio"), async (req, res) => {
       .map(({ role, text }) => `${role === "user" ? "User" : "AI"}: ${text}`)
       .join("\n");
 
-    const aiResponseStream = ai.generateStream(
-      `Chat history: ${formattedHistory} AI: Please structure your response in the **Head, Body, Trunk** format as described below:
+    const aiResponseStream = ai.generateStream({
+      system: `You are an AI chatbot which answers any of the questions asked by user. Please structure your response in the **Head, Body, Trunk** format as described below:
 
-        Head section:  
+          
           - Provide a concise main answer or summary.  
           - Keep it direct and informative without unnecessary context.  
 
@@ -88,12 +88,15 @@ app.post("/chat", upload.single("audio"), async (req, res) => {
         - Code blocks should be used for any programming-related content.  
         - Each section should be clearly separated for readability.  
         - Keep responses **concise (max 500 words)** unless explicitly asked for more details.  
-        - Use **horizontal rules (---)** between sections.  
+        - Use **horizontal rules (---)** between sections and make sure to add a new line after each horizontal rule.  
         - Leave **two blank lines** between sections for readability.
         - For titles use h1, h2, h3 based on hierarchy.
+        - do not show head, body and trunk as literal titles of the sections.
+        - Please ensure that there no errors in the markdown syntax that you provide. Ensure that there is proper spacing between the markdown tags and the actual content so that it is easy to render.
 
-        Ensure all responses strictly follow this format.`
-    ).stream;
+        Ensure all responses strictly follow this format.`,
+      prompt: `Chat history: ${formattedHistory}`,
+    }).stream;
 
     for await (const chunk of aiResponseStream) {
       const cleanedChunk = chunk.text

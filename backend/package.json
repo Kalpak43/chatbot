@@ -22,6 +22,7 @@
     "express": "^4.21.2",
     "firebase-functions": "^6.3.2",
     "genkit": "^1.1.0",
+    "markdown-it": "^14.1.0",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1"
   }
