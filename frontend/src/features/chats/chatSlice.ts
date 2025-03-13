@@ -68,15 +68,31 @@ const chatSlice = createSlice({
     ) => {
       const { chatId, messageId, newText } = action.payload;
       const chat = state.chats.find((c) => c.id === chatId);
-
+      if (chat && chat.messages[messageId].role === "user") {
+        chat.messages[messageId].text = newText;
+      }
+    },
+    deleteMessage: (
+      state,
+      action: PayloadAction<{ chatId: string; messageId: number }>
+    ) => {
+      const { chatId, messageId } = action.payload;
+      const chat = state.chats.find((c) => c.id === chatId);
       if (chat) {
+        chat.messages = chat.messages.slice(0, messageId);
       }
     },
   },
 });
 
-export const { addMessage, createChat, setActiveChat, deleteChat } =
-  chatSlice.actions;
+export const {
+  addMessage,
+  createChat,
+  setActiveChat,
+  deleteChat,
+  editMessage,
+  deleteMessage,
+} = chatSlice.actions;
 
 // Persist configuration
 const persistConfig = { key: "chat", storage, blacklist: ["activeChatId"] };
