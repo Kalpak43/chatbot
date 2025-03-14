@@ -182,8 +182,6 @@ export const ChatArea = ({ activeChatId }: { activeChatId: string }) => {
         chatRef.current.scrollIntoView({ behavior: "smooth" });
       }
     }, 0);
-
-    console.log(activeChat.messages);
   }, [activeChat.messages]);
 
   const handleEdit = (index: number, text: string) => {
@@ -257,7 +255,6 @@ export const ChatArea = ({ activeChatId }: { activeChatId: string }) => {
                   components={{
                     code({ className, children, ...props }) {
                       const match = /language-(\w+)/.exec(className || "");
-                      console.log(className);
                       const [copied, setCopied] = useState(false);
 
                       const handleCopy = (text: string) => {

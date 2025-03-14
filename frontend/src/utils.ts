@@ -1,11 +1,14 @@
 import { Mp3Encoder } from "@breezystack/lamejs";
 import axios from "axios";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
+console.log(API_URL);
+
 export const sendPrompt = async (
   chatHistory: MessageType[],
   onMessage: (msg: string) => void
 ) => {
-  console.log(chatHistory);
   const formData = new FormData();
 
   // Append chat history as a JSON string
@@ -15,10 +18,8 @@ export const sendPrompt = async (
   if (lastMessage.file) {
     formData.append("audio", lastMessage.file);
   }
-
-  console.log(lastMessage);
-
-  const response = await fetch("http://127.0.0.1:8080/chat", {
+  
+  const response = await fetch(`${API_URL}/chat`, {
     method: "POST",
     body: formData, // No need to set `Content-Type`, `fetch` will handle it
   });
@@ -61,15 +62,11 @@ export const transcribeAudio = async (audioBlob: Blob) => {
   formData.append("audio", audioFile);
 
   try {
-    const response = await axios.post(
-      "http://localhost:8080/transcribe",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data", // Correct header for file uploads
-        },
-      }
-    );
+    const response = await axios.post(`${API_URL}/transcribe`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data", // Correct header for file uploads
+      },
+    });
 
     return response.data;
   } catch (error) {
