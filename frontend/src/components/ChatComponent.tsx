@@ -308,18 +308,20 @@ export const ChatArea = ({ activeChatId }: { activeChatId: string }) => {
                         >
                           {children}
                           {/* Copy Button */}
-                          <button
-                            onClick={() =>
-                              handleCopy(String(children).replace(/\n$/, ""))
-                            }
-                            className="absolute top-2 right-2 btn btn-xs btn-ghost"
-                          >
-                            {copied ? (
-                              <Check size={16} className="text-green-400" />
-                            ) : (
-                              <Copy size={16} />
-                            )}
-                          </button>
+                          {className && (
+                            <button
+                              onClick={() =>
+                                handleCopy(String(children).replace(/\n$/, ""))
+                              }
+                              className="absolute top-2 right-2 btn btn-xs btn-ghost"
+                            >
+                              {copied ? (
+                                <Check size={16} className="text-green-400" />
+                              ) : (
+                                <Copy size={16} />
+                              )}
+                            </button>
+                          )}
                         </code>
                       );
                     },
