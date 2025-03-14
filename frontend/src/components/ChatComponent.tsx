@@ -178,6 +178,8 @@ export const ChatArea = ({ activeChatId }: { activeChatId: string }) => {
         chatRef.current.scrollIntoView({ behavior: "smooth" });
       }
     }, 1000);
+
+    console.log(activeChat.messages);
   }, [activeChat.messages]);
 
   const handleEdit = (index: number, text: string) => {
@@ -294,8 +296,25 @@ export const ChatArea = ({ activeChatId }: { activeChatId: string }) => {
                           </SyntaxHighlighter>
                         </div>
                       ) : (
-                        <code className="bg-neutral p-1 rounded">
+                        <code
+                          className={`bg-neutral p-1 rounded inline ${
+                            className ? "inline-block w-full relative" : ""
+                          }`}
+                        >
                           {children}
+                          {/* Copy Button */}
+                          <button
+                            onClick={() =>
+                              handleCopy(String(children).replace(/\n$/, ""))
+                            }
+                            className="absolute top-2 right-2 btn btn-xs btn-ghost"
+                          >
+                            {copied ? (
+                              <Check size={16} className="text-green-400" />
+                            ) : (
+                              <Copy size={16} />
+                            )}
+                          </button>
                         </code>
                       );
                     },
@@ -342,9 +361,23 @@ export const ChatArea = ({ activeChatId }: { activeChatId: string }) => {
                     },
                     h4({ children }) {
                       return (
-                        <h4 className="text-2xl font-medium text-accent">
+                        <h4 className="text-xl font-medium  text-info">
                           {children}
                         </h4>
+                      );
+                    },
+                    h5({ children }) {
+                      return (
+                        <h5 className="text-lg font-normal text-base-content">
+                          {children}
+                        </h5>
+                      );
+                    },
+                    h6({ children }) {
+                      return (
+                        <h6 className="text-md font-light text-base-content/80">
+                          {children}
+                        </h6>
                       );
                     },
                   }}

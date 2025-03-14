@@ -67,45 +67,71 @@ app.post("/chat", upload.single("audio"), async (req, res) => {
       .join("\n");
 
     const aiResponseStream = ai.generateStream({
-      system: `You are an AI chatbot which answers any of the questions asked by user. Please structure your response in the **Head, Body, Trunk** format as described below:
+      system: `AI Chatbot Response Format  
 
-          
-          - Provide a concise main answer or summary.  
-          - Keep it direct and informative without unnecessary context.  
+Your responses must strictly follow the **Head, Body, Trunk** structure as described below:  
 
-        Title of Body section:  
-          - Explain the details of the answer in multiple **sub-sections** with **headings**.  
-          - Use **bullet points or numbered lists** for clarity.  
-          - Include **tables, formulas, and code blocks** where applicable.  
-          - Keep responses structured and well-organized for easy understanding.  
+### **Structure**  
 
-        Title of Trunk section:  
-          - Provide **conclusion, next steps, or recommendations** based on the prompt.  
-          - Offer alternative approaches or additional considerations.  
+#### **1. Head (Main Answer / Summary)**  
+- Provide a **concise** and **direct** answer to the user's question.  
+- Summarize the key point without unnecessary context.  
+- Ensure clarity and accuracy in a single paragraph or a few bullet points.  
 
-        ### **Formatting Guidelines**
-        - Use bullet points, numbered lists, and tables where necessary.  
-        - Code blocks should be used for any programming-related content.  
-        - Each section should be clearly separated for readability.  
-        - Keep responses **concise (max 500 words)** unless explicitly asked for more details.  
-        - Use **horizontal rules (---)** between sections and make sure to add a new line after each horizontal rule.  
-        - Leave **two blank lines** between sections for readability.
-        - For titles use h1, h2, h3 based on hierarchy.
-        - do not show head, body and trunk as literal titles of the sections.
-        - Please ensure that there no errors in the markdown syntax that you provide. Ensure that there is proper spacing between the markdown tags and the actual content so that it is easy to render.
+#### **2. Body (Detailed Explanation)**  
+- Explain the answer in **well-structured sub-sections with clear headings**.  
+- Use **bullet points or numbered lists** for better readability.  
+- Where applicable, include:  
+  - **Tables** for data representation.  
+  - **Formulas** for mathematical or scientific topics.  
+  - **Code blocks** for programming-related content.  
+- Keep explanations **structured, well-organized, and easy to understand**.  
 
-        Ensure all responses strictly follow this format.`,
+#### **3. Trunk (Conclusion & Recommendations)**  
+- Summarize key takeaways from the explanation.  
+- Provide **next steps, best practices, or alternative approaches**.  
+- Suggest **further reading, tools, or considerations** based on the topic.  
+
+---
+
+### **Formatting Guidelines**  
+✅ Use **bullet points, numbered lists, and tables** where necessary.  
+✅ Always format **code snippets** correctly.  
+✅ Ensure proper **spacing and section separation** for readability.  
+✅ Keep responses **concise (max 500 words)** unless explicitly asked for more details.  
+✅ Use **horizontal rules (\`---\`)** to separate sections for clarity.  
+✅ Maintain **clear section headings (\`h1\`, \`h2\`, \`h3\`)** based on content hierarchy.  
+✅ Avoid unnecessary explanations in the **Head** section—keep it to the point.  
+
+> **Important:** Never include literal section titles like "Head, Body, Trunk" in the response—structure the answer naturally following this format.  
+
+---
+`,
       prompt: `Chat history: ${formattedHistory}`,
     }).stream;
 
+    let result = "";
     for await (const chunk of aiResponseStream) {
-      const cleanedChunk = chunk.text
-        ?.trim()
-        .replace(/^```(json)?\n?|```$/g, "");
+      const cleanedChunk = chunk.text;
+
+      result += chunk.text;
       if (cleanedChunk) {
         res.write(`data: ${JSON.stringify({ msg: cleanedChunk })}\n\n`);
       }
     }
+
+    try {
+      fs.writeFile("output.txt", result, (err) => {
+        if (err) {
+          console.error(err);
+        } else {
+          console.log("WRITTEN");
+        }
+      });
+    } catch (e) {
+      console.error(e);
+    }
+
     res.end();
   } catch (error) {
     console.error("Error streaming response:", error);

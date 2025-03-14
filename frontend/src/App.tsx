@@ -3,6 +3,7 @@ import "./App.css";
 import Homepage from "./pages/Homepage";
 import Chatpage from "./pages/Chatpage";
 import Layout from "./Layout";
+import Testpage from "./pages/Testpage";
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
       <Route element={<Layout />}>
         <Route path="/" element={<Homepage />} />
         <Route path="/chat/:chatId" element={<Chatpage />} />
+        <Route path="/test" element={<Testpage />} />
       </Route>
     </Routes>
   );

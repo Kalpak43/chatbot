@@ -57,7 +57,10 @@
 }
 
 .chat h1,
-h2,
-h3 {
+.chat h2,
+.chat h3,
+.chat h4,
+.chat h5,
+.chat h6 {
   @apply leading-loose;
 }
