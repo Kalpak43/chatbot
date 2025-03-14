@@ -21,7 +21,7 @@ function Sidebar() {
   };
 
   return (
-    <nav className="w-1/5 border-r p-4 min-h-full h-[100dvh] bg-base-200 flex flex-col">
+    <nav className="max-md:hidden w-1/5 border-r p-4 min-h-full h-[100dvh] bg-base-200 flex flex-col">
       <div className="py-4">
         <h2 className="text-xl font-bold mb-4">Chat with AI</h2>
         <button className="btn btn-primary w-full" onClick={handleCreateNew}>
@@ -61,6 +61,9 @@ const Recents = () => {
 const ChatButton = ({ chat }: { chat: ChatType }) => {
   const dispatch = useAppDispatch();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const { chats } = useAppSelector((state) => state.chat);
 
   return (
     <Link
@@ -79,6 +82,8 @@ const ChatButton = ({ chat }: { chat: ChatType }) => {
           e.stopPropagation();
 
           dispatch(deleteChat(chat.id));
+
+          navigate(`/chat/${chats[chats.length - 1].id}`);
         }}
       >
         <X size={12} />

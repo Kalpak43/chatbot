@@ -73,7 +73,7 @@ export const ChatTitleBar = ({ activeChatId }: { activeChatId: string }) => {
   };
 
   return (
-    <h2 className="text-xl font-semibold p-4 sticky top-0 inset-x-0 border-b bg-base-200 shadow-md">
+    <h2 className="max-md:hidden md:text-xl font-semibold p-4 sticky top-0 inset-x-0 border-b bg-base-200 shadow-md z-50">
       {activeChat.title}
     </h2>
   );
@@ -140,23 +140,27 @@ export const ChatInput = ({
   };
 
   return (
-    <div className="flex items-end gap-2 sticky bottom-0 inset-x-0 p-4 border-t bg-base-200 shadow-md">
+    <div className="flex max-md:flex-col items-end gap-2 sticky bottom-0 inset-x-0 p-4 border-t bg-base-200 shadow-md">
       <textarea
         value={input}
         onChange={(e) => setInput(e.target.value)}
         placeholder="Type your message..."
-        className="textarea textarea-bordered flex-1"
+        className="textarea textarea-bordered flex-1 w-full"
         rows={1}
       />
-      <button onClick={handleSend} className="btn btn-primary">
-        <SendHorizontal />
-      </button>
-      <AudioRecorder
-        onStart={() => setStart(true)}
-        onStop={handleStopRecording}
-      >
-        <span className="btn btn-primary">{start ? <MicOff /> : <Mic />}</span>
-      </AudioRecorder>
+      <div className="flex gap-2 max-md:justify-between max-md:w-full">
+        <button onClick={handleSend} className="btn btn-primary max-md:order-2">
+          <SendHorizontal />
+        </button>
+        <AudioRecorder
+          onStart={() => setStart(true)}
+          onStop={handleStopRecording}
+        >
+          <span className="btn btn-primary max-md:order-1">
+            {start ? <MicOff /> : <Mic />}
+          </span>
+        </AudioRecorder>
+      </div>
     </div>
   );
 };
@@ -177,7 +181,7 @@ export const ChatArea = ({ activeChatId }: { activeChatId: string }) => {
       if (chatRef.current) {
         chatRef.current.scrollIntoView({ behavior: "smooth" });
       }
-    }, 1000);
+    }, 0);
 
     console.log(activeChat.messages);
   }, [activeChat.messages]);
@@ -253,6 +257,7 @@ export const ChatArea = ({ activeChatId }: { activeChatId: string }) => {
                   components={{
                     code({ className, children, ...props }) {
                       const match = /language-(\w+)/.exec(className || "");
+                      console.log(className);
                       const [copied, setCopied] = useState(false);
 
                       const handleCopy = (text: string) => {
