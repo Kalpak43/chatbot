@@ -2,12 +2,14 @@ import { Link, useLocation, useNavigate } from "react-router";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { v4 as uuidv4 } from "uuid";
 import { createChat, deleteChat } from "../features/chats/chatSlice";
-import { X } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import { useState } from "react";
 
 function Sidebar() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { chats } = useAppSelector((state) => state.chat);
+  const [hide, setHide] = useState(true);
 
   const handleCreateNew = () => {
     if (chats[chats.length - 1].messages.length > 0) {
@@ -21,20 +23,40 @@ function Sidebar() {
   };
 
   return (
-    <nav className="max-md:hidden w-1/5 border-r p-4 min-h-full h-[100dvh] bg-base-200 flex flex-col">
-      <div className="py-4">
-        <h2 className="text-xl font-bold mb-4">Chat with AI</h2>
-        <button className="btn btn-primary w-full" onClick={handleCreateNew}>
-          New Chat
-        </button>
-      </div>
-      <div className="mt-4 flex-1 flex flex-col">
-        <h4 className="text-lg font-semibold mb-2">Recents:</h4>
-        <ul className="menu bg-base-100 rounded-box w-full max-h-[70vh] overflow-y-auto block">
-          <Recents />
-        </ul>
-      </div>
-    </nav>
+    <>
+      <button
+        className="btn btn-soft btn-primary fixed top-0 left-0 z-40 m-2"
+        onClick={() => setHide((x) => !x)}
+      >
+        <Menu />
+      </button>
+      <nav
+        className={`relative max-md:fixed max-md:inset-y-0 max-md:left-0 z-50 w-4/5 md:w-1/5 border-r p-4 min-h-full h-[100dvh] bg-base-200 flex flex-col transition-all duration-300 ${
+          hide ? "max-md:-translate-x-full" : ""
+        }`}
+      >
+        <div className="py-4">
+          <h2 className="text-xl font-bold mb-4">Chat with AI</h2>
+          <button className="btn btn-primary w-full" onClick={handleCreateNew}>
+            New Chat
+          </button>
+        </div>
+        <div className="mt-4 flex-1 flex flex-col">
+          <h4 className="text-lg font-semibold mb-2">Recents:</h4>
+          <ul className="menu bg-base-100 rounded-box w-full max-h-[70vh] overflow-y-auto block">
+            <Recents />
+          </ul>
+        </div>
+        {!hide && (
+          <button
+            className="btn btn-circle border border-primary absolute top-0 left-full z-40 m-2"
+            onClick={() => setHide((x) => !x)}
+          >
+            <X />
+          </button>
+        )}
+      </nav>
+    </>
   );
 }
 
