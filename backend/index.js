@@ -17,7 +17,7 @@ const port = process.env.PORT || 8080;
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // Allow requests from this origin
+    origin: process.env.ALLOWED_URL, // Allow requests from this origin
   })
 );
 
@@ -110,26 +110,12 @@ Your responses must strictly follow the **Head, Body, Trunk** structure as descr
       prompt: `Chat history: ${formattedHistory}`,
     }).stream;
 
-    let result = "";
     for await (const chunk of aiResponseStream) {
       const cleanedChunk = chunk.text;
 
-      result += chunk.text;
       if (cleanedChunk) {
         res.write(`data: ${JSON.stringify({ msg: cleanedChunk })}\n\n`);
       }
-    }
-
-    try {
-      fs.writeFile("output.txt", result, (err) => {
-        if (err) {
-          console.error(err);
-        } else {
-          console.log("WRITTEN");
-        }
-      });
-    } catch (e) {
-      console.error(e);
     }
 
     res.end();
