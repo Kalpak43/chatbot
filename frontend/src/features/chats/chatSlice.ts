@@ -1,16 +1,17 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-import { getTitle } from "../../utils";
 
 type ChatState = {
   chats: ChatType[];
   activeChatId: string | null;
+  typing: boolean;
 };
 
 const initialState: ChatState = {
   chats: [],
   activeChatId: null,
+  typing: false,
 };
 
 const chatSlice = createSlice({
@@ -83,6 +84,18 @@ const chatSlice = createSlice({
         chat.messages = chat.messages.slice(0, messageId);
       }
     },
+    setTyping: (state, action: PayloadAction<boolean>) => {
+      state.typing = action.payload;
+    },
+    setTitle: (
+      state,
+      action: PayloadAction<{ title: string; chatId: string }>
+    ) => {
+      const chat = state.chats.find((c) => c.id === action.payload.chatId);
+      if (chat) {
+        chat.title = action.payload.title;
+      }
+    },
   },
 });
 
@@ -93,8 +106,14 @@ export const {
   deleteChat,
   editMessage,
   deleteMessage,
+  setTyping,
+  setTitle,
 } = chatSlice.actions;
 
 // Persist configuration
-const persistConfig = { key: "chat", storage, blacklist: ["activeChatId"] };
+const persistConfig = {
+  key: "chat",
+  storage,
+  blacklist: ["activeChatId", "typing"],
+};
 export const chatReducer = persistReducer(persistConfig, chatSlice.reducer);

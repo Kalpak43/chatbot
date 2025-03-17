@@ -12,6 +12,8 @@ import {
   addMessage,
   deleteMessage,
   editMessage,
+  setTitle,
+  setTyping,
 } from "../features/chats/chatSlice";
 import {
   Check,
@@ -33,13 +35,40 @@ const ChatComponent = ({ activeChatId }: { activeChatId: string }) => {
     title: "Untitled",
     messages: [],
   };
+  const [ended, setEnded] = useState(false);
+
+  useEffect(() => {
+    const setTitleFromChat = async () => {
+      const data = await getTitle([...activeChat.messages]);
+
+      dispatch(
+        setTitle({
+          title: data.title,
+          chatId: activeChatId,
+        })
+      );
+      setEnded(false);
+    };
+
+    if (
+      ended &&
+      (activeChat.messages.length < 3 || activeChat.messages.length % 6 === 0)
+    ) {
+      setTitleFromChat();
+    }
+  }, [ended, activeChat.messages]);
 
   const handleMessageSend = async (message: MessageType) => {
     dispatch(addMessage({ chatId: activeChatId!, message: message }));
 
+    dispatch(setTyping(true));
+
     let aiResponse = "";
     await sendPrompt([...activeChat.messages, message], (chunk) => {
       aiResponse += chunk;
+      if (!!aiResponse.trim()) {
+        dispatch(setTyping(false));
+      }
       dispatch(
         addMessage({
           chatId: activeChatId!,
@@ -48,11 +77,7 @@ const ChatComponent = ({ activeChatId }: { activeChatId: string }) => {
       );
     });
 
-    getTitle([
-      ...activeChat.messages,
-      message,
-      { role: "ai", text: aiResponse },
-    ]);
+    setEnded(true);
   };
 
   return (
@@ -174,6 +199,7 @@ export const ChatInput = ({
 export const ChatArea = ({ activeChatId }: { activeChatId: string }) => {
   const dispatch = useAppDispatch();
   const chats = useAppSelector((state) => state.chat.chats);
+  const typing = useAppSelector((state) => state.chat.typing);
   const activeChat = chats.find((c) => c.id === activeChatId) || {
     title: "Untitled",
     messages: [],
@@ -181,6 +207,10 @@ export const ChatArea = ({ activeChatId }: { activeChatId: string }) => {
   const chatRef = useRef<HTMLDivElement>(null);
   const [editingMessageId, setEditingMessageId] = useState<number | null>(null);
   const [editedText, setEditedText] = useState("");
+
+  useEffect(() => {
+    console.log("TYPING: ", typing);
+  }, [typing]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -420,6 +450,13 @@ export const ChatArea = ({ activeChatId }: { activeChatId: string }) => {
           <MessageCircleMore className="w-12 h-12 text-gray-400 mb-2" />
           <p className="text-lg font-medium text-gray-600">Start a chat</p>
           <p className="text-sm text-gray-400">Send a message to begin</p>
+        </div>
+      )}
+      {typing && (
+        <div className={`chat leading-loose relative chat-start mb-8`}>
+          <div className={`p-3`}>
+            <span className="loading loading-dots loading-md"></span>
+          </div>
         </div>
       )}
       {activeChat.messages.length > 0 && <div ref={chatRef} className="h-0" />}

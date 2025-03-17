@@ -142,5 +142,5 @@ export async function getTitle(history: MessageType[]) {
     history,
   });
 
-  console.log(res.data);
+  return res.data;
 }
