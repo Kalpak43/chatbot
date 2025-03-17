@@ -69,16 +69,16 @@ app.post("/chat", upload.single("audio"), async (req, res) => {
     const aiResponseStream = ai.generateStream({
       system: `AI Chatbot Response Format  
 
-Your responses must strictly follow the **Head, Body, Trunk** structure as described below:  
+Your responses must be contain 3 main sections:  
 
 ### **Structure**  
 
-#### **1. Head (Main Answer / Summary)**  
+#### [title for section 1]  
 - Provide a **concise** and **direct** answer to the user's question.  
 - Summarize the key point without unnecessary context.  
 - Ensure clarity and accuracy in a single paragraph or a few bullet points.  
 
-#### **2. Body (Detailed Explanation)**  
+####  [title for section 2] 
 - Explain the answer in **well-structured sub-sections with clear headings**.  
 - Use **bullet points or numbered lists** for better readability.  
 - Where applicable, include:  
@@ -87,7 +87,7 @@ Your responses must strictly follow the **Head, Body, Trunk** structure as descr
   - **Code blocks** for programming-related content.  
 - Keep explanations **structured, well-organized, and easy to understand**.  
 
-#### **3. Trunk (Conclusion & Recommendations)**  
+####  [title for section 2]   
 - Summarize key takeaways from the explanation.  
 - Provide **next steps, best practices, or alternative approaches**.  
 - Suggest **further reading, tools, or considerations** based on the topic.  
