@@ -1,7 +1,12 @@
 import speech from "@google-cloud/speech";
 import fs from "fs";
+import env from "dotenv";
 
-const client = new speech.SpeechClient();
+env.config();
+
+const client = new speech.SpeechClient({
+  credentials: JSON.parse(process.env.GOOGLE_CLOUD_CREDENTIALS),
+});
 
 export async function transcribeAudio(filePath) {
   const file = fs.readFileSync(filePath);
