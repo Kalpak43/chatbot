@@ -29,6 +29,8 @@ import {
 
 import "../styles/chatStyles.css";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const ChatComponent = ({ activeChatId }: { activeChatId: string }) => {
   const dispatch = useAppDispatch();
   const chats = useAppSelector((state) => state.chat.chats);
@@ -139,7 +141,7 @@ export const ChatInput = ({
     formData.append("audio", audioFile);
 
     try {
-      const response = await fetch("http://localhost:8080/transcribe", {
+      const response = await fetch(`${API_URL}/transcribe`, {
         method: "POST",
         body: formData,
       });
