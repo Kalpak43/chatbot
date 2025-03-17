@@ -18,6 +18,7 @@ import {
 import {
   Check,
   Copy,
+  Loader2,
   MessageCircleMore,
   Mic,
   MicOff,
@@ -118,6 +119,7 @@ export const ChatInput = ({
   const [input, setInput] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [start, setStart] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   async function handleStopRecording(recordedData: {
     duration: number;
@@ -131,6 +133,7 @@ export const ChatInput = ({
     setFile(audioFile);
     setStart(false);
 
+    setLoading(true);
     // Send file for transcription
     const formData = new FormData();
     formData.append("audio", audioFile);
@@ -150,6 +153,8 @@ export const ChatInput = ({
     } catch (error) {
       console.error("Transcription error:", error);
     }
+
+    setLoading(false);
   }
 
   const handleSend = async () => {
@@ -187,6 +192,7 @@ export const ChatInput = ({
         placeholder="Type your message..."
         className="textarea textarea-bordered flex-1 w-full"
         rows={1}
+        disabled={loading}
       />
       <div className="flex gap-2 max-md:justify-between max-md:w-full">
         <button className="btn btn-primary max-md:order-2">
@@ -197,7 +203,13 @@ export const ChatInput = ({
           onStop={handleStopRecording}
         >
           <span className="btn btn-primary max-md:order-1">
-            {start ? <MicOff /> : <Mic />}
+            {loading ? (
+              <Loader2 className="animate-spin" />
+            ) : start ? (
+              <MicOff />
+            ) : (
+              <Mic />
+            )}
           </span>
         </AudioRecorder>
       </div>
