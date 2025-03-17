@@ -43,7 +43,7 @@ function Sidebar() {
         </div>
         <div className="mt-4 flex-1 flex flex-col">
           <h4 className="text-lg font-semibold mb-2">Recents:</h4>
-          <ul className="menu bg-base-100 rounded-box w-full max-h-[70vh] overflow-y-auto block">
+          <ul className="menu bg-base-100 rounded-box w-full h-full max-h-[70vh] overflow-y-auto block">
             <Recents />
           </ul>
         </div>
@@ -64,6 +64,14 @@ export default Sidebar;
 
 const Recents = () => {
   const { chats } = useAppSelector((state) => state.chat);
+
+  if (chats.length === 0) {
+    return (
+      <div className="flex items-center justify-center w-full h-full">
+        No chats Found
+      </div>
+    );
+  }
 
   return (
     <>
@@ -105,7 +113,13 @@ const ChatButton = ({ chat }: { chat: ChatType }) => {
 
           dispatch(deleteChat(chat.id));
 
-          navigate(`/chat/${chats[chats.length - 1].id}`);
+          if (chats.length > 1) {
+            navigate(`/chat/${chats[chats.length - 2].id}`);
+          } else {
+            const id = uuidv4();
+            dispatch(createChat(id));
+            navigate(`/chat/${id}`);
+          }
         }}
       >
         <X size={12} />
