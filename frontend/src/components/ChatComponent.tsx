@@ -171,16 +171,25 @@ export const ChatInput = ({
   };
 
   return (
-    <div className="flex max-md:flex-col items-end gap-2 sticky bottom-0 inset-x-0 p-4 border-t bg-base-200 shadow-md">
+    <form
+      onSubmit={handleSend}
+      className="flex max-md:flex-col items-end gap-2 sticky bottom-0 inset-x-0 p-4 border-t bg-base-200 shadow-md"
+    >
       <textarea
         value={input}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault(); // Prevent new line
+            handleSend(); // Submit the form
+          }
+        }}
         onChange={(e) => setInput(e.target.value)}
         placeholder="Type your message..."
         className="textarea textarea-bordered flex-1 w-full"
         rows={1}
       />
       <div className="flex gap-2 max-md:justify-between max-md:w-full">
-        <button onClick={handleSend} className="btn btn-primary max-md:order-2">
+        <button className="btn btn-primary max-md:order-2">
           <SendHorizontal />
         </button>
         <AudioRecorder
@@ -192,7 +201,7 @@ export const ChatInput = ({
           </span>
         </AudioRecorder>
       </div>
-    </div>
+    </form>
   );
 };
 

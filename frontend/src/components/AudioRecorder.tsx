@@ -185,6 +185,7 @@ function AudioRecorder({
     <button
       className={`cursor-pointer ${className}`}
       onClick={isRecording ? stopRecording : startRecording}
+      type="button"
     >
       {children}
     </button>
