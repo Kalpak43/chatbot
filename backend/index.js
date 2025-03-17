@@ -126,6 +126,18 @@ Your responses must strictly follow the **Head, Body, Trunk** structure as descr
   }
 });
 
+app.post("/generate-title", async (req, res) => {
+  const { history } = req.body;
+  const r = await ai.generate({
+    system: `You are given chat history, you are tasked to generate a title for the chat based on the discussion in chat. The title should be 5-15 words in length.`,
+    prompt: `Chat history: ${JSON.parse(history)}`,
+  });
+
+  console.log(history);
+
+  console.log(r.text);
+});
+
 app.post("/transcribe", upload.single("audio"), async (req, res) => {
   let transcript = "";
 

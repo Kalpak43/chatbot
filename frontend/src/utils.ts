@@ -18,7 +18,7 @@ export const sendPrompt = async (
   if (lastMessage.file) {
     formData.append("audio", lastMessage.file);
   }
-  
+
   const response = await fetch(`${API_URL}/chat`, {
     method: "POST",
     body: formData, // No need to set `Content-Type`, `fetch` will handle it
@@ -135,4 +135,12 @@ export function cleanMarkdown(markdown: string) {
 
   // // Remove trailing spaces in markdown lines to avoid rendering issues
   // .replace(/[ \t]+$/gm, "")
+}
+
+export async function getTitle(history: MessageType[]) {
+  const res = await axios.post(`${API_URL}/generate-title`, {
+    history,
+  });
+
+  console.log(res.data);
 }

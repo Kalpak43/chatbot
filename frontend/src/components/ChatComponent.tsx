@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { cleanMarkdown, convertToMp3, sendPrompt } from "../utils";
+import { cleanMarkdown, convertToMp3, getTitle, sendPrompt } from "../utils";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 
@@ -47,6 +47,12 @@ const ChatComponent = ({ activeChatId }: { activeChatId: string }) => {
         })
       );
     });
+
+    getTitle([
+      ...activeChat.messages,
+      message,
+      { role: "ai", text: aiResponse },
+    ]);
   };
 
   return (
