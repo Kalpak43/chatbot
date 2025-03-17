@@ -179,7 +179,10 @@ export const ChatInput = ({
 
   return (
     <form
-      onSubmit={handleSend}
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSend();
+      }}
       className="flex max-md:flex-col items-end gap-2 sticky bottom-0 inset-x-0 p-4 border-t bg-base-200 shadow-md"
     >
       <textarea
