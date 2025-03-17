@@ -226,6 +226,10 @@ export const ChatArea = ({ activeChatId }: { activeChatId: string }) => {
   };
 
   const handleSaveEdit = async (chatId: string, messageId: number) => {
+    if (editedText.trim() == activeChat.messages[messageId].text.trim()) {
+      setEditingMessageId(null);
+      return;
+    }
     dispatch(editMessage({ chatId, messageId, newText: editedText }));
     dispatch(deleteMessage({ chatId, messageId: messageId + 1 }));
     setEditingMessageId(null);
@@ -275,14 +279,24 @@ export const ChatArea = ({ activeChatId }: { activeChatId: string }) => {
                     value={editedText}
                     onChange={(e) => setEditedText(e.target.value)}
                     className="input input-bordered w-full text-neutral-content min-w-lg"
-                    rows={2}
+                    rows={4}
                   />
-                  <button
-                    onClick={() => handleSaveEdit(activeChatId, index)}
-                    className="btn btn-primary btn-xs mt-2"
-                  >
-                    Save
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleSaveEdit(activeChatId, index)}
+                      className="btn  btn-outline btn-xs mt-2"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => {
+                        setEditingMessageId(null);
+                      }}
+                      className="btn  btn-outline btn-xs mt-2"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <ReactMarkdown
