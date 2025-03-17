@@ -240,11 +240,14 @@ export const ChatArea = ({ activeChatId }: { activeChatId: string }) => {
       text: editedText,
     };
 
-    console.log(updatedChatHistory);
-
     let aiResponse = "";
+    dispatch(setTyping(true));
+
     await sendPrompt([...updatedChatHistory, newEditedUserMessage], (chunk) => {
       aiResponse += chunk;
+      if (!!aiResponse.trim()) {
+        dispatch(setTyping(false));
+      }
       dispatch(
         addMessage({
           chatId: chatId!,
