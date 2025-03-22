@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@plugin "daisyui" {
+  themes: light --default, dark --prefersdark, sunset;
+}
+
+/* body {
+  background-color: #030303;
+  color: #f7f7f7;
+} */

@@ -1,0 +1,23 @@
+{
+  "name": "ai-chatbot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "install-client": "npm install --prefix frontend",
+    "install-server": "npm install --prefix backend",
+    "install": "npm run install-client && npm run install-server",
+    "server": "npm run dev --prefix backend",
+    "client": "npm run dev --prefix frontend",
+    "deploy": "npm run build --prefix frontend && npm run watch --prefix backend",
+    "watch": "npm run backend & npm run frontend",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "/mnt/g/Dev/qloron_internship/ai-chatbot"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
