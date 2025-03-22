@@ -5,6 +5,7 @@ import { createChat, deleteChat } from "../features/chats/chatSlice";
 import { Loader2, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { signout } from "../features/auth/authThunk";
+import { useToast } from "../hooks/useToast";
 
 function Sidebar() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ function Sidebar() {
   const { chats } = useAppSelector((state) => state.chat);
   const { user, loading } = useAppSelector((state) => state.auth);
   const [hide, setHide] = useState(true);
+  const { showToast } = useToast();
 
   const handleCreateNew = () => {
     if (chats[chats.length - 1].messages.length > 0) {
@@ -52,14 +54,15 @@ function Sidebar() {
         <div className="mt-4">
           {user ? (
             <div className="flex items-center gap-2">
-              <img
-                src={user.profilePicture || ""}
-                alt=""
-                className="w-8 h-8 block aspect-square rounded-full border"
-              />
+              <div className="avatar">
+                <div className="ring-primary ring-offset-base-100 w-8 rounded-full ring ring-offset-2">
+                  <img src={user.profilePicture || "/default.webp"} />
+                </div>
+              </div>
               <button
-                onClick={() => {
-                  dispatch(signout());
+                onClick={async () => {
+                  await dispatch(signout());
+                  showToast("Signed out successfully", "success");
                 }}
                 className="flex-1 btn btn-outline btn-error"
                 disabled={loading}

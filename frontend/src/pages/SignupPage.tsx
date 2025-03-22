@@ -1,6 +1,9 @@
 import { useState, ChangeEvent, FormEvent } from "react";
-import { useAppDispatch } from "../app/hooks";
+import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { signup } from "../features/auth/authThunk";
+import { Loader2 } from "lucide-react";
+import { useNavigate } from "react-router";
+import { useToast } from "../hooks/useToast";
 
 type FormData = {
   email: string;
@@ -10,6 +13,9 @@ type FormData = {
 
 function SignupPage() {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const { showToast } = useToast();
+  const { loading } = useAppSelector((state) => state.auth);
   const [formData, setFormData] = useState<FormData>({
     email: "",
     password: "",
@@ -35,8 +41,8 @@ function SignupPage() {
       })
     );
 
-    alert("Signup Successful!");
-    console.log("Form Data: ", formData);
+    showToast("Signed up Successfully", "success");
+    navigate("/login");
   };
 
   return (
@@ -90,7 +96,7 @@ function SignupPage() {
           </div>
 
           <button type="submit" className="btn btn-primary w-full mt-2">
-            Sign Up
+            {loading ? <Loader2 className="animate-spin" /> : "Sign up"}
           </button>
         </form>
       </div>

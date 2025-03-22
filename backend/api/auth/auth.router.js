@@ -19,15 +19,15 @@ router.post("/register", register);
 router.post("/signin", (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     if (err) {
-      return res.status(500).json({ error: "Internal server error" });
+      return res.status(500).json({ message: "Internal server error" });
     }
     if (!user) {
       // Sending the custom error message from `verifyToken`
-      return res.status(401).json({ error: info.message });
+      return res.status(401).json({ message: info.message });
     }
     req.logIn(user, (err) => {
       if (err) {
-        return res.status(500).json({ error: "Failed to log in" });
+        return res.status(500).json({ message: "Failed to log in" });
       }
       return res.json({ message: "Login successful", user });
     });
