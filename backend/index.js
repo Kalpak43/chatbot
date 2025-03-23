@@ -17,6 +17,8 @@ const {
   checkLoggedin,
 } = require("./middlewares/auth/auth.middleware");
 
+const chatRoutes = require("./api/chat/chat.router");
+
 const cors = require("cors");
 
 app.use(
@@ -47,6 +49,7 @@ app.get("/success", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/chat", chatRoutes);
 
 app.use(express.static(path.join(__dirname, "public")));
 
