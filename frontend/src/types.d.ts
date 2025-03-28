@@ -1,14 +1,21 @@
+type Status = "done" | "pending" | "failed" | "typing";
+
 interface MessageType {
+  id: string;
   role: "user" | "ai";
   text: string;
-  file?: File;
+  chatId: string;
+  status: Status;
+  created_at: number;
+  updated_at: number;
 }
 
 interface ChatType {
   id: string;
   title: string;
-  messages: MessageType[];
   created_at: number;
+  last_message_at: number;
+  status: Status;
 }
 
 interface User {

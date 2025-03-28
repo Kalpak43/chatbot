@@ -1,29 +1,31 @@
 import { Link, useLocation, useNavigate } from "react-router";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { v4 as uuidv4 } from "uuid";
-import { createChat, deleteChat } from "../features/chats/chatSlice";
+// import { createChat, deleteChat } from "../features/chats/chatSlice";
 import { Loader2, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { signout } from "../features/auth/authThunk";
 import { useToast } from "../hooks/useToast";
+import { deleteChatAndMessages, getChats } from "../features/chats/chatThunk";
 
 function Sidebar() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { chats } = useAppSelector((state) => state.chat);
   const { user, loading } = useAppSelector((state) => state.auth);
   const [hide, setHide] = useState(true);
   const { showToast } = useToast();
 
   const handleCreateNew = () => {
-    if (chats[chats.length - 1].messages.length > 0) {
-      const id = uuidv4();
-      dispatch(createChat(id));
-      navigate(`/chat/${id}`);
-    } else {
-      const { id } = chats[chats.length - 1];
-      navigate(`/chat/${id}`);
-    }
+    // if (chats[chats.length - 1].messages.length > 0) {
+    //   const id = uuidv4();
+    //   dispatch(createChat(id));
+    //   navigate(`/chat/${id}`);
+    // } else {
+    //   const { id } = chats[chats.length - 1];
+    //   navigate(`/chat/${id}`);
+    // }
+
+    navigate("/chat");
   };
 
   return (
@@ -35,27 +37,29 @@ function Sidebar() {
         <Menu />
       </button>
       <nav
-        className={`relative max-md:fixed max-md:inset-y-0 max-md:left-0 z-50 w-4/5 md:w-1/5 border-r p-4 min-h-full h-[100dvh] bg-base-200 flex flex-col transition-all duration-300 ${
+        className={`relative max-md:fixed max-md:inset-y-0 max-md:left-0 z-50 w-4/5 md:w-1/6 border-r p-4 min-h-full h-[100dvh] bg-base-200 flex flex-col transition-all duration-300 ${
           hide ? "max-md:-translate-x-full" : ""
         }`}
       >
         <div className="py-4">
           <h2 className="text-xl font-bold mb-4">Chat with AI</h2>
-          <button className="btn btn-primary w-full" onClick={handleCreateNew}>
+          <button
+            className="btn btn-sm btn-primary w-full"
+            onClick={handleCreateNew}
+          >
             New Chat
           </button>
         </div>
         <div className="mt-4 flex-1 flex flex-col">
           <h4 className="text-lg font-semibold mb-2">Recents:</h4>
-          <ul className="menu bg-base-100 rounded-box w-full h-full max-h-[70vh] overflow-y-auto block">
-            <Recents />
-          </ul>
+
+          <Recents />
         </div>
         <div className="mt-4">
           {user ? (
             <div className="flex items-center gap-2">
               <div className="avatar">
-                <div className="ring-primary ring-offset-base-100 w-8 rounded-full ring ring-offset-2">
+                <div className="ring-primary ring-offset-base-100 w-6 rounded-full ring ring-offset-2">
                   <img src={user.profilePicture || "/default.webp"} />
                 </div>
               </div>
@@ -64,7 +68,7 @@ function Sidebar() {
                   await dispatch(signout());
                   showToast("Signed out successfully", "success");
                 }}
-                className="flex-1 btn btn-outline btn-error"
+                className="flex-1 btn btn-outline btn-error  btn-sm"
                 disabled={loading}
               >
                 {loading ? <Loader2 className="animate-spin" /> : "Sign out"}
@@ -93,7 +97,14 @@ function Sidebar() {
 export default Sidebar;
 
 const Recents = () => {
-  const { chats } = useAppSelector((state) => state.chat);
+  const dispatch = useAppDispatch();
+  const chats = useAppSelector((state) => state.chat.chats);
+
+  useEffect(() => {
+    dispatch(getChats());
+  }, [dispatch]);
+
+  console.log(chats);
 
   if (chats.length === 0) {
     return (
@@ -104,7 +115,7 @@ const Recents = () => {
   }
 
   return (
-    <>
+    <ul className="menu bg-base-100 rounded-box w-full h-full max-h-[70vh] overflow-y-auto block text-xs">
       {[...chats]
         .sort((a, b) => {
           return b.created_at - a.created_at;
@@ -114,7 +125,7 @@ const Recents = () => {
             <ChatButton chat={chat} />
           </li>
         ))}
-    </>
+    </ul>
   );
 };
 
@@ -123,33 +134,27 @@ const ChatButton = ({ chat }: { chat: ChatType }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { chats } = useAppSelector((state) => state.chat);
-
   return (
     <Link
       to={`/chat/${chat.id}`}
-      className={`relative block truncate hover:text-primary w-full px-4 py-2 rounded ${
+      className={`relative block truncate hover:text-primary w-full px-4 py-2 rounded-lg ${
         location.pathname === `/chat/${chat.id}`
           ? "bg-neutral text-primary"
           : ""
       }`}
     >
-      {chat.title}
+      {!!chat.title.trim() ? chat.title : "New Chat"}
       <button
         className="absolute cursor-pointer inset-y-0 right-0 mr-2 text-neutral-content hover:text-red-400"
-        onClick={(e) => {
+        onClick={async (e) => {
           e.preventDefault();
           e.stopPropagation();
 
-          dispatch(deleteChat(chat.id));
-
-          if (chats.length > 1) {
-            navigate(`/chat/${chats[chats.length - 2].id}`);
-          } else {
-            const id = uuidv4();
-            dispatch(createChat(id));
-            navigate(`/chat/${id}`);
-          }
+          await dispatch(
+            deleteChatAndMessages({
+              chatId: chat.id,
+            })
+          );
         }}
       >
         <X size={12} />

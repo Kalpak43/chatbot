@@ -3,52 +3,77 @@ import axios from "axios";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-console.log(API_URL);
-
-export const sendPrompt = async (
-  chatHistory: MessageType[],
-  onMessage: (msg: string) => void
-) => {
-  const formData = new FormData();
-
-  // Append chat history as a JSON string
-  formData.append("history", JSON.stringify(chatHistory));
-
-  const lastMessage = chatHistory[chatHistory.length - 1];
-  if (lastMessage.file) {
-    formData.append("audio", lastMessage.file);
-  }
-
-  const response = await fetch(`${API_URL}/chat`, {
-    method: "POST",
-    body: formData, // No need to set `Content-Type`, `fetch` will handle it
-  });
-
-  if (!response.ok) {
-    console.error("Error:", response.statusText);
-    return;
-  }
-
-  const reader = response.body?.getReader();
-  const decoder = new TextDecoder();
-
-  if (!reader) return;
-
+export const sendPrompt = async ({
+  chatHistory,
+  onMessage,
+  onStart,
+  onEnd,
+  onError,
+  uid,
+  id,
+}: {
+  chatHistory: {
+    text: string;
+    role: "user" | "ai";
+  }[];
+  onMessage: (msg: string) => Promise<void>;
+  onStart: () => Promise<void>;
+  onEnd: () => Promise<void>;
+  onError: (error: unknown) => void;
+  uid?: string;
+  id?: string;
+}) => {
   try {
+    const response = await fetch(`${API_URL}/api/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        history: chatHistory,
+        uid,
+        id,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error("Error:", response.statusText);
+      onError(response.statusText);
+      return;
+    }
+
+    const reader = response.body?.getReader();
+    const decoder = new TextDecoder();
+
+    if (!reader) {
+      console.error("Response body reader is null");
+      onError("Response body reader is null");
+      return;
+    }
+
+    await onStart();
+
     while (true) {
       const { done, value } = await reader.read();
-      if (done) break;
+      if (done) {
+        break;
+      }
 
       const chunk = decoder.decode(value, { stream: true });
-      chunk.split("\n").forEach((line) => {
+      chunk.split("\n").forEach(async (line) => {
         if (line.startsWith("data: ")) {
-          const parsedData = JSON.parse(line.replace("data: ", ""));
-          onMessage(parsedData.msg);
+          try {
+            const parsedData = JSON.parse(line.replace("data: ", ""));
+            await onMessage(parsedData.msg);
+          } catch (parseError) {
+            console.error("Error parsing JSON:", parseError);
+            onError(parseError);
+          }
         }
       });
     }
+    await onEnd();
   } catch (error) {
     console.error("Streaming error:", error);
+    onError(error);
   }
 };
 
@@ -105,16 +130,14 @@ export const convertToMp3 = async (blob: Blob) => {
 };
 
 export function cleanMarkdown(markdown: string) {
-  return (
-    markdown
-      // Ensure there's a space after markdown headers (e.g., `##Heading` -> `## Heading`)
-      .replace(/^(#{1,3})([^\s#])/gm, "$1 $2")
-      .replace(/^```|```$/g, "")
-  );
+  return markdown;
+  // Ensure there's a space after markdown headers (e.g., `##Heading` -> `## Heading`)
+  // .replace(/^(#{1,3})([^\s#])/gm, "$1 $2")
+  // .replace(/^```|```$/g, "")
 }
 
 export async function getTitle(history: MessageType[]) {
-  const res = await axios.post(`${API_URL}/generate-title`, {
+  const res = await axios.post(`${API_URL}/api/chat/generate-title`, {
     history,
   });
 
