@@ -5,16 +5,20 @@ import {
   addNewMessage,
   appendMessageContent,
   createNewChat,
+  deleteMessage,
   fetchMessages,
   updateChatStatus,
+  updateMessageContent,
   updateMessageStatus,
 } from "../features/chats/chatThunk";
 import { sendPrompt } from "../utils";
-import { SendHorizontal } from "lucide-react";
+import { Pen, SendHorizonal, SendHorizontal, Trash2, X } from "lucide-react";
 import { resetMessages } from "../features/chats/chatSlice";
 import { liveQuery } from "dexie";
 import db from "../db";
 import { store } from "../app/store";
+import { AIBubble } from "../pages/Homepage";
+import VoiceToText from "./VoiceInput";
 
 export const ChatInput = () => {
   const { chatId } = useParams();
@@ -24,73 +28,78 @@ export const ChatInput = () => {
 
   const [input, setInput] = useState("");
 
-  const handleSend = useCallback(async () => {
-    if (!input.trim()) return;
+  const handleSend = useCallback(
+    async (message: string) => {
+      if (!message.trim()) return;
 
-    let id = chatId;
-    // if id is not given in the url then create new chat
-    if (!id) {
-      const newChat = await dispatch(createNewChat());
+      setInput("");
 
-      if ((newChat.payload as ChatType)?.id) {
-        id = (newChat.payload as ChatType).id;
-      } else {
-        return;
+      let id = chatId;
+      // if id is not given in the url then create new chat
+      if (!id) {
+        const newChat = await dispatch(createNewChat());
+
+        if ((newChat.payload as ChatType)?.id) {
+          id = (newChat.payload as ChatType).id;
+        } else {
+          return;
+        }
       }
-    }
 
-    // add new user message
-    await dispatch(
-      addNewMessage({
-        chatId: id,
-        role: "user",
-        text: input,
-        status: "done",
-      })
-    );
+      // add new user message
+      await dispatch(
+        addNewMessage({
+          chatId: id,
+          role: "user",
+          text: message,
+          status: "done",
+        })
+      );
 
-    if (!chatId) navigate(`/chat/${id}`);
+      if (!chatId) navigate(`/chat/${id}`);
 
-    // will be completed by `sendPrompt`
-    const responseId = await dispatch(
-      addNewMessage({
-        chatId: id,
-        role: "ai",
-        text: "",
-        status: "typing",
-      })
-    ).then((action) => action.payload as string);
+      // will be completed by `sendPrompt`
+      const responseId = await dispatch(
+        addNewMessage({
+          chatId: id,
+          role: "ai",
+          text: "",
+          status: "typing",
+        })
+      ).then((action) => action.payload as string);
 
-    await sendPrompt({
-      chatHistory: [...activeMessages, { role: "user", text: input }],
-      onMessage: async (msg) => {
-        await dispatch(
-          appendMessageContent({ messageId: responseId, text: msg })
-        );
-      },
-      onStart: async () => {
-        await dispatch(
-          updateMessageStatus({ messageId: responseId, status: "pending" })
-        );
-        await dispatch(updateChatStatus({ chatId: id, status: "pending" }));
-      },
-      onEnd: async () => {
-        await dispatch(
-          updateMessageStatus({ messageId: responseId, status: "done" })
-        );
-        await dispatch(updateChatStatus({ chatId: id, status: "done" }));
-      },
-      onError: (error) => {
-        console.error("Error sending prompt:", error);
-      },
-    });
-  }, [chatId, input, navigate, activeMessages]);
+      await sendPrompt({
+        chatHistory: [...activeMessages, { role: "user", text: message }],
+        onMessage: async (msg) => {
+          await dispatch(
+            appendMessageContent({ messageId: responseId, text: msg })
+          );
+        },
+        onStart: async () => {
+          await dispatch(
+            updateMessageStatus({ messageId: responseId, status: "pending" })
+          );
+          await dispatch(updateChatStatus({ chatId: id, status: "pending" }));
+        },
+        onEnd: async () => {
+          await dispatch(
+            updateMessageStatus({ messageId: responseId, status: "done" })
+          );
+          await dispatch(updateChatStatus({ chatId: id, status: "done" }));
+        },
+        onError: (error) => {
+          console.error("Error sending prompt:", error);
+        },
+      });
+    },
+    [chatId, input, navigate, activeMessages]
+  );
 
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        handleSend();
+        handleSend(input);
       }}
       className="flex max-md:flex-col items-end gap-2 p-4 border border-neutral bg-base-200 shadow-md max-w-3xl mx-auto absolute bottom-0 inset-x-0 rounded-t-xl"
     >
@@ -99,12 +108,12 @@ export const ChatInput = () => {
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault(); // Prevent new line
-            handleSend(); // Submit the form
+            handleSend(input); // Submit the form
           }
         }}
         onChange={(e) => setInput(e.target.value)}
         placeholder="Type your message..."
-        className="textarea textarea-bordered flex-1 w-full"
+        className="textarea textarea-bordered flex-1 w-full  resize-none"
         rows={1}
         // disabled={loading}
       />
@@ -113,20 +122,11 @@ export const ChatInput = () => {
         <button className="btn btn-primary btn-sm max-md:order-2">
           <SendHorizontal size={20} />
         </button>
-        {/* <AudioRecorder
-          onStart={() => setStart(true)}
-          onStop={handleStopRecording}
-        >
-          <span className="btn btn-primary max-md:order-1">
-            {loading ? (
-              <Loader2 className="animate-spin" />
-            ) : start ? (
-              <MicOff />
-            ) : (
-              <Mic />
-            )}
-          </span>
-        </AudioRecorder> */}
+        <VoiceToText
+          onVoice={(x) => {
+            setInput((prev) => prev + x);
+          }}
+        />
       </div>
     </form>
   );
@@ -166,27 +166,90 @@ export const ChatArea = () => {
     };
   }, [chatId]);
 
+  const handleEditMessage = async (message: MessageType, content: string) => {
+    if (!chatId) return;
+
+    await dispatch(
+      updateMessageContent({
+        chatId: chatId,
+        message: message,
+        updatedContent: content,
+      })
+    );
+
+    const newMessages = activeMessages.filter(
+      (m) => m.created_at < message.created_at
+    );
+
+    // will be completed by `sendPrompt`
+    const responseId = await dispatch(
+      addNewMessage({
+        chatId: chatId,
+        role: "ai",
+        text: "",
+        status: "typing",
+      })
+    ).then((action) => action.payload as string);
+
+    await sendPrompt({
+      chatHistory: [
+        ...newMessages,
+        {
+          ...message,
+          text: content,
+        } as MessageType,
+      ],
+      onMessage: async (msg) => {
+        await dispatch(
+          appendMessageContent({ messageId: responseId, text: msg })
+        );
+      },
+      onStart: async () => {
+        await dispatch(
+          updateMessageStatus({ messageId: responseId, status: "pending" })
+        );
+        await dispatch(updateChatStatus({ chatId: chatId, status: "pending" }));
+      },
+      onEnd: async () => {
+        await dispatch(
+          updateMessageStatus({ messageId: responseId, status: "done" })
+        );
+        await dispatch(updateChatStatus({ chatId: chatId, status: "done" }));
+      },
+      onError: (error) => {
+        console.error("Error sending prompt:", error);
+      },
+    });
+  };
+
+  const handleDeleteMessge = async (message: MessageType) => {
+    if (!chatId) return;
+
+    await dispatch(
+      deleteMessage({
+        chatId,
+        message,
+      })
+    );
+  };
+
   return (
     <section className="p-4 pb-40 h-full overflow-y-auto">
-      <div className=" max-w-3xl mx-auto">
+      <div className=" max-w-3xl mx-auto space-y-8">
         {activeMessages.map((message) =>
           message.status === "typing" ? (
             <span className="loading loading-dots loading-xl"></span>
           ) : (
             {
-              user: <></>,
-              ai: <></>,
+              user: (
+                <UserBubble
+                  msg={message}
+                  onEdit={handleEditMessage}
+                  onDelete={handleDeleteMessge}
+                />
+              ),
+              ai: <AIBubble msg={message.text} />,
             }[message.role]
-            // <>
-
-            //   {message.role === "user" ? (
-            //     <></>
-            //   ) : (
-            //     <></>
-            //     // <UserBubble key={message.id} msg={message.text} />
-            //     // <AIBubble key={message.id} msg={message.text} />
-            //   )}
-            // </>
           )
         )}
       </div>
@@ -194,14 +257,62 @@ export const ChatArea = () => {
   );
 };
 
-export function UserBubble({ msg }: { msg: MessageType }) {
-
-  
+export function UserBubble({
+  msg,
+  onEdit,
+  onDelete,
+}: {
+  msg: MessageType;
+  onEdit: (message: MessageType, content: string) => Promise<void>;
+  onDelete: (message: MessageType) => Promise<void>;
+}) {
+  const [content, setContent] = useState(msg.text);
+  const [editing, setEditing] = useState(false);
 
   return (
-    <div className="chat chat-end">
-      <div className="chat-bubble chat-bubble-primary  text-white">
-        {msg.text}
+    <div className="chat chat-end relative">
+      <div className="chat-bubble chat-bubble-primary font-[600]">
+        {editing ? (
+          <div className="sm:min-w-xs">
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Type your message..."
+              className="textarea textarea-bordered flex-1 w-full text-neutral-content [vertical-align:unset] resize-none"
+              rows={1}
+            />
+          </div>
+        ) : (
+          content
+        )}
+      </div>
+      <div className="absolute top-full flex gap-2 items-center">
+        {editing && (
+          <button
+            className="btn btn-xs btn-soft btn-success  btn-square"
+            onClick={async () => {
+              setEditing((x) => !x);
+              await onEdit(msg, content);
+            }}
+          >
+            <SendHorizonal size={12} />
+          </button>
+        )}
+        <button
+          className="btn btn-xs btn-soft btn-info  btn-square"
+          onClick={() => {
+            editing && setContent(msg.text);
+            setEditing((x) => !x);
+          }}
+        >
+          {editing ? <X size={12} /> : <Pen size={12} />}
+        </button>
+        <button
+          className="btn btn-xs btn-soft btn-error  btn-square"
+          onClick={() => onDelete(msg)}
+        >
+          <Trash2 size={12} />
+        </button>
       </div>
     </div>
   );

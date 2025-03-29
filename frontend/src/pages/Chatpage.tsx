@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import db from "../db";
 import { getTitle } from "../utils";
 import { updateChatTitle } from "../features/chats/chatThunk";
-import { ChatInput } from "../components/ChatComponent";
+import { ChatArea, ChatInput } from "../components/ChatComponent";
 
 function Chatpage() {
   const { chatId } = useParams();
@@ -40,6 +40,7 @@ function Chatpage() {
   return (
     <div className="relative h-full">
       {/* <ChatComponent activeChatId={chatId!} /> */}
+      <ChatArea />
       <ChatInput />
     </div>
   );

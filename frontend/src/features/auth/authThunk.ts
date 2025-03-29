@@ -80,12 +80,11 @@ export const checkLogin = createAsyncThunk(
       const res = await axios.get(`${API_URL}/api/auth/check`, {
         withCredentials: true,
       });
-      console.log(res);
 
       if (res.status !== 200) {
         return thunkAPI.rejectWithValue(res.data.message);
       }
-      
+
       return res.data;
     } catch (e) {
       if (axios.isAxiosError(e)) {

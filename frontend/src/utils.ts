@@ -24,6 +24,7 @@ export const sendPrompt = async ({
   id?: string;
 }) => {
   try {
+    let lock = 0;
     const response = await fetch(`${API_URL}/api/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -49,8 +50,6 @@ export const sendPrompt = async ({
       return;
     }
 
-    await onStart();
-
     while (true) {
       const { done, value } = await reader.read();
       if (done) {
@@ -61,6 +60,10 @@ export const sendPrompt = async ({
       chunk.split("\n").forEach(async (line) => {
         if (line.startsWith("data: ")) {
           try {
+            if (!lock) {
+              await onStart();
+              lock = 1;
+            }
             const parsedData = JSON.parse(line.replace("data: ", ""));
             await onMessage(parsedData.msg);
           } catch (parseError) {

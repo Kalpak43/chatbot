@@ -14,7 +14,6 @@ import {
   appendMessageContent,
   createNewChat,
   fetchMessages,
-  getMessages,
   updateChatStatus,
   updateChatTitle,
   updateMessageStatus,
@@ -22,44 +21,12 @@ import {
 import { resetMessages } from "../features/chats/chatSlice";
 import db from "../db";
 import { store } from "../app/store";
+import VoiceToText from "../components/VoiceInput";
 
 function Homepage() {
-  const { chatId } = useParams();
-  const dispatch = useAppDispatch();
-  const activeMessages = useAppSelector((state) => state.chat.activeMessages);
-
-  useEffect(() => {
-    async function setChatTitle() {
-      if (chatId) {
-        const chat = await db.chats.get({ id: chatId });
-        if (
-          chat &&
-          !chat.title.trim() &&
-          activeMessages[activeMessages.length - 1].status === "done" &&
-          activeMessages.length > 0 &&
-          (activeMessages.length == 2 || activeMessages.length % 10 == 0)
-        ) {
-          const title = await getTitle(activeMessages).then((res) => res.title);
-          console.log(title);
-          await dispatch(
-            updateChatTitle({
-              chatId,
-              title,
-            })
-          );
-        }
-      }
-    }
-
-    setChatTitle();
-  }, [activeMessages, chatId]);
-
   return (
     <div className="relative h-full">
-      {/* <ChatComponent /> */}
-      {/* <Sidebar /> */}
-      <ChatArea />
-      <ChatInput />
+      <VoiceToText />
     </div>
   );
 }

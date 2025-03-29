@@ -1,7 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { v4 as uuidv4 } from "uuid";
-// import { createChat, deleteChat } from "../features/chats/chatSlice";
 import { Loader2, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { signout } from "../features/auth/authThunk";
@@ -104,8 +102,6 @@ const Recents = () => {
     dispatch(getChats());
   }, [dispatch]);
 
-  console.log(chats);
-
   if (chats.length === 0) {
     return (
       <div className="flex items-center justify-center w-full h-full">
@@ -155,6 +151,8 @@ const ChatButton = ({ chat }: { chat: ChatType }) => {
               chatId: chat.id,
             })
           );
+
+          navigate("/chat");
         }}
       >
         <X size={12} />

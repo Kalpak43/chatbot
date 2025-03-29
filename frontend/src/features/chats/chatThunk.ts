@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import db from "../../db";
 
+// chats
 export const createNewChat = createAsyncThunk(
   "chat/createNewChat",
   async () => {
@@ -42,6 +43,7 @@ export const getChats = createAsyncThunk("chat/getChats", async () => {
   );
 });
 
+// messages
 export const addNewMessage = createAsyncThunk(
   "chat/addNewMessage",
   async ({
@@ -80,8 +82,24 @@ export const updateMessageStatus = createAsyncThunk(
 
 export const updateMessageContent = createAsyncThunk(
   "chat/updateMessageContent",
-  async ({ messageId, text }: { messageId: string; text: string }) => {
-    await db.messages.update(messageId, { text });
+  async ({
+    chatId,
+    message,
+    updatedContent,
+  }: {
+    chatId: string;
+    message: MessageType;
+    updatedContent: string;
+  }) => {
+    await db.transaction("rw", db.messages, async () => {
+      // Delete messages with a later `created_at` timestamp in the same chat
+      await db.messages
+        .where("chatId")
+        .equals(chatId)
+        .and((msg) => msg.created_at > message.created_at)
+        .delete();
+    });
+    await db.messages.update(message.id, { text: updatedContent });
   }
 );
 
@@ -91,6 +109,20 @@ export const appendMessageContent = createAsyncThunk(
     const message = await db.messages.get(messageId);
     if (!message) return;
     await db.messages.update(messageId, { text: message.text + text });
+  }
+);
+
+export const deleteMessage = createAsyncThunk(
+  "chat/deleteMessage",
+  async ({ chatId, message }: { chatId: string; message: MessageType }) => {
+    await db.transaction("rw", db.messages, async () => {
+      // Delete messages with a later `created_at` timestamp in the same chat
+      await db.messages
+        .where("chatId")
+        .equals(chatId)
+        .and((msg) => msg.created_at >= message.created_at)
+        .delete();
+    });
   }
 );
 
