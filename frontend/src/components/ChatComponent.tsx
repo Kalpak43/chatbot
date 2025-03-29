@@ -119,14 +119,17 @@ export const ChatInput = () => {
       />
 
       <div className="flex gap-2 max-md:justify-between max-md:w-full">
-        <button className="btn btn-primary btn-sm max-md:order-2">
-          <SendHorizontal size={20} />
-        </button>
-        <VoiceToText
-          onVoice={(x) => {
-            setInput((prev) => prev + x);
-          }}
-        />
+        {!input.trim() ? (
+          <VoiceToText
+            onVoice={(x) => {
+              setInput((prev) => prev + x);
+            }}
+          />
+        ) : (
+          <button className="btn btn-primary btn-sm max-md:order-2">
+            <SendHorizontal size={20} />
+          </button>
+        )}
       </div>
     </form>
   );
@@ -235,7 +238,7 @@ export const ChatArea = () => {
 
   return (
     <section className="p-4 pb-40 h-full overflow-y-auto">
-      <div className=" max-w-3xl mx-auto space-y-8">
+      <div className=" max-w-3xl mx-auto space-y-8 p-4">
         {activeMessages.map((message) =>
           message.status === "typing" ? (
             <span className="loading loading-dots loading-xl"></span>

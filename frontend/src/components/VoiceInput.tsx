@@ -1,3 +1,4 @@
+import { Mic, MicOff } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
 declare global {
@@ -91,8 +92,9 @@ const VoiceToText: React.FC<{
     <button
       type="button"
       onClick={isListening ? stopListening : startListening}
+      className="btn btn-primary btn-sm max-md:order-2"
     >
-      {isListening ? "Stop Listening" : "Start Listening"}
+      {isListening ? <MicOff size={20} /> : <Mic size={20} />}
     </button>
   );
 };
