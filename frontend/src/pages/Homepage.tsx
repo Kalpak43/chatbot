@@ -1,16 +1,9 @@
-import { useNavigate, useParams } from "react-router";
-import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { useCallback, useEffect, useState } from "react";
-import { SendHorizontal } from "lucide-react";
-// import { appendMessageContent, getMessages } from "../db";
-import { liveQuery } from "dexie";
-import { cleanMarkdown, getTitle, sendPrompt } from "../utils";
+import { cleanMarkdown } from "../utils";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import "../styles/chatStyles.css";
 import Markdown from "../components/Markdown";
-import { markdownRegex } from "../data/markdown";
 
 const markdownContent = `
 # The Future of Web Development 🚀
@@ -55,98 +48,82 @@ Web development is an ever-changing field. Staying updated with the latest trend
 `;
 
 function Homepage() {
-  const res =
-    "JavaScript frameworks like **React**, **Vue**, and **Svelte** are becoming more powerful and user-friendly. These frameworks help developers build dynamic, high-performance applications with minimal effort.";
+  const res = `
+Okay, here's a list of good questions to ask an AI, formatted to be as helpful as possible:
 
-  useEffect(() => {
-    console.log(res.split(markdownRegex["**"].split!));
-  }, []);
+### **Types of Questions**
+
+Here's a breakdown of question types you can ask, along with examples:
+
+* **Creative/Generative:**
+  * "Write a short story about a cat who becomes a detective."
+  * "Compose a haiku about the feeling of autumn."
+  * "Create a marketing slogan for a new brand of coffee."
+
+*   **Informational/Factual:**
+
+    *   "Explain the theory of relativity."
+
+    *   "What are the main causes of climate change?"
+
+    *   "Who won the Nobel Prize in Literature in 2020?"
+
+*   **Problem-Solving/Analytical:**
+
+    *   "How can I improve my time management skills?"
+
+    *   "What are the pros and cons of remote work?"
+
+    *   "Suggest a healthy meal plan for a week."
+
+*   **Comparative/Evaluative:**
+
+    *   "Compare and contrast Python and Java."
+
+    *   "What are the advantages of using cloud storage over local storage?"
+
+    *   "Which is better for gaming, a desktop or a laptop?"
+
+*   **Hypothetical/Speculative:**
+
+    *   "What would happen if the internet suddenly disappeared?"
+
+    *   "How might artificial intelligence impact society in 50 years?"
+
+    *   "If you could travel to any point in history, where would you go and why?"
+
+*   **Personalized/Advisory:**
+
+    *   "What are some good books to read based on my interest in science fiction?"
+
+    *   "I'm feeling stressed. What are some relaxation techniques I can try?"
+
+    *   "Recommend a travel destination for a family with young children."
+
+*   **Coding/Technical:**
+
+    *   "Write a Python function to sort a list of numbers."
+
+    *   "How do I debug a 'segmentation fault' error in C++?"
+
+    *   "Explain the concept of object-oriented programming."
+
+*   **Ethical/Philosophical:**
+
+    *   "Is it ethical to use AI to create deepfakes?"
+
+    *   "What is the meaning of life?"
+
+    *   "Should autonomous vehicles be programmed to prioritize the safety of their passengers or pedestrians in an accident?"
+
+`;
 
   return (
     <div className="relative h-full overflow-y-auto">
-      <ReactMarkdown>{markdownContent}</ReactMarkdown>
-      {/* <Markdown>{markdownContent}</Markdown> */}
+      {/* <ReactMarkdown>{markdownContent}</ReactMarkdown> */}
+      <Markdown>{res}</Markdown>
     </div>
   );
 }
 
 export default Homepage;
-
-export function UserBubble({ msg }: { msg: string }) {
-  return (
-    <div className="chat chat-end">
-      <div className="chat-bubble chat-bubble-primary  text-white">{msg}</div>
-    </div>
-  );
-}
-
-export function AIBubble({ msg }: { msg: string }) {
-  return (
-    <div className="chat ">
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeRaw]}
-        components={{
-          blockquote({ children }) {
-            return (
-              <blockquote className="border-l-4 border-gray-500 italic pl-3">
-                {children}
-              </blockquote>
-            );
-          },
-          a({ href, children }) {
-            return (
-              <a href={href} className="text-primary underline">
-                {children}
-              </a>
-            );
-          },
-          ul({ children }) {
-            return <ul className="list-disc ml-4">{children}</ul>;
-          },
-          ol({ children }) {
-            return <ol className="list-decimal ml-4">{children}</ol>;
-          },
-          h1({ children }) {
-            return (
-              <h1 className="text-4xl font-bold text-primary">{children}</h1>
-            );
-          },
-          h2({ children }) {
-            return (
-              <h2 className="text-3xl font-semibold text-secondary">
-                {children}
-              </h2>
-            );
-          },
-          h3({ children }) {
-            return (
-              <h3 className="text-2xl font-medium text-accent">{children}</h3>
-            );
-          },
-          h4({ children }) {
-            return (
-              <h4 className="text-xl font-medium  text-info">{children}</h4>
-            );
-          },
-          h5({ children }) {
-            return (
-              <h5 className="text-lg font-normal text-base-content">
-                {children}
-              </h5>
-            );
-          },
-          h6({ children }) {
-            return (
-              <h6 className="text-md font-light text-base-content/80">
-                {children}
-              </h6>
-            );
-          },
-        }}
-      >
-        {cleanMarkdown(msg)}
-      </ReactMarkdown>
-    </div>
-  );
-}

@@ -9,6 +9,10 @@ interface MarkdownRegex {
 }
 
 export const markdownRegex: MarkdownRegex = {
+  "ul": {
+    exp: /^[\-\*\+] (.+)$/,
+    replace: /^[\-\*\+]\s/,
+  },
   ">": {
     exp: /^>\s(.*)/,
     replace: /^>\s/,
