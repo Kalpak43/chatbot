@@ -9,192 +9,68 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import "../styles/chatStyles.css";
-import {
-  addNewMessage,
-  appendMessageContent,
-  createNewChat,
-  fetchMessages,
-  updateChatStatus,
-  updateChatTitle,
-  updateMessageStatus,
-} from "../features/chats/chatThunk";
-import { resetMessages } from "../features/chats/chatSlice";
-import db from "../db";
-import { store } from "../app/store";
-import VoiceToText from "../components/VoiceInput";
+import Markdown from "../components/Markdown";
+import { markdownRegex } from "../data/markdown";
+
+const markdownContent = `
+# The Future of Web Development 🚀
+
+Web development is evolving rapidly, with new technologies and frameworks emerging every year. In this article, we will explore some of the key trends shaping the future of web development.
+
+## 🌟 The Rise of JavaScript Frameworks
+
+> "JavaScript is eating the world." - Marc Andreessen
+
+JavaScript frameworks like **React**, **Vue**, and **Svelte** are becoming more powerful and user-friendly. These frameworks help developers build dynamic, high-performance applications with minimal effort.
+
+## ⚡ Serverless Architecture
+
+Serverless computing is revolutionizing the way developers deploy applications. With platforms like **Vercel**, **Netlify**, and **AWS Lambda**, developers can focus on writing code while the cloud handles the infrastructure.
+
+### 🔥 Benefits of Serverless:
+- **Scalability**: Automatically adjusts to traffic spikes.
+- **Cost-effective**: Pay only for what you use.
+- **Reduced maintenance**: No need to manage servers.
+
+## 🎨 The Power of UI/UX Design
+
+Great UI/UX design is crucial for user engagement. **Minimalistic design, micro-interactions, and dark mode** are some of the trends gaining popularity.
+
+#### **Key UI Trends:**
+- *Glassmorphism & Neumorphism* 🎨  
+- **AI-powered design tools** 🤖  
+- *Voice and gesture-based UI* 🎙️  
+
+## 🤖 The Role of AI in Web Development
+
+AI is transforming the web development space with tools like **GitHub Copilot** and **ChatGPT**. AI-powered chatbots, automated testing, and content generation are becoming essential in modern web apps.
+
+## 🚀 Final Thoughts
+
+Web development is an ever-changing field. Staying updated with the latest trends, experimenting with new technologies, and continuously learning will help you stay ahead in the game.
+
+---
+
+**What are your thoughts on the future of web development? Let’s discuss in the comments!** 💬
+`;
 
 function Homepage() {
+  const res =
+    "JavaScript frameworks like **React**, **Vue**, and **Svelte** are becoming more powerful and user-friendly. These frameworks help developers build dynamic, high-performance applications with minimal effort.";
+
+  useEffect(() => {
+    console.log(res.split(markdownRegex["**"].split!));
+  }, []);
+
   return (
-    <div className="relative h-full">
-      <VoiceToText />
+    <div className="relative h-full overflow-y-auto">
+      <ReactMarkdown>{markdownContent}</ReactMarkdown>
+      {/* <Markdown>{markdownContent}</Markdown> */}
     </div>
   );
 }
 
 export default Homepage;
-
-export const ChatInput = () => {
-  const { chatId } = useParams();
-  const dispatch = useAppDispatch();
-  const activeMessages = useAppSelector((state) => state.chat.activeMessages);
-  const chats = useAppSelector((state) => state.chat.chats);
-  const navigate = useNavigate();
-
-  const [input, setInput] = useState("");
-  const [file, setFile] = useState<File | null>(null);
-  const [start, setStart] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const handleSend = useCallback(async () => {
-    if (!input.trim() && !file) return;
-
-    let id = chatId;
-    if (!id) {
-      const newChat = await dispatch(createNewChat());
-
-      if ((newChat.payload as ChatType)?.id) {
-        id = (newChat.payload as ChatType).id;
-      } else {
-        return;
-      }
-    }
-
-    await dispatch(
-      addNewMessage({
-        chatId: id,
-        role: "user",
-        text: input,
-        status: "done",
-      })
-    );
-
-    if (!chatId) navigate(`/chat/${id}`);
-    const messageId = await dispatch(
-      addNewMessage({
-        chatId: id,
-        role: "ai",
-        text: "",
-        status: "typing",
-      })
-    ).then((action) => action.payload as string);
-    await sendPrompt({
-      chatHistory: [...activeMessages, { role: "user", text: input }],
-      onMessage: async (msg) => {
-        await dispatch(appendMessageContent({ messageId, text: msg }));
-      },
-      onStart: async () => {
-        await dispatch(updateMessageStatus({ messageId, status: "pending" }));
-        await dispatch(updateChatStatus({ chatId: id, status: "pending" }));
-      },
-      onEnd: async () => {
-        await dispatch(updateMessageStatus({ messageId, status: "done" }));
-        await dispatch(updateChatStatus({ chatId: id, status: "done" }));
-      },
-      onError: (error) => {
-        console.error("Error sending prompt:", error);
-      },
-    });
-  }, [chatId, input, file, navigate, activeMessages]);
-
-  return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleSend();
-      }}
-      className="flex max-md:flex-col items-end gap-2 p-4 border border-neutral bg-base-200 shadow-md max-w-3xl mx-auto absolute bottom-0 inset-x-0 rounded-t-xl"
-    >
-      <textarea
-        value={input}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault(); // Prevent new line
-            handleSend(); // Submit the form
-          }
-        }}
-        onChange={(e) => setInput(e.target.value)}
-        placeholder="Type your message..."
-        className="textarea textarea-bordered flex-1 w-full"
-        rows={1}
-        disabled={loading}
-      />
-      <div className="flex gap-2 max-md:justify-between max-md:w-full">
-        <button className="btn btn-primary btn-sm max-md:order-2">
-          <SendHorizontal size={20} />
-        </button>
-        {/* <AudioRecorder
-          onStart={() => setStart(true)}
-          onStop={handleStopRecording}
-        >
-          <span className="btn btn-primary max-md:order-1">
-            {loading ? (
-              <Loader2 className="animate-spin" />
-            ) : start ? (
-              <MicOff />
-            ) : (
-              <Mic />
-            )}
-          </span>
-        </AudioRecorder> */}
-      </div>
-    </form>
-  );
-};
-
-export const ChatArea = () => {
-  const chatId = useParams().chatId;
-  const dispatch = useAppDispatch();
-  const { activeMessages } = useAppSelector((state) => state.chat);
-
-  useEffect(() => {
-    if (!chatId) {
-      dispatch(resetMessages());
-      return;
-    }
-
-    const subscription = liveQuery(async () =>
-      db.messages.where({ chatId }).toArray()
-    ).subscribe({
-      next: (messages) => {
-        // Dispatch messages to Redux store
-        store.dispatch(
-          fetchMessages.fulfilled(
-            messages.sort((a, b) => a.created_at - b.created_at),
-            fetchMessages.typePrefix,
-            ""
-          )
-        );
-      },
-      error: (error) => {
-        console.error("Error fetching messages:", error);
-      },
-    });
-
-    return () => {
-      subscription.unsubscribe(); // Clean up subscription on unmount
-    };
-  }, [chatId]);
-
-  return (
-    <section className="p-4 pb-40 h-full overflow-y-auto">
-      <div className=" max-w-3xl mx-auto">
-        {activeMessages.map((message) =>
-          message.status === "typing" ? (
-            <span className="loading loading-dots loading-xl"></span>
-          ) : (
-            <>
-              {message.role === "user" ? (
-                <UserBubble key={message.id} msg={message.text} />
-              ) : (
-                <AIBubble key={message.id} msg={message.text} />
-              )}
-            </>
-          )
-        )}
-      </div>
-    </section>
-  );
-};
 
 export function UserBubble({ msg }: { msg: string }) {
   return (

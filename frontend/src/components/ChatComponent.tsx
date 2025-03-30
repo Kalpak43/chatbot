@@ -11,14 +11,17 @@ import {
   updateMessageContent,
   updateMessageStatus,
 } from "../features/chats/chatThunk";
-import { sendPrompt } from "../utils";
+import { cleanMarkdown, sendPrompt } from "../utils";
 import { Pen, SendHorizonal, SendHorizontal, Trash2, X } from "lucide-react";
 import { resetMessages } from "../features/chats/chatSlice";
 import { liveQuery } from "dexie";
 import db from "../db";
 import { store } from "../app/store";
-import { AIBubble } from "../pages/Homepage";
 import VoiceToText from "./VoiceInput";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import Markdown from "./Markdown";
 
 export const ChatInput = () => {
   const { chatId } = useParams();
@@ -276,7 +279,7 @@ export function UserBubble({
     <div className="chat chat-end relative">
       <div className="chat-bubble chat-bubble-primary font-[600]">
         {editing ? (
-          <div className="sm:min-w-xs">
+          <div className="sm:min-w-xs md:min-w-sm lg:min-w-md">
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
@@ -317,6 +320,19 @@ export function UserBubble({
           <Trash2 size={12} />
         </button>
       </div>
+    </div>
+  );
+}
+
+export function AIBubble({ msg }: { msg: string }) {
+  return (
+    <div className="chat leading-loose">
+      <Markdown>{msg}</Markdown>
+      {/* 
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeRaw]}
+      ></ReactMarkdown> */}
     </div>
   );
 }

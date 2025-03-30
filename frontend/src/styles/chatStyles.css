@@ -4,7 +4,7 @@
   themes: light --default, dark --prefersdark, sunset;
 }
 
-.chat ul,
+/* .chat ul,
 .chat ol {
   @apply list-disc list-inside pl-4;
 }
@@ -15,10 +15,10 @@
 .chat ol li::marker {
   content: counter(list-item) ". ";
   font-size: 1em;
-  padding-right: 1em; /* Adjust spacing between number and text */
-}
+  padding-right: 1em;
+} */
 
-.chat ul p,
+/* .chat ul p,
 .chat ol p {
   @apply inline;
 }
@@ -63,4 +63,4 @@
 .chat h5,
 .chat h6 {
   @apply leading-loose;
-}
+} */
