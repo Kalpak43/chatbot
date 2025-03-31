@@ -165,11 +165,12 @@ type ListItem = {
   content: string;
   level: number;
   children: ListItem[];
+  isOrdered: boolean;
 };
 
 function Markdown({ children }: { children: React.ReactNode }) {
   const getIndentationLevel = (line: string): number => {
-    const match = line.match(/^(\s*)[*+-]/);
+    const match = line.match(/^(\s*)(?:[*+-]|\d+\.)/);
     return match ? Math.floor(match[1].length / 2) : 0;
   };
 
@@ -180,8 +181,9 @@ function Markdown({ children }: { children: React.ReactNode }) {
 
     items.forEach((item) => {
       const level = getIndentationLevel(item);
-      const content = item.trim().replace(/^[*+-]\s/, "");
-      const listItem: ListItem = { content, level, children: [] };
+      const isOrdered = /^\s*\d+\./.test(item);
+      const content = item.trim().replace(/^(?:[*+-]|\d+\.)\s/, "");
+      const listItem: ListItem = { content, level, children: [], isOrdered };
 
       while (currentLevel > level) {
         stack.pop();
@@ -205,15 +207,20 @@ function Markdown({ children }: { children: React.ReactNode }) {
   };
 
   const renderListTree = (items: ListItem[]): JSX.Element => {
+    // Determine if this level should be ordered based on first item
+    const isOrdered = items.length > 0 && items[0].isOrdered;
+    const ListComponent = isOrdered ? "ol" : "ul";
+    const listClass = isOrdered ? "list-decimal pl-6" : "list-disc pl-6";
+
     return (
-      <ul className="list-disc pl-6">
+      <ListComponent className={listClass}>
         {items.map((item, index) => (
           <li key={index}>
             {parseMarkdown(item.content)}
             {item.children.length > 0 && renderListTree(item.children)}
           </li>
         ))}
-      </ul>
+      </ListComponent>
     );
   };
 
@@ -233,7 +240,12 @@ function Markdown({ children }: { children: React.ReactNode }) {
     };
 
     lines.forEach((line, i) => {
-      if (line.trim().startsWith("- ") || line.trim().startsWith("* ") || line.trim().startsWith("+ ")) {
+      if (
+        line.trim().startsWith("- ") ||
+        line.trim().startsWith("* ") ||
+        line.trim().startsWith("+ ") ||
+        markdownRegex["ol"].exp.test(line.trim())
+      ) {
         currentList.push(line);
       } else {
         currentList.length > 0 && flushList();
