@@ -1,6 +1,4 @@
 import "../styles/chatStyles.css";
-import { useEffect } from "react";
-import { markdownRegex } from "../data/markdown";
 import { AIBubble } from "../components/ChatComponent";
 
 function Homepage() {
@@ -16,10 +14,6 @@ int main() {
 
 what 
 `;
-
-  useEffect(() => {
-    console.log(markdownRegex["code"].exp.test(res));
-  }, []);
 
   return (
     <div className="relative h-full overflow-y-auto">

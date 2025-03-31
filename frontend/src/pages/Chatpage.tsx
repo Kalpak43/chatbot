@@ -38,7 +38,7 @@ function Chatpage() {
   }, [activeMessages, chatId]);
 
   return (
-    <div className="relative h-full">
+    <div className="relative h-full flex flex-col">
       {/* <ChatComponent activeChatId={chatId!} /> */}
       <ChatArea />
       <ChatInput />

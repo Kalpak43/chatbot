@@ -105,7 +105,7 @@ export const ChatInput = () => {
         e.preventDefault();
         handleSend(input);
       }}
-      className="flex max-md:flex-col items-end gap-2 p-4 border border-neutral bg-base-200 shadow-md max-w-3xl mx-auto absolute bottom-0 inset-x-0 rounded-t-xl"
+      className="flex max-md:flex-col items-end gap-2 p-4 border border-neutral bg-base-200 shadow-md xl:max-w-3xl xl:mx-auto xl:absolute xl:bottom-0 xl:inset-x-0 rounded-t-xl"
     >
       <textarea
         value={input}
@@ -241,8 +241,8 @@ export const ChatArea = () => {
   };
 
   return (
-    <section className="pb-40 h-full overflow-y-auto">
-      <div className="p-4 max-w-3xl mx-auto">
+    <section className="xl:pb-40 h-full overflow-y-auto">
+      <div className="p-4 max-w-sm md:max-w-full xl:max-w-3xl mx-auto">
         {activeMessages.map((message) =>
           message.status === "typing" ? (
             <span className="loading loading-dots loading-xl"></span>
@@ -398,7 +398,7 @@ export function AIBubble({ msg }: { msg: string }) {
               {...props}
             />
           ),
-          li: ({ node, ...props }) => <li className="ml-4 mb-1" {...props} />,
+          li: ({ node, ...props }) => <li className="pl-4 mb-1" {...props} />,
           a: ({ node, ...props }) => (
             <a
               className="text-primary underline hover:text-primary-focus"
@@ -437,7 +437,7 @@ export function AIBubble({ msg }: { msg: string }) {
             if (match) {
               const language = match[1];
               return (
-                <div className="max-w-[calc(48rem-2rem)] ">
+                <div className="max-w-[90vw] xl:max-w-[calc(48rem-2rem)] ">
                   {/* Language Title */}
                   <div className="bg-gray-700 text-gray-200 px-3 py-1 text-sm font-semibold rounded-t-md">
                     {language.toUpperCase()}

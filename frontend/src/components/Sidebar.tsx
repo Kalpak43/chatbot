@@ -35,8 +35,8 @@ function Sidebar() {
         <Menu />
       </button>
       <nav
-        className={`relative max-md:fixed max-md:inset-y-0 max-md:left-0 z-50 w-4/5 md:w-1/6 border-r p-4 min-h-full h-[100dvh] bg-base-200 flex flex-col transition-all duration-300 ${
-          hide ? "max-md:-translate-x-full" : ""
+        className={`relative max-lg:fixed max-lg:inset-y-0 max-lg:left-0 z-50 w-3/4 md:w-1/3 lg:w-1/4 xl:w-1/6 border-r p-4 min-h-full h-[100dvh] bg-base-200 flex flex-col transition-all duration-300 ${
+          hide ? "max-lg:-translate-x-full" : ""
         }`}
       >
         <div className="py-4">
@@ -111,7 +111,7 @@ const Recents = () => {
   }
 
   return (
-    <ul className="menu bg-base-100 rounded-box w-full h-full max-h-[70vh] overflow-y-auto block text-xs">
+    <ul className="menu bg-base-100 rounded-box w-full h-full flex-1 overflow-y-auto block text-xs">
       {[...chats]
         .sort((a, b) => {
           return b.created_at - a.created_at;
