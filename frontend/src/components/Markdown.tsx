@@ -239,7 +239,9 @@ function Markdown({ children }: { children: React.ReactNode }) {
       currentList = [];
     };
 
-    lines.forEach((line, i) => {
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i];
+
       if (
         line.trim().startsWith("- ") ||
         line.trim().startsWith("* ") ||
@@ -248,14 +250,18 @@ function Markdown({ children }: { children: React.ReactNode }) {
       ) {
         currentList.push(line);
       } else {
-        currentList.length > 0 && flushList();
+        if (currentList.length > 0) {
+          flushList();
+        }
         if (line !== "") {
           result.push(
-            <React.Fragment key={i}>{parseMarkdown(line, true)}</React.Fragment>
+            <React.Fragment key={i}>
+              {parseMarkdown(line.trim(), true)}
+            </React.Fragment>
           );
         }
       }
-    });
+    }
 
     currentList.length > 0 && flushList();
 

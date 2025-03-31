@@ -69,4 +69,13 @@ export const markdownRegex: MarkdownRegex = {
     exp: /^\-\-\-(\s.*)?$/,
     replace: /^\-\-\-(\s.*)?$/,
   },
+  "code": {
+    exp: /^```([a-zA-Z]*)?$|^```$/, // matches only opening or closing backticks
+    replace: /^```([a-zA-Z]*)?$|^```$/,
+    split: /(^```[a-zA-Z]*?[\s\S]*?```$)/m,
+  },
+  indent: {
+    exp: /^(?: {4}|\t).*$/m,
+    replace: /^(?: {4}|\t)/,
+  },
 };

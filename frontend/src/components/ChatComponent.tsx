@@ -11,7 +11,7 @@ import {
   updateMessageContent,
   updateMessageStatus,
 } from "../features/chats/chatThunk";
-import { cleanMarkdown, sendPrompt } from "../utils";
+import { sendPrompt } from "../utils";
 import { Pen, SendHorizonal, SendHorizontal, Trash2, X } from "lucide-react";
 import { resetMessages } from "../features/chats/chatSlice";
 import { liveQuery } from "dexie";
@@ -21,7 +21,8 @@ import VoiceToText from "./VoiceInput";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
-import Markdown from "./Markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 export const ChatInput = () => {
   const { chatId } = useParams();
@@ -240,8 +241,8 @@ export const ChatArea = () => {
   };
 
   return (
-    <section className="p-4 pb-40 h-full overflow-y-auto">
-      <div className=" max-w-3xl mx-auto space-y-8 p-4">
+    <section className="pb-40 h-full overflow-y-auto">
+      <div className="p-4 max-w-3xl mx-auto">
         {activeMessages.map((message) =>
           message.status === "typing" ? (
             <span className="loading loading-dots loading-xl"></span>
@@ -249,12 +250,13 @@ export const ChatArea = () => {
             {
               user: (
                 <UserBubble
+                  key={message.id}
                   msg={message}
                   onEdit={handleEditMessage}
                   onDelete={handleDeleteMessge}
                 />
               ),
-              ai: <AIBubble msg={message.text} />,
+              ai: <AIBubble key={message.id} msg={message.text} />,
             }[message.role]
           )
         )}
@@ -276,7 +278,7 @@ export function UserBubble({
   const [editing, setEditing] = useState(false);
 
   return (
-    <div className="chat chat-end relative">
+    <div className="chat chat-end relative mb-12">
       <div className="chat-bubble chat-bubble-primary font-[600]">
         {editing ? (
           <div className="sm:min-w-xs md:min-w-sm lg:min-w-md">
@@ -326,13 +328,150 @@ export function UserBubble({
 
 export function AIBubble({ msg }: { msg: string }) {
   return (
-    <div className="chat leading-loose">
-      <Markdown>{msg}</Markdown>
-      {/* 
+    <div className="chat leading-loose mb-8">
+      {/* <Markdown>{msg}</Markdown> */}
+
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw]}
-      ></ReactMarkdown> */}
+        components={{
+          h1: ({ node, ...props }) => (
+            <h1
+              className="text-4xl font-bold text-primary leading-16"
+              {...props}
+            />
+          ),
+          h2: ({ node, ...props }) => (
+            <h2
+              className="text-3xl font-semibold text-secondary leading-16"
+              {...props}
+            />
+          ),
+          h3: ({ node, ...props }) => (
+            <h3
+              className="text-2xl font-medium text-accent leading-16"
+              {...props}
+            />
+          ),
+          h4: ({ node, ...props }) => (
+            <h4 className="text-xl font-medium leading-16" {...props} />
+          ),
+          h5: ({ node, ...props }) => (
+            <h5
+              className="text-lg font-normal text-info leading-16"
+              {...props}
+            />
+          ),
+          h6: ({ node, ...props }) => (
+            <h6
+              className="text-base font-light text-warning leading-16"
+              {...props}
+            />
+          ),
+          p: ({ node, ...props }) => (
+            <p
+              className="text-base text-neutral-content leading-tight mb-3"
+              {...props}
+            />
+          ),
+          strong: ({ node, ...props }) => (
+            <strong className="font-bold" {...props} />
+          ),
+          em: ({ node, ...props }) => (
+            <em className="italic text-neutral-content" {...props} />
+          ),
+          blockquote: ({ node, ...props }) => (
+            <blockquote
+              className="border-l-4 border-primary pl-4 italic text-neutral-content bg-base-200 p-3 my-3 rounded-lg"
+              {...props}
+            />
+          ),
+          ul: ({ node, ...props }) => (
+            <ul
+              className="list-disc list-inside text-neutral-content"
+              {...props}
+            />
+          ),
+          ol: ({ node, ...props }) => (
+            <ol
+              className="list-decimal list-inside text-neutral-content"
+              {...props}
+            />
+          ),
+          li: ({ node, ...props }) => <li className="ml-4 mb-1" {...props} />,
+          a: ({ node, ...props }) => (
+            <a
+              className="text-primary underline hover:text-primary-focus"
+              {...props}
+            />
+          ),
+          table: ({ node, ...props }) => (
+            <div className=" border border-neutral mt-4 mb-8 rounded-md overflow-hidden">
+              <table
+                className="table table-zebra w-full bg-base-100"
+                {...props}
+              />
+            </div>
+          ),
+          thead: ({ node, ...props }) => (
+            <thead
+              className=" bg-neutral text-white font-bold p-2"
+              {...props}
+            />
+          ),
+          tbody: ({ node, ...props }) => <tbody className=" p-2" {...props} />,
+          img: ({ node, ...props }) => (
+            <img
+              className="rounded-lg shadow-lg max-w-full h-auto my-3"
+              {...props}
+            />
+          ),
+          hr: ({ node, className, ...props }) => (
+            <hr className="my-4" {...props} />
+          ),
+          code: ({ className, children, ...props }) => {
+            // Check if className contains language-xyz (multi-line code block)
+            const match = /language-(\w+)/.exec(className || "");
+            console.log(match);
+
+            if (match) {
+              const language = match[1];
+              return (
+                <div className="max-w-[calc(48rem-2rem)] ">
+                  {/* Language Title */}
+                  <div className="bg-gray-700 text-gray-200 px-3 py-1 text-sm font-semibold rounded-t-md">
+                    {language.toUpperCase()}
+                  </div>
+
+                  <div className="">
+                    <SyntaxHighlighter
+                      style={dracula}
+                      language={language}
+                      className="rounded-b-md"
+                      customStyle={{ whiteSpace: "pre-wrap" }}
+                    >
+                      {String(children).trim()}
+                    </SyntaxHighlighter>
+                  </div>
+                </div>
+              );
+            }
+
+            // Inline code (single word/phrase inside backticks)
+            return (
+              <code
+                className="bg-gray-800 text-gray-100 px-1 rounded-md"
+                {...props}
+              >
+                {children}
+              </code>
+            );
+          },
+          pre: ({ node, ...props }) => <>{props.children}</>,
+        }}
+      >
+        {msg}
+      </ReactMarkdown>
     </div>
   );
 }
