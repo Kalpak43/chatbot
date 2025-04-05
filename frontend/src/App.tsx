@@ -1,14 +1,16 @@
 import { Route, Routes } from "react-router";
 import "./App.css";
-import Homepage from "./pages/Homepage";
 import Layout from "./Layout";
-import Loginpage from "./pages/Loginpage";
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "./app/hooks";
 import { checkLogin } from "./features/auth/authThunk";
-import SignupPage from "./pages/SignupPage";
 import { useToast } from "./hooks/useToast";
-import Chatpage from "./pages/Chatpage";
+import { lazy, Suspense } from "react";
+
+const Homepage = lazy(() => import("./pages/Homepage"));
+const Chatpage = lazy(() => import("./pages/Chatpage"));
+const Loginpage = lazy(() => import("./pages/Loginpage"));
+const SignupPage = lazy(() => import("./pages/SignupPage"));
 
 function App() {
   const { user, error } = useAppSelector((state) => state.auth);
@@ -30,14 +32,16 @@ function App() {
   }, [error]);
 
   return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route path="/" element={<Homepage />} />
-        <Route path="/chat/:chatId?" element={<Chatpage />} />
-      </Route>
-      <Route path="/login" element={<Loginpage />} />
-      <Route path="/signup" element={<SignupPage />} />
-    </Routes>
+    <Suspense fallback={<div>Loading...</div>}>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Homepage />} />
+          <Route path="/chat/:chatId?" element={<Chatpage />} />
+        </Route>
+        <Route path="/login" element={<Loginpage />} />
+        <Route path="/signup" element={<SignupPage />} />
+      </Routes>
+    </Suspense>
   );
 }
 

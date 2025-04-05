@@ -5,6 +5,7 @@ import db from "../db";
 import { getTitle } from "../utils";
 import { updateChatTitle } from "../features/chats/chatThunk";
 import { ChatArea, ChatInput } from "../components/ChatComponent";
+import "../styles/chatStyles.css"
 
 function Chatpage() {
   const { chatId } = useParams();

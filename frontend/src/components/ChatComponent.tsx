@@ -12,7 +12,15 @@ import {
   updateMessageStatus,
 } from "../features/chats/chatThunk";
 import { sendPrompt } from "../utils";
-import { Pen, SendHorizonal, SendHorizontal, Trash2, X } from "lucide-react";
+import {
+  Check,
+  Copy,
+  Pen,
+  SendHorizonal,
+  SendHorizontal,
+  Trash2,
+  X,
+} from "lucide-react";
 import { resetMessages } from "../features/chats/chatSlice";
 import { liveQuery } from "dexie";
 import db from "../db";
@@ -432,27 +440,55 @@ export function AIBubble({ msg }: { msg: string }) {
           code: ({ className, children, ...props }) => {
             // Check if className contains language-xyz (multi-line code block)
             const match = /language-(\w+)/.exec(className || "");
-            console.log(match);
+            const [copied, setCopied] = useState(false);
+
+            useEffect(() => {
+              if (copied) {
+                const timeout = setTimeout(() => {
+                  setCopied(false);
+                }, 2000); // Reset after 2 seconds
+                return () => clearTimeout(timeout);
+              }
+            }, [copied]);
 
             if (match) {
               const language = match[1];
+
+              const handleCopy = async () => {
+                try {
+                  await navigator.clipboard.writeText(String(children).trim());
+                  setCopied(true);
+                } catch (err) {
+                  console.error("Failed to copy code:", err);
+                }
+              };
+
               return (
                 <div className="max-w-[90vw] xl:max-w-[calc(48rem-2rem)] ">
                   {/* Language Title */}
-                  <div className="bg-gray-700 text-gray-200 px-3 py-1 text-sm font-semibold rounded-t-md">
-                    {language.toUpperCase()}
+                  <div className="bg-gray-700 text-gray-200 px-3 py-1 text-sm font-semibold rounded-t-md flex items-center justify-between">
+                    <p>{language.toUpperCase()}</p>
+                    <button
+                      onClick={handleCopy}
+                      className="hover:bg-gray-600 p-1 rounded transition-colors"
+                      title={copied ? "Copied!" : "Copy code"}
+                    >
+                      {copied ? (
+                        <Check size={16} className="text-green-400" />
+                      ) : (
+                        <Copy size={16} />
+                      )}
+                    </button>
                   </div>
 
-                  <div className="">
-                    <SyntaxHighlighter
-                      style={dracula}
-                      language={language}
-                      className="rounded-b-md"
-                      customStyle={{ whiteSpace: "pre-wrap" }}
-                    >
-                      {String(children).trim()}
-                    </SyntaxHighlighter>
-                  </div>
+                  <SyntaxHighlighter
+                    style={dracula}
+                    language={language}
+                    className="rounded-b-md"
+                    customStyle={{ whiteSpace: "pre-wrap" }}
+                  >
+                    {String(children).trim()}
+                  </SyntaxHighlighter>
                 </div>
               );
             }
