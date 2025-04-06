@@ -21,16 +21,16 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { resetMessages } from "../features/chats/chatSlice";
+import { resetMessages, setError } from "../features/chats/chatSlice";
 import { liveQuery } from "dexie";
 import db from "../db";
-import { store } from "../app/store";
 import VoiceToText from "./VoiceInput";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { useToast } from "../hooks/useToast";
 
 export const ChatInput = () => {
   const { chatId } = useParams();
@@ -99,8 +99,17 @@ export const ChatInput = () => {
           );
           await dispatch(updateChatStatus({ chatId: id, status: "done" }));
         },
-        onError: (error) => {
-          console.error("Error sending prompt:", error);
+        onError: async (error) => {
+          await dispatch(
+            updateMessageStatus({ messageId: responseId, status: "failed" })
+          );
+          await dispatch(updateChatStatus({ chatId: id, status: "failed" }));
+
+          if (error instanceof Error) {
+            dispatch(setError(error.message));
+          } else {
+            dispatch(setError("Some Error occured"));
+          }
         },
       });
     },
@@ -150,11 +159,21 @@ export const ChatInput = () => {
 export const ChatArea = () => {
   const chatId = useParams().chatId;
   const dispatch = useAppDispatch();
-  const { activeMessages } = useAppSelector((state) => state.chat);
+  const activeMessages = useAppSelector((state) => state.chat.activeMessages);
+  const error = useAppSelector((state) => state.chat.error);
+  const { showToast } = useToast();
 
   useEffect(() => {
+    if (error) {
+      showToast(error, "error");
+    }
+  }, [error]);
+
+  useEffect(() => {
+    dispatch(resetMessages());
+    dispatch(setError(null));
+
     if (!chatId) {
-      dispatch(resetMessages());
       return;
     }
 
@@ -163,9 +182,9 @@ export const ChatArea = () => {
     ).subscribe({
       next: (messages) => {
         // Dispatch messages to Redux store
-        store.dispatch(
+        dispatch(
           fetchMessages.fulfilled(
-            messages.sort((a, b) => a.created_at - b.created_at),
+            [...messages].sort((a, b) => a.created_at - b.created_at),
             fetchMessages.typePrefix,
             ""
           )
@@ -251,23 +270,35 @@ export const ChatArea = () => {
   return (
     <section className="xl:pb-40 h-full overflow-y-auto">
       <div className="p-4 max-w-sm md:max-w-full xl:max-w-3xl mx-auto">
-        {activeMessages.map((message) =>
-          message.status === "typing" ? (
-            <span className="loading loading-dots loading-xl"></span>
-          ) : (
-            {
-              user: (
-                <UserBubble
+        {activeMessages.map((message) => {
+          return (
+            <>
+              {message.status == "typing" && (
+                <span
                   key={message.id}
-                  msg={message}
-                  onEdit={handleEditMessage}
-                  onDelete={handleDeleteMessge}
+                  className="loading loading-dots loading-xl"
                 />
-              ),
-              ai: <AIBubble key={message.id} msg={message.text} />,
-            }[message.role]
-          )
-        )}
+              )}
+              {message.status == "failed" && (
+                <span key={message.id} className="">
+                  Failed to Generate a Response. Try again.
+                </span>
+              )}
+              {(message.status == "pending" || message.status == "done") &&
+                {
+                  user: (
+                    <UserBubble
+                      key={message.id}
+                      msg={message}
+                      onEdit={handleEditMessage}
+                      onDelete={handleDeleteMessge}
+                    />
+                  ),
+                  ai: <AIBubble key={message.id} msg={message.text} />,
+                }[message.role]}
+            </>
+          );
+        })}
       </div>
     </section>
   );
@@ -410,6 +441,7 @@ export function AIBubble({ msg }: { msg: string }) {
           a: ({ node, ...props }) => (
             <a
               className="text-primary underline hover:text-primary-focus"
+              target="_blank"
               {...props}
             />
           ),

@@ -5,7 +5,7 @@ import db from "../db";
 import { getTitle } from "../utils";
 import { updateChatTitle } from "../features/chats/chatThunk";
 import { ChatArea, ChatInput } from "../components/ChatComponent";
-import "../styles/chatStyles.css"
+import "../styles/chatStyles.css";
 
 function Chatpage() {
   const { chatId } = useParams();
@@ -19,8 +19,8 @@ function Chatpage() {
         if (
           chat &&
           !chat.title.trim() &&
+          activeMessages.length > 1 &&
           activeMessages[activeMessages.length - 1].status === "done" &&
-          activeMessages.length > 0 &&
           (activeMessages.length == 2 || activeMessages.length % 10 == 0)
         ) {
           const title = await getTitle(activeMessages).then((res) => res.title);

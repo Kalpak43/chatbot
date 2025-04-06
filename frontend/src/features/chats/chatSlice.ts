@@ -32,6 +32,9 @@ const chatSlice = createSlice({
     resetMessages: (state) => {
       state.activeMessages = [];
     },
+    setError: (state, action) => {
+      state.error = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -79,6 +82,6 @@ const chatSlice = createSlice({
   },
 });
 
-export const { setActiveChatId, resetMessages } = chatSlice.actions;
+export const { setActiveChatId, resetMessages, setError } = chatSlice.actions;
 
 export default chatSlice.reducer;
