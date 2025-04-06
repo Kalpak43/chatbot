@@ -1,4 +1,4 @@
-type Status = "done" | "pending" | "failed" | "typing";
+type Status = "done" | "pending" | "failed" | "typing" | "deleted";
 
 interface MessageType {
   id: string;

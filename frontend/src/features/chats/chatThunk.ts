@@ -121,7 +121,9 @@ export const deleteMessage = createAsyncThunk(
         .where("chatId")
         .equals(chatId)
         .and((msg) => msg.created_at >= message.created_at)
-        .delete();
+        .modify((message) => {
+          message.status = "deleted";
+        });
     });
   }
 );

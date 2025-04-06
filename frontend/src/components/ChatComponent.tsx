@@ -184,7 +184,9 @@ export const ChatArea = () => {
         // Dispatch messages to Redux store
         dispatch(
           fetchMessages.fulfilled(
-            [...messages].sort((a, b) => a.created_at - b.created_at),
+            [...messages]
+              .filter((message) => message.status != "deleted")
+              .sort((a, b) => a.created_at - b.created_at),
             fetchMessages.typePrefix,
             ""
           )
@@ -409,7 +411,7 @@ export function AIBubble({ msg }: { msg: string }) {
           ),
           p: ({ node, ...props }) => (
             <p
-              className="text-base text-neutral-content leading-tight mb-3"
+              className="text-base text-neutral-content leading-tight mb-3 inline"
               {...props}
             />
           ),
@@ -427,17 +429,17 @@ export function AIBubble({ msg }: { msg: string }) {
           ),
           ul: ({ node, ...props }) => (
             <ul
-              className="list-disc list-inside text-neutral-content"
+              className="list-disc list-outside  text-neutral-content"
               {...props}
             />
           ),
           ol: ({ node, ...props }) => (
             <ol
-              className="list-decimal list-inside text-neutral-content"
+              className="list-decimal list-outside  text-neutral-content"
               {...props}
             />
           ),
-          li: ({ node, ...props }) => <li className="pl-4 mb-1" {...props} />,
+          li: ({ node, ...props }) => <li className="ml-4 mb-1" {...props} />,
           a: ({ node, ...props }) => (
             <a
               className="text-primary underline hover:text-primary-focus"
