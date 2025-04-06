@@ -31,6 +31,7 @@ import rehypeRaw from "rehype-raw";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useToast } from "../hooks/useToast";
+import Textarea from "./ui/Textarea";
 
 export const ChatInput = () => {
   const { chatId } = useParams();
@@ -45,6 +46,11 @@ export const ChatInput = () => {
       if (!message.trim()) return;
 
       setInput("");
+      // reset the height
+      const textarea = document.querySelector("textarea");
+      if (textarea) {
+        textarea.style.height = "auto";
+      }
 
       let id = chatId;
       // if id is not given in the url then create new chat
@@ -124,19 +130,17 @@ export const ChatInput = () => {
       }}
       className="flex max-md:flex-col items-end gap-2 p-4 border border-neutral bg-base-200 shadow-md xl:max-w-3xl xl:mx-auto xl:absolute xl:bottom-0 xl:inset-x-0 rounded-t-xl"
     >
-      <textarea
+      <Textarea
         value={input}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault(); // Prevent new line
-            handleSend(input); // Submit the form
+            e.preventDefault();
+            handleSend(input);
           }
         }}
-        onChange={(e) => setInput(e.target.value)}
-        placeholder="Type your message..."
-        className="textarea textarea-bordered flex-1 w-full  resize-none"
-        rows={1}
-        // disabled={loading}
+        onChange={(e) => {
+          setInput(e.target.value);
+        }}
       />
 
       <div className="flex gap-2 max-md:justify-between max-md:w-full">
@@ -147,7 +151,7 @@ export const ChatInput = () => {
             }}
           />
         ) : (
-          <button className="btn btn-primary btn-sm max-md:order-2">
+          <button className="btn btn-soft  btn-primary btn-sm max-md:order-2">
             <SendHorizontal size={20} />
           </button>
         )}
@@ -178,7 +182,10 @@ export const ChatArea = () => {
     }
 
     const subscription = liveQuery(async () =>
-      db.messages.where({ chatId }).toArray()
+      db.messages
+        .where({ chatId })
+
+        .toArray()
     ).subscribe({
       next: (messages) => {
         // Dispatch messages to Redux store
@@ -320,19 +327,18 @@ export function UserBubble({
 
   return (
     <div className="chat chat-end relative mb-12">
-      <div className="chat-bubble chat-bubble-primary font-[600]">
+      <div className="chat-bubble chat-bubble-primary">
         {editing ? (
-          <div className="sm:min-w-xs md:min-w-sm lg:min-w-md">
-            <textarea
+          <div className="sm:min-w-xs md:min-w-sm lg:min-w-md xl:min-w-lg">
+            <Textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Type your message..."
               className="textarea textarea-bordered flex-1 w-full text-neutral-content [vertical-align:unset] resize-none"
-              rows={1}
             />
           </div>
         ) : (
-          content
+          <ReactMarkdown>{content}</ReactMarkdown>
         )}
       </div>
       <div className="absolute top-full flex gap-2 items-center">
@@ -369,7 +375,7 @@ export function UserBubble({
 
 export function AIBubble({ msg }: { msg: string }) {
   return (
-    <div className="chat leading-loose mb-8">
+    <div className="chat  leading-loose mb-8">
       {/* <Markdown>{msg}</Markdown> */}
 
       <ReactMarkdown

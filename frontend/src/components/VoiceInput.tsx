@@ -92,7 +92,7 @@ const VoiceToText: React.FC<{
     <button
       type="button"
       onClick={isListening ? stopListening : startListening}
-      className="btn btn-primary btn-sm max-md:order-2"
+      className="btn btn-soft btn-primary btn-sm max-md:order-2"
     >
       {isListening ? <MicOff size={20} /> : <Mic size={20} />}
     </button>

@@ -146,7 +146,11 @@ export const deleteChatAndMessages = createAsyncThunk(
 export const fetchMessages = createAsyncThunk(
   "messages/fetchMessages",
   async (chatId: string) => {
-    const messages = await db.messages.where("chatId").equals(chatId).toArray();
+    const messages = await db.messages
+      .where("chatId")
+      .equals(chatId)
+      .filter((message) => message.status != "deleted")
+      .toArray();
     return messages;
   }
 );
