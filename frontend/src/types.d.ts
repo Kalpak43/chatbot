@@ -16,6 +16,7 @@ interface ChatType {
   created_at: number;
   last_message_at: number;
   status: Status;
+  lastSynced: number | null;
 }
 
 interface User {

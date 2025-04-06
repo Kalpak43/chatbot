@@ -2,6 +2,8 @@ const { createResponseStream, generateTitle } = require("../../utils/ai");
 const asyncHandler = require("../../utils/asyncHandler");
 const Chat = require("../../models/chat.model");
 const { saveToChat } = require("../../utils/chat");
+const chatModel = require("../../models/chat.model");
+const MessagesModel = require("../../models/messages.model");
 
 const streamResponse = asyncHandler(async (req, res, next) => {
   const { history, id, uid } = req.body;
@@ -82,7 +84,58 @@ const getTitle = asyncHandler(async (req, res, next) => {
   });
 });
 
+const syncChat = asyncHandler(async (req, res, next) => {
+  const { chat, messages } = req.body;
+
+  const { id } = chat;
+  const existingChat = await chatModel.findById(id);
+
+  let lastSynced = new Date().getTime();
+  if (!existingChat) {
+    const newChat = new chatModel({
+      _id: id,
+      title: chat.title || "New Chat",
+      created_at: chat.created_at,
+      last_message_at: chat.last_message_at,
+      status: chat.status,
+      lastSynced,
+    });
+    await newChat.save();
+  }
+
+  if (messages && messages.length > 0) {
+    const operations = messages.map((message) => ({
+      updateOne: {
+        filter: { _id: message.id },
+        update: {
+          $set: {
+            role: message.role,
+            text: message.text,
+            chatId: id,
+            status: message.status,
+            created_at: message.created_at,
+            updated_at: message.updated_at,
+          },
+        },
+        upsert: true, // Create if doesn't exist, update if exists
+      },
+    }));
+
+    // Use bulkWrite for efficient batch operations
+    await MessagesModel.bulkWrite(operations);
+
+    console.log(1);
+
+    lastSynced = new Date().getTime();
+    // Update chat's lastSynced timestamp
+    await chatModel.findByIdAndUpdate(id, { lastSynced });
+  }
+
+  return res.status(200).send({ lastSynced });
+});
+
 module.exports = {
   streamResponse,
   getTitle,
+  syncChat,
 };

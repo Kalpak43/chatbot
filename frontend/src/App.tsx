@@ -35,7 +35,7 @@ function App() {
     <Suspense fallback={<div>Loading...</div>}>
       <Routes>
         <Route element={<Layout />}>
-          <Route path="/" element={<Homepage />} />
+          <Route path="/" element={<Chatpage />} />
           <Route path="/chat/:chatId?" element={<Chatpage />} />
         </Route>
         <Route path="/login" element={<Loginpage />} />

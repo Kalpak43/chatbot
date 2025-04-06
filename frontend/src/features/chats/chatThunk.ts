@@ -12,6 +12,7 @@ export const createNewChat = createAsyncThunk(
       created_at: new Date().getTime(),
       last_message_at: new Date().getTime(),
       status: "done",
+      lastSynced: null,
     };
     await db.chats.add(newChat);
     return newChat;
