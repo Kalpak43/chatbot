@@ -6,7 +6,7 @@ import { getTitle } from "../utils";
 import {
   fetchMessages,
   getChat,
-  updateChat,
+  // updateChat,
   updateChatTitle,
 } from "../features/chats/chatThunk";
 import { ChatArea, ChatInput } from "../components/ChatComponent";
@@ -17,15 +17,15 @@ import {
   setError,
 } from "../features/chats/chatSlice";
 import { liveQuery } from "dexie";
-import axios from "axios";
+// import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL;
+// const API_URL = import.meta.env.VITE_API_URL;
 
 function Chatpage() {
   const { chatId } = useParams();
   const dispatch = useAppDispatch();
   const activeMessages = useAppSelector((state) => state.chat.activeMessages);
-  const activeChat = useAppSelector((state) => state.chat.activeChat);
+  // const activeChat = useAppSelector((state) => state.chat.activeChat);
 
   useEffect(() => {
     dispatch(resetMessages());

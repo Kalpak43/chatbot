@@ -7,7 +7,7 @@ import { checkLogin } from "./features/auth/authThunk";
 import { useToast } from "./hooks/useToast";
 import { lazy, Suspense } from "react";
 
-const Homepage = lazy(() => import("./pages/Homepage"));
+// const Homepage = lazy(() => import("./pages/Homepage"));
 const Chatpage = lazy(() => import("./pages/Chatpage"));
 const Loginpage = lazy(() => import("./pages/Loginpage"));
 const SignupPage = lazy(() => import("./pages/SignupPage"));
