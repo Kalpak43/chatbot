@@ -3,7 +3,9 @@ import {
   createNewChat,
   deleteChatAndMessages,
   fetchMessages,
+  getChat,
   getChats,
+  updateChat,
   updateChatStatus,
   updateChatTitle,
 } from "./chatThunk";
@@ -13,6 +15,7 @@ type ChatState = {
   activeChatId: string | null;
   error: string | null;
   activeMessages: MessageType[];
+  activeChat: ChatType | null;
 };
 
 const initialState: ChatState = {
@@ -20,6 +23,7 @@ const initialState: ChatState = {
   activeChatId: null,
   error: null,
   activeMessages: [],
+  activeChat: null,
 };
 
 const chatSlice = createSlice({
@@ -34,6 +38,9 @@ const chatSlice = createSlice({
     },
     setError: (state, action) => {
       state.error = action.payload;
+    },
+    setActiveChat: (state, action) => {
+      state.activeChat = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -73,6 +80,27 @@ const chatSlice = createSlice({
       .addCase(getChats.rejected, (state, action) => {
         state.error = action.error.message ?? "An error occurred";
       })
+      .addCase(getChat.fulfilled, (state, action) => {
+        state.activeChat = action.payload;
+      })
+      .addCase(getChat.rejected, (state, action) => {
+        state.error = action.error.message ?? "An error occurred";
+      })
+      .addCase(updateChat.fulfilled, (state, action) => {
+        const { chatId, ...updateData } = action.payload;
+        const chat = state.chats.find((chat) => chat.id === chatId);
+        if (chat) {
+          Object.assign(chat, updateData);
+        }
+
+        // Update activeChat if it's the same chat
+        if (state.activeChat && state.activeChat.id === chatId) {
+          Object.assign(state.activeChat, updateData);
+        }
+      })
+      .addCase(updateChat.rejected, (state, action) => {
+        state.error = action.error.message ?? "An error occurred";
+      })
       .addCase(fetchMessages.fulfilled, (state, action) => {
         state.activeMessages = action.payload;
       })
@@ -82,6 +110,7 @@ const chatSlice = createSlice({
   },
 });
 
-export const { setActiveChatId, resetMessages, setError } = chatSlice.actions;
+export const { setActiveChatId, resetMessages, setError, setActiveChat } =
+  chatSlice.actions;
 
 export default chatSlice.reducer;

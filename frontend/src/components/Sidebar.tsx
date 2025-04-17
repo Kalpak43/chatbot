@@ -99,10 +99,6 @@ const Recents = () => {
   const chats = useAppSelector((state) => state.chat.chats);
 
   useEffect(() => {
-    console.log(chats);
-  }, [chats]);
-
-  useEffect(() => {
     dispatch(getChats());
   }, [dispatch]);
 

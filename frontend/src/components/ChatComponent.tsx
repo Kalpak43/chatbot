@@ -7,6 +7,7 @@ import {
   createNewChat,
   deleteMessage,
   fetchMessages,
+  updateChat,
   updateChatStatus,
   updateMessageContent,
   updateMessageStatus,
@@ -74,6 +75,15 @@ export const ChatInput = () => {
         })
       );
 
+      await dispatch(
+        updateChat({
+          chatId: id,
+          data: {
+            last_message_at: new Date().getTime(),
+          },
+        })
+      );
+
       if (!chatId) navigate(`/chat/${id}`);
 
       // will be completed by `sendPrompt`
@@ -87,7 +97,10 @@ export const ChatInput = () => {
       ).then((action) => action.payload as string);
 
       await sendPrompt({
-        chatHistory: [...activeMessages, { role: "user", text: message }],
+        chatHistory: [
+          ...activeMessages.filter((message) => message.status != "deleted"),
+          { role: "user", text: message },
+        ],
         onMessage: async (msg) => {
           await dispatch(
             appendMessageContent({ messageId: responseId, text: msg })
@@ -103,13 +116,31 @@ export const ChatInput = () => {
           await dispatch(
             updateMessageStatus({ messageId: responseId, status: "done" })
           );
-          await dispatch(updateChatStatus({ chatId: id, status: "done" }));
+
+          await dispatch(
+            updateChat({
+              chatId: id,
+              data: {
+                last_message_at: new Date().getTime(),
+                status: "done",
+              },
+            })
+          );
         },
         onError: async (error) => {
           await dispatch(
             updateMessageStatus({ messageId: responseId, status: "failed" })
           );
-          await dispatch(updateChatStatus({ chatId: id, status: "failed" }));
+
+          await dispatch(
+            updateChat({
+              chatId: id,
+              data: {
+                last_message_at: new Date().getTime(),
+                status: "failed",
+              },
+            })
+          );
 
           if (error instanceof Error) {
             dispatch(setError(error.message));
@@ -182,18 +213,13 @@ export const ChatArea = () => {
     }
 
     const subscription = liveQuery(async () =>
-      db.messages
-        .where({ chatId })
-
-        .toArray()
+      db.messages.where({ chatId }).toArray()
     ).subscribe({
       next: (messages) => {
         // Dispatch messages to Redux store
         dispatch(
           fetchMessages.fulfilled(
-            [...messages]
-              .filter((message) => message.status != "deleted")
-              .sort((a, b) => a.created_at - b.created_at),
+            [...messages].sort((a, b) => a.created_at - b.created_at),
             fetchMessages.typePrefix,
             ""
           )
@@ -279,35 +305,37 @@ export const ChatArea = () => {
   return (
     <section className="xl:pb-40 h-full overflow-y-auto">
       <div className="p-4 max-w-sm md:max-w-full xl:max-w-3xl mx-auto">
-        {activeMessages.map((message) => {
-          return (
-            <>
-              {message.status == "typing" && (
-                <span
-                  key={message.id}
-                  className="loading loading-dots loading-xl"
-                />
-              )}
-              {message.status == "failed" && (
-                <span key={message.id} className="">
-                  Failed to Generate a Response. Try again.
-                </span>
-              )}
-              {(message.status == "pending" || message.status == "done") &&
-                {
-                  user: (
-                    <UserBubble
-                      key={message.id}
-                      msg={message}
-                      onEdit={handleEditMessage}
-                      onDelete={handleDeleteMessge}
-                    />
-                  ),
-                  ai: <AIBubble key={message.id} msg={message.text} />,
-                }[message.role]}
-            </>
-          );
-        })}
+        {activeMessages
+          .filter((message) => message.status != "deleted")
+          .map((message) => {
+            return (
+              <>
+                {message.status == "typing" && (
+                  <span
+                    key={message.id}
+                    className="loading loading-dots loading-xl"
+                  />
+                )}
+                {message.status == "failed" && (
+                  <span key={message.id} className="">
+                    Failed to Generate a Response. Try again.
+                  </span>
+                )}
+                {(message.status == "pending" || message.status == "done") &&
+                  {
+                    user: (
+                      <UserBubble
+                        key={message.id}
+                        msg={message}
+                        onEdit={handleEditMessage}
+                        onDelete={handleDeleteMessge}
+                      />
+                    ),
+                    ai: <AIBubble key={message.id} msg={message.text} />,
+                  }[message.role]}
+              </>
+            );
+          })}
       </div>
     </section>
   );

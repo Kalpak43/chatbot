@@ -44,6 +44,19 @@ export const getChats = createAsyncThunk("chat/getChats", async () => {
   );
 });
 
+export const getChat = createAsyncThunk(
+  "chat/getChat",
+  async ({ id }: { id: string }, thunkAPI) => {
+    const chat = await db.chats.get(id);
+
+    if (!chat) {
+      return thunkAPI.rejectWithValue("Chat not Found!!!");
+    }
+
+    return chat;
+  }
+);
+
 // messages
 export const addNewMessage = createAsyncThunk(
   "chat/addNewMessage",
@@ -150,8 +163,22 @@ export const fetchMessages = createAsyncThunk(
     const messages = await db.messages
       .where("chatId")
       .equals(chatId)
-      .filter((message) => message.status != "deleted")
+      // .filter((message) => message.status != "deleted")
       .toArray();
     return messages;
+  }
+);
+
+export const updateChat = createAsyncThunk(
+  "chat/updateChat",
+  async ({
+    chatId,
+    data,
+  }: {
+    chatId: string;
+    data: Partial<Omit<ChatType, "id">>;
+  }) => {
+    await db.chats.update(chatId, data);
+    return { chatId, ...data };
   }
 );

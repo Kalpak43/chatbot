@@ -134,8 +134,22 @@ const syncChat = asyncHandler(async (req, res, next) => {
   return res.status(200).send({ lastSynced });
 });
 
+const getSyncTime = asyncHandler(async (req, res, next) => {
+  const { chatId } = req.body;
+
+  const chat = await chatModel.findById(chatId);
+  if (!chat) {
+    return res.status(200).send({ lastSynced: -1 });
+  }
+
+  return res
+    .status(200)
+    .send({ lastSynced: chat.lastSynced ? chat.lastSynced : -1 });
+});
+
 module.exports = {
   streamResponse,
   getTitle,
   syncChat,
+  getSyncTime,
 };
