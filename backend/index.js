@@ -67,11 +67,13 @@ const server = https.createServer(
   app
 );
 
+const PORT = process.env.PORT || 8080
+
 async function startServer() {
   await connectToDB();
 
-  server.listen(8081, () => {
-    console.log("Listening to https://localhost:8081");
+  server.listen(PORT, () => {
+    console.log(`Listening to https://localhost:${PORT}`);
   });
 }
 
