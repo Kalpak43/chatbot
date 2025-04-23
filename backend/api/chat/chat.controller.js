@@ -84,69 +84,6 @@ const getTitle = asyncHandler(async (req, res, next) => {
   });
 });
 
-// const syncChat = asyncHandler(async (req, res, next) => {
-//   const { chat, messages } = req.body;
-
-//   const { id } = chat;
-//   const existingChat = await chatModel.findById(id);
-
-//   let lastSynced = new Date().getTime();
-//   if (!existingChat) {
-//     const newChat = new chatModel({
-//       _id: id,
-//       title: chat.title || "New Chat",
-//       created_at: chat.created_at,
-//       last_message_at: chat.last_message_at,
-//       status: chat.status,
-//       lastSynced,
-//     });
-//     await newChat.save();
-//   }
-
-//   if (messages && messages.length > 0) {
-//     const operations = messages.map((message) => ({
-//       updateOne: {
-//         filter: { _id: message.id },
-//         update: {
-//           $set: {
-//             role: message.role,
-//             text: message.text,
-//             chatId: id,
-//             status: message.status,
-//             created_at: message.created_at,
-//             updated_at: message.updated_at,
-//           },
-//         },
-//         upsert: true, // Create if doesn't exist, update if exists
-//       },
-//     }));
-
-//     // Use bulkWrite for efficient batch operations
-//     await MessagesModel.bulkWrite(operations);
-
-//     console.log(1);
-
-//     lastSynced = new Date().getTime();
-//     // Update chat's lastSynced timestamp
-//     await chatModel.findByIdAndUpdate(id, { lastSynced });
-//   }
-
-//   return res.status(200).send({ lastSynced });
-// });
-
-// const getSyncTime = asyncHandler(async (req, res, next) => {
-//   const { chatId } = req.body;
-
-//   const chat = await chatModel.findById(chatId);
-//   if (!chat) {
-//     return res.status(200).send({ lastSynced: -1 });
-//   }
-
-//   return res
-//     .status(200)
-//     .send({ lastSynced: chat.lastSynced ? chat.lastSynced : -1 });
-// });
-
 const sync = asyncHandler(async (req, res, next) => {
   const { chats, messages, lastSynced } = req.body;
 
@@ -266,8 +203,52 @@ const syncBack = asyncHandler(async (req, res, next) => {
   });
 });
 
+const syncChat = asyncHandler(async (req, res, next) => {
+  const { chat } = req.body;
+
+  const { id } = chat;
+
+  if (!id) {
+    const newChat = new chatModel(chat);
+    await newChat.save();
+    return res.status(201).send({ chat: newChat, msg: "Chat created" });
+  } else {
+    const updatedChat = await chatModel.findOneAndUpdate(
+      { _id: id },
+      { $set: chat },
+      { new: true, upsert: true }
+    );
+    return res.status(200).send({ chat: updatedChat, msg: "Chat updated" });
+  }
+});
+
+const getChats = asyncHandler(async (req, res, next) => {
+  const since = req.query.since;
+
+  if (!since) {
+    return res.status(400).json({ error: 'Missing "since" query parameter' });
+  }
+
+  const chats = await chatModel
+    .find({
+      $or: [{ created_at: { $gte: since } }, { updated_at: { $gte: since } }],
+    })
+    .lean();
+
+  const formattedChats = chats.map((doc) => {
+    doc.id = doc._id;
+    delete doc._id;
+    delete doc.__v;
+    return doc;
+  });
+
+  return res.status(200).json({ chats: formattedChats });
+});
+
 module.exports = {
   streamResponse,
   getTitle,
   sync,
+  syncChat,
+  getChats,
 };

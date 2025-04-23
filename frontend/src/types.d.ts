@@ -8,6 +8,7 @@ interface MessageType {
   status: Status;
   created_at: number;
   updated_at: number;
+  syncStatus: SyncStatus;
 }
 
 interface ChatType {
@@ -18,6 +19,7 @@ interface ChatType {
   last_message_at: number;
   status: Status;
   lastSynced: number | null;
+  syncStatus: SyncStatus;
 }
 
 interface User {

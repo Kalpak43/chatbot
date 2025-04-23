@@ -1,5 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import db from "../../db";
+import { syncService, SyncStatus } from "../../services/sync-service";
 
 // chats
 export const createNewChat = createAsyncThunk(
@@ -15,8 +16,12 @@ export const createNewChat = createAsyncThunk(
       last_message_at: now,
       status: "done",
       lastSynced: null,
+      syncStatus: SyncStatus.PENDING,
     };
     await db.chats.add(newChat);
+
+    syncService.syncChat(id);
+
     return newChat;
   }
 );
@@ -34,7 +39,13 @@ export const updateChatTitle = createAsyncThunk(
   "chat/updateChatTitle",
   async ({ chatId, title }: { chatId: string; title: string }) => {
     console.log(title);
-    await db.chats.update(chatId, { title, updated_at: new Date().getTime() });
+    await db.chats.update(chatId, {
+      title,
+      updated_at: new Date().getTime(),
+      syncStatus: SyncStatus.PENDING,
+    });
+
+    syncService.syncChat(chatId);
 
     return { chatId, title };
   }
@@ -82,6 +93,7 @@ export const addNewMessage = createAsyncThunk(
       status: status,
       created_at: new Date().getTime(),
       updated_at: new Date().getTime(),
+      syncStatus: SyncStatus.PENDING,
     });
     await db.chats.update(chatId, { last_message_at: new Date().getTime() });
 
@@ -168,6 +180,32 @@ export const fetchMessages = createAsyncThunk(
       // .filter((message) => message.status != "deleted")
       .toArray();
     return messages;
+  }
+);
+
+export const syncLocalChanges = createAsyncThunk(
+  "chat/syncLocalChanges",
+  async () => {
+    await syncService.syncAll();
+    return true;
+  }
+);
+
+export const pullRemoteChanges = createAsyncThunk(
+  "chat/pullRemoteChanges",
+  async ({ lastSyncTimestamp }: { lastSyncTimestamp: number }, thunkAPI) => {
+    const result = await syncService.pullChanges(lastSyncTimestamp);
+
+    if (result.success) {
+      // Reload chats and messages after sync
+      const updatedChats = await db.chats.toArray();
+      return {
+        chats: updatedChats,
+        syncTimestamp: result.syncTimestamp,
+      };
+    }
+
+    return thunkAPI.rejectWithValue("Failed to pull remote changes");
   }
 );
 

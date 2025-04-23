@@ -5,6 +5,7 @@ import {
   fetchMessages,
   getChat,
   getChats,
+  pullRemoteChanges,
   updateChat,
   updateChatStatus,
   updateChatTitle,
@@ -108,6 +109,21 @@ const chatSlice = createSlice({
       })
       .addCase(deleteChatAndMessages.fulfilled, (state, action) => {
         state.chats = state.chats.filter((chat) => chat.id !== action.payload);
+      })
+      .addCase(pullRemoteChanges.fulfilled, (state, action) => {
+        state.chats = action.payload.chats;
+
+        if (state.activeChatId) {
+          const activeChat = action.payload.chats.find(
+            (chat) => chat.id === state.activeChatId
+          );
+          if (activeChat) {
+            state.activeChat = activeChat;
+          }
+        }
+      })
+      .addCase(pullRemoteChanges.rejected, (state, action) => {
+        state.error = action.error.message ?? "An unknown error occurred";
       });
   },
 });

@@ -25,6 +25,7 @@ function Chatpage() {
   const { chatId } = useParams();
   const dispatch = useAppDispatch();
   const activeMessages = useAppSelector((state) => state.chat.activeMessages);
+
   // const activeChat = useAppSelector((state) => state.chat.activeChat);
 
   useEffect(() => {
@@ -91,7 +92,6 @@ function Chatpage() {
     setChatTitle();
   }, [activeMessages, chatId]);
 
-  
   return (
     <div className="relative h-full flex flex-col">
       {/* <ChatComponent activeChatId={chatId!} /> */}
