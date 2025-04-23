@@ -159,7 +159,7 @@ export const ChatInput = () => {
         e.preventDefault();
         handleSend(input);
       }}
-      className="flex max-md:flex-col items-end gap-2 p-4 border border-neutral bg-base-200 shadow-md xl:max-w-3xl xl:mx-auto xl:absolute xl:bottom-0 xl:inset-x-0 rounded-t-xl"
+      className="glass-card flex max-md:flex-col items-end gap-2 p-4 border border-neutral bg-base-200 shadow-md xl:max-w-3xl xl:mx-auto xl:absolute xl:bottom-0 xl:inset-x-0 rounded-t-xl"
     >
       <Textarea
         value={input}

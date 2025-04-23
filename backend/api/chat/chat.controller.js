@@ -148,7 +148,43 @@ const getTitle = asyncHandler(async (req, res, next) => {
 // });
 
 const sync = asyncHandler(async (req, res, next) => {
-  const { chats, messages } = req.body;
+  const { chats, messages, lastSynced } = req.body;
+
+  console.log(
+    "---------------------------------------------------------------------"
+  );
+  console.log(lastSynced);
+  const newChats = await chatModel
+    .find({
+      $or: [
+        { created_at: { $gte: lastSynced } },
+        { updated_at: { $gte: lastSynced } },
+      ],
+    })
+    .lean();
+
+  const formattedChats = newChats.map((doc) => {
+    doc.id = doc._id;
+    delete doc._id;
+    delete doc.__v;
+    return doc;
+  });
+
+  const newMessages = await MessagesModel.find({
+    $or: [
+      { created_at: { $gte: lastSynced } },
+      { updated_at: { $gte: lastSynced } },
+    ],
+  }).lean();
+
+  const formattedMessages = newMessages.map((doc) => {
+    doc.id = doc._id;
+    delete doc._id;
+    delete doc.__v;
+    return doc;
+  });
+
+  console.log(newChats, newMessages);
 
   if (!chats && !messages) {
     const err = new Error("No chats and messages received");
@@ -199,8 +235,34 @@ const sync = asyncHandler(async (req, res, next) => {
   }
 
   return res.status(200).send({
+    chats: formattedChats,
+    messages: formattedMessages,
     time: new Date().getTime(),
     msg: "Sync Successful",
+  });
+});
+
+const syncBack = asyncHandler(async (req, res, next) => {
+  const { lastSynced } = req.body;
+
+  const chats = await chatModel.find({
+    $or: [
+      { created_at: { $gt: lastSynced } },
+      { updated_at: { $gt: lastSynced } },
+    ],
+  });
+
+  const messages = await MessagesModel.find({
+    $or: [
+      { created_at: { $gt: lastSynced } },
+      { updated_at: { $gt: lastSynced } },
+    ],
+  });
+
+  return res.status(200).send({
+    chats,
+    messages,
+    time: new Date().getTime(),
   });
 });
 

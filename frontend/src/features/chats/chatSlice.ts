@@ -102,7 +102,9 @@ const chatSlice = createSlice({
         state.error = action.error.message ?? "An error occurred";
       })
       .addCase(fetchMessages.fulfilled, (state, action) => {
-        state.activeMessages = action.payload;
+        state.activeMessages = action.payload.sort((a, b) => {
+          return a.created_at - b.created_at;
+        });
       })
       .addCase(deleteChatAndMessages.fulfilled, (state, action) => {
         state.chats = state.chats.filter((chat) => chat.id !== action.payload);

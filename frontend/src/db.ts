@@ -15,24 +15,4 @@ class ChatDatabase extends Dexie {
 
 const db = new ChatDatabase();
 
-db.chats.hook("creating", (_, obj: ChatType) => {
-  obj.created_at = new Date().getTime();
-  obj.updated_at = obj.created_at;
-
-  // console.log("HERE: ", obj);
-});
-
-db.chats.hook("updating", (mods: Partial<ChatType>, primKey, obj: ChatType) => {
-  mods.updated_at = new Date().getTime();
-});
-
-db.messages.hook("creating", (primKey, obj: MessageType) => {
-  obj.created_at = new Date().getTime();
-  obj.updated_at = obj.created_at;
-});
-
-db.messages.hook("updating", (mods: Partial<MessageType>, primKey, obj) => {
-  mods.updated_at = new Date().getTime();
-});
-
 export default db;

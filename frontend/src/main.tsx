@@ -12,10 +12,12 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
       <BrowserRouter>
-        <ToastProvider>
-          <App />
-          <Toast />
-        </ToastProvider>
+        <div data-theme="glassmorph-dark">
+          <ToastProvider>
+            <App />
+            <Toast />
+          </ToastProvider>
+        </div>
       </BrowserRouter>
     </Provider>
   </StrictMode>

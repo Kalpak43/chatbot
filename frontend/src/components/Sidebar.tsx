@@ -29,13 +29,13 @@ function Sidebar() {
   return (
     <>
       <button
-        className="btn btn-soft btn-primary fixed top-0 left-0 z-40 m-2"
+        className="glass-button btn btn-soft btn-primary fixed top-0 left-0 z-40 m-2"
         onClick={() => setHide((x) => !x)}
       >
         <Menu />
       </button>
       <nav
-        className={`relative max-lg:fixed max-lg:inset-y-0 max-lg:left-0 z-50 w-3/4 md:w-1/3 lg:w-1/4 xl:w-1/6 border-r p-4 min-h-full h-[100dvh] bg-base-200 flex flex-col transition-all duration-300 ${
+        className={`glass-nav max-lg:fixed inset-y-0 left-0 z-50 w-3/4 md:w-1/3 lg:w-1/4 xl:w-1/6  border-r border-white/20 p-4 min-h-full h-[100dvh] flex flex-col transition-all duration-300 ${
           hide ? "max-lg:-translate-x-full" : ""
         }`}
       >
@@ -104,20 +104,20 @@ const Recents = () => {
 
   if (chats.length === 0) {
     return (
-      <div className="flex items-center justify-center w-full h-full">
-        No chats Found
+      <div className="flex items-center justify-center w-full h-full text-white/70">
+        No chats found
       </div>
     );
   }
 
   return (
-    <ul className="menu bg-base-100 rounded-box w-full h-full flex-1 overflow-y-auto block text-xs">
+    <ul className="glass-list w-full h-full flex-1 overflow-y-auto block text-sm">
       {[...chats]
         .sort((a, b) => {
           return b.created_at - a.created_at;
         })
         .map((chat) => (
-          <li key={chat.id} className="w-full">
+          <li key={chat.id} className="w-full mb-1">
             <ChatButton chat={chat} />
           </li>
         ))}

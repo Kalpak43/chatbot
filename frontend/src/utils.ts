@@ -147,12 +147,17 @@ export async function getTitle(history: MessageType[]) {
   return res.data;
 }
 
-export async function sync(chats: ChatType[], messages: MessageType[]) {
+export async function sync(
+  chats: ChatType[],
+  messages: MessageType[],
+  lastSynced: number
+) {
   const res = await axios.post(
     `${API_URL}/api/chat/sync`,
     {
       chats,
       messages,
+      lastSynced,
     },
     {
       withCredentials: true,
