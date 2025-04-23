@@ -5,12 +5,14 @@ import db from "../../db";
 export const createNewChat = createAsyncThunk(
   "chat/createNewChat",
   async () => {
+    const now = new Date().getTime();
     const id = crypto.randomUUID();
     const newChat: ChatType = {
       id: id,
       title: "",
-      created_at: new Date().getTime(),
-      last_message_at: new Date().getTime(),
+      created_at: now,
+      updated_at: now,
+      last_message_at: now,
       status: "done",
       lastSynced: null,
     };
@@ -32,7 +34,7 @@ export const updateChatTitle = createAsyncThunk(
   "chat/updateChatTitle",
   async ({ chatId, title }: { chatId: string; title: string }) => {
     console.log(title);
-    await db.chats.update(chatId, { title });
+    await db.chats.update(chatId, { title, updated_at: new Date().getTime() });
 
     return { chatId, title };
   }

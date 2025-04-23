@@ -84,72 +84,128 @@ const getTitle = asyncHandler(async (req, res, next) => {
   });
 });
 
-const syncChat = asyncHandler(async (req, res, next) => {
-  const { chat, messages } = req.body;
+// const syncChat = asyncHandler(async (req, res, next) => {
+//   const { chat, messages } = req.body;
 
-  const { id } = chat;
-  const existingChat = await chatModel.findById(id);
+//   const { id } = chat;
+//   const existingChat = await chatModel.findById(id);
 
-  let lastSynced = new Date().getTime();
-  if (!existingChat) {
-    const newChat = new chatModel({
-      _id: id,
-      title: chat.title || "New Chat",
-      created_at: chat.created_at,
-      last_message_at: chat.last_message_at,
-      status: chat.status,
-      lastSynced,
-    });
-    await newChat.save();
+//   let lastSynced = new Date().getTime();
+//   if (!existingChat) {
+//     const newChat = new chatModel({
+//       _id: id,
+//       title: chat.title || "New Chat",
+//       created_at: chat.created_at,
+//       last_message_at: chat.last_message_at,
+//       status: chat.status,
+//       lastSynced,
+//     });
+//     await newChat.save();
+//   }
+
+//   if (messages && messages.length > 0) {
+//     const operations = messages.map((message) => ({
+//       updateOne: {
+//         filter: { _id: message.id },
+//         update: {
+//           $set: {
+//             role: message.role,
+//             text: message.text,
+//             chatId: id,
+//             status: message.status,
+//             created_at: message.created_at,
+//             updated_at: message.updated_at,
+//           },
+//         },
+//         upsert: true, // Create if doesn't exist, update if exists
+//       },
+//     }));
+
+//     // Use bulkWrite for efficient batch operations
+//     await MessagesModel.bulkWrite(operations);
+
+//     console.log(1);
+
+//     lastSynced = new Date().getTime();
+//     // Update chat's lastSynced timestamp
+//     await chatModel.findByIdAndUpdate(id, { lastSynced });
+//   }
+
+//   return res.status(200).send({ lastSynced });
+// });
+
+// const getSyncTime = asyncHandler(async (req, res, next) => {
+//   const { chatId } = req.body;
+
+//   const chat = await chatModel.findById(chatId);
+//   if (!chat) {
+//     return res.status(200).send({ lastSynced: -1 });
+//   }
+
+//   return res
+//     .status(200)
+//     .send({ lastSynced: chat.lastSynced ? chat.lastSynced : -1 });
+// });
+
+const sync = asyncHandler(async (req, res, next) => {
+  const { chats, messages } = req.body;
+
+  if (!chats && !messages) {
+    const err = new Error("No chats and messages received");
+    err.status = 400;
+    throw err;
   }
 
-  if (messages && messages.length > 0) {
-    const operations = messages.map((message) => ({
+  if (chats.length > 0) {
+    const chatOperations = chats.map((chat) => ({
+      updateOne: {
+        filter: { _id: chat.id },
+        update: {
+          $set: {
+            title: chat.title || "New Chat",
+            created_at: chat.created_at,
+            updated_at: chat.updated_at,
+            last_message_at: chat.last_message_at,
+            status: chat.status,
+            lastSynced: new Date().getTime(),
+          },
+        },
+        upsert: true,
+      },
+    }));
+
+    await chatModel.bulkWrite(chatOperations);
+  }
+
+  if (messages.length > 0) {
+    const messageOperations = messages.map((message) => ({
       updateOne: {
         filter: { _id: message.id },
         update: {
           $set: {
             role: message.role,
             text: message.text,
-            chatId: id,
+            chatId: message.chatId,
             status: message.status,
             created_at: message.created_at,
             updated_at: message.updated_at,
           },
         },
-        upsert: true, // Create if doesn't exist, update if exists
+        upsert: true,
       },
     }));
 
-    // Use bulkWrite for efficient batch operations
-    await MessagesModel.bulkWrite(operations);
-
-    console.log(1);
-
-    lastSynced = new Date().getTime();
-    // Update chat's lastSynced timestamp
-    await chatModel.findByIdAndUpdate(id, { lastSynced });
+    await MessagesModel.bulkWrite(messageOperations);
   }
 
-  return res.status(200).send({ lastSynced });
-});
-
-const getSyncTime = asyncHandler(async (req, res, next) => {
-  const { chatId } = req.body;
-
-  const chat = await chatModel.findById(chatId);
-  if (!chat) {
-    return res.status(200).send({ lastSynced: -1 });
-  }
-
-  return res
-    .status(200)
-    .send({ lastSynced: chat.lastSynced ? chat.lastSynced : -1 });
+  return res.status(200).send({
+    time: new Date().getTime(),
+    msg: "Sync Successful",
+  });
 });
 
 module.exports = {
   streamResponse,
   getTitle,
-  syncChat,
-  getSyncTime,
+  sync,
 };

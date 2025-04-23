@@ -15,6 +15,10 @@ const ChatSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    updated_at: {
+      type: Number,
+      required: true,
+    },
     last_message_at: {
       type: Number,
       required: true,

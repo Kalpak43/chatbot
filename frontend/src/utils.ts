@@ -146,3 +146,18 @@ export async function getTitle(history: MessageType[]) {
 
   return res.data;
 }
+
+export async function sync(chats: ChatType[], messages: MessageType[]) {
+  const res = await axios.post(
+    `${API_URL}/api/chat/sync`,
+    {
+      chats,
+      messages,
+    },
+    {
+      withCredentials: true,
+    }
+  );
+
+  return res.data;
+}
