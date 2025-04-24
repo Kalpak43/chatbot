@@ -47,7 +47,7 @@ function SignupPage() {
 
   return (
     <div className="flex items-center justify-center h-screen">
-      <div className="card w-96 shadow-xl p-6">
+      <div className="glass-card card w-96 shadow-xl p-6">
         <h2 className="text-2xl font-bold text-center mb-4">Sign Up</h2>
         <form onSubmit={handleSubmit}>
           <div className="form-control mb-4">

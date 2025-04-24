@@ -309,15 +309,12 @@ export const ChatArea = () => {
           .filter((message) => message.status != "deleted")
           .map((message) => {
             return (
-              <>
+              <div key={message.id}>
                 {message.status == "typing" && (
-                  <span
-                    key={message.id}
-                    className="loading loading-dots loading-xl"
-                  />
+                  <span className="loading loading-dots loading-xl" />
                 )}
                 {message.status == "failed" && (
-                  <span key={message.id} className="">
+                  <span className="">
                     Failed to Generate a Response. Try again.
                   </span>
                 )}
@@ -325,15 +322,14 @@ export const ChatArea = () => {
                   {
                     user: (
                       <UserBubble
-                        key={message.id}
                         msg={message}
                         onEdit={handleEditMessage}
                         onDelete={handleDeleteMessge}
                       />
                     ),
-                    ai: <AIBubble key={message.id} msg={message.text} />,
+                    ai: <AIBubble msg={message.text} />,
                   }[message.role]}
-              </>
+              </div>
             );
           })}
       </div>

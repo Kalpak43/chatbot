@@ -38,7 +38,7 @@ export const updateChatStatus = createAsyncThunk(
 export const updateChatTitle = createAsyncThunk(
   "chat/updateChatTitle",
   async ({ chatId, title }: { chatId: string; title: string }) => {
-    console.log(title);
+    // console.log(title);
     await db.chats.update(chatId, {
       title,
       updated_at: new Date().getTime(),
@@ -97,6 +97,8 @@ export const addNewMessage = createAsyncThunk(
     });
     await db.chats.update(chatId, { last_message_at: new Date().getTime() });
 
+    syncService.syncMessage(id);
+
     return id;
   }
 );
@@ -104,7 +106,11 @@ export const addNewMessage = createAsyncThunk(
 export const updateMessageStatus = createAsyncThunk(
   "chat/updateMessageStatus",
   async ({ messageId, status }: { messageId: string; status: Status }) => {
-    await db.messages.update(messageId, { status });
+    await db.messages.update(messageId, {
+      status,
+      syncStatus: SyncStatus.PENDING,
+    });
+    syncService.syncMessage(messageId);
   }
 );
 
@@ -127,7 +133,12 @@ export const updateMessageContent = createAsyncThunk(
         .and((msg) => msg.created_at > message.created_at)
         .delete();
     });
-    await db.messages.update(message.id, { text: updatedContent });
+    await db.messages.update(message.id, {
+      text: updatedContent,
+      syncStatus: SyncStatus.PENDING,
+    });
+
+    syncService.syncMessage(message.id);
   }
 );
 
@@ -199,8 +210,10 @@ export const pullRemoteChanges = createAsyncThunk(
     if (result.success) {
       // Reload chats and messages after sync
       const updatedChats = await db.chats.toArray();
+      const updatedMessages = await db.messages.toArray();
       return {
         chats: updatedChats,
+        messages: updatedMessages,
         syncTimestamp: result.syncTimestamp,
       };
     }

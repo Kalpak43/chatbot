@@ -51,7 +51,7 @@ export class SyncService {
 
     this.queueSync(async () => {
       try {
-        console.log("SEND TO SERVER", chat.id);
+        console.log("SEND CHAT TO SERVER");
 
         const response = await axios.post(
           `${API_URL}/api/chat/sync-chat`,
@@ -82,6 +82,49 @@ export class SyncService {
     });
   }
 
+  async syncMessage(messageId: string) {
+    const message = await db.messages.get(messageId);
+    if (!message) return;
+
+    if (
+      message.syncStatus == SyncStatus.DONE ||
+      message.status == "typing" ||
+      message.status == "pending"
+    )
+      return;
+
+    this.queueSync(async () => {
+      try {
+        console.log("SEND MESSAGE TO SERVER");
+
+        const response = await axios.post(
+          `${API_URL}/api/chat/sync-message`,
+          {
+            message,
+          },
+          {
+            withCredentials: true,
+          }
+        );
+
+        if (response.status !== 200) {
+          throw new Error("Failed to sync chat");
+        }
+
+        const currentTime = Date.now();
+
+        // Update local status
+        await db.messages.update(message.id, {
+          syncStatus: SyncStatus.DONE,
+          updated_at: currentTime,
+        });
+      } catch (error) {
+        console.error("Chat sync failed:", error);
+        await db.messages.update(messageId, { syncStatus: SyncStatus.FAILED });
+      }
+    });
+  }
+
   // Sync all pending chats and messages
   async syncAll() {
     // Get all pending chats
@@ -90,12 +133,24 @@ export class SyncService {
       .anyOf([SyncStatus.PENDING, SyncStatus.FAILED])
       .toArray();
 
+    const pendingMessages = await db.messages
+      .where("syncStatus")
+      .anyOf([SyncStatus.PENDING, SyncStatus.FAILED])
+      .toArray();
+
     // Queue sync operations
     pendingChats.forEach((chat) => this.syncChat(chat.id));
+
+    pendingMessages
+      .filter(
+        (message) => message.status != "pending" && message.status != "typing"
+      )
+      .forEach((message) => this.syncMessage(message.id));
   }
 
   // Pull changes from server
   async pullChanges(lastSyncTimestamp: number) {
+    // console.log(lastSyncTimestamp);
     try {
       const chatResponse = await axios.get(
         `${API_URL}/api/chat/get-chats?since=${lastSyncTimestamp}`,
@@ -105,12 +160,21 @@ export class SyncService {
       );
 
       const { chats: fetchedChats } = chatResponse.data;
-      console.log(fetchedChats);
+      // console.log(fetchedChats);
+
+      const messageResponse = await axios.get(
+        `${API_URL}/api/chat/get-messages?since=${lastSyncTimestamp}`,
+        {
+          withCredentials: true,
+        }
+      );
+
+      const { messages: fetchedMessages } = messageResponse.data;
 
       const currentTime = Date.now();
 
       // Update local database with server changes
-      await db.transaction("rw", db.chats, async () => {
+      await db.transaction("rw", db.chats, db.messages, async () => {
         for (const chat of fetchedChats) {
           const existingChat = await db.chats.get(chat.id);
 
@@ -119,6 +183,20 @@ export class SyncService {
               ...chat,
               syncStatus: SyncStatus.DONE,
               lastSynced: currentTime,
+            });
+          }
+        }
+
+        for (const message of fetchedMessages) {
+          const existingMessage = await db.messages.get(message.id);
+
+          if (
+            !existingMessage ||
+            existingMessage.updated_at < message.updated_at
+          ) {
+            await db.messages.put({
+              ...message,
+              syncStatus: SyncStatus.DONE,
             });
           }
         }

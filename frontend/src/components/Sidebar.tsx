@@ -135,7 +135,7 @@ const ChatButton = ({ chat }: { chat: ChatType }) => {
       to={`/chat/${chat.id}`}
       className={`relative block truncate hover:text-primary w-full px-4 py-2 rounded-lg ${
         location.pathname === `/chat/${chat.id}`
-          ? "bg-neutral text-primary"
+          ? "bg-neutral/50 text-primary"
           : ""
       }`}
     >

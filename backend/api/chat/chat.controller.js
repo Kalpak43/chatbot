@@ -245,10 +245,55 @@ const getChats = asyncHandler(async (req, res, next) => {
   return res.status(200).json({ chats: formattedChats });
 });
 
+const syncMessage = asyncHandler(async (req, res, next) => {
+  const { message } = req.body;
+  const { id } = message;
+
+  if (!id) {
+    const newMessage = new MessagesModel(message);
+    await newMessage.save();
+    return res
+      .status(201)
+      .send({ message: newMessage, msg: "Message created" });
+  } else {
+    const updatedMessage = await MessagesModel.findOneAndUpdate(
+      { _id: id },
+      { $set: message },
+      { new: true, upsert: true }
+    );
+    return res
+      .status(200)
+      .send({ message: updatedMessage, msg: "Message updated" });
+  }
+});
+
+const getMessages = asyncHandler(async (req, res, next) => {
+  const since = req.query.since;
+
+  if (!since) {
+    return res.status(400).json({ error: 'Missing "since" query parameter' });
+  }
+
+  const messages = await MessagesModel.find({
+    $or: [{ created_at: { $gte: since } }, { updated_at: { $gte: since } }],
+  }).lean();
+
+  const formattedMessages = messages.map((doc) => {
+    doc.id = doc._id;
+    delete doc._id;
+    delete doc.__v;
+    return doc;
+  });
+
+  return res.status(200).json({ messages: formattedMessages });
+});
+
 module.exports = {
   streamResponse,
   getTitle,
   sync,
   syncChat,
   getChats,
+  syncMessage,
+  getMessages,
 };

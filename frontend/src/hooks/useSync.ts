@@ -1,4 +1,3 @@
-// useSync.ts
 import { useEffect, useState, useCallback } from "react";
 import {
   syncLocalChanges,
@@ -54,13 +53,6 @@ export const useSync = () => {
     return () => clearInterval(intervalId);
   }, [isOnline, dispatch, user]);
 
-//   // Handle sync when coming back online
-//   useEffect(() => {
-//     if (isOnline) {
-//       syncData();
-//     }
-//   }, [isOnline]);
-
   const syncData = useCallback(async () => {
     if (isSyncing || !isOnline) return;
 
@@ -70,11 +62,9 @@ export const useSync = () => {
       await dispatch(syncLocalChanges());
 
       // Then pull changes from server
-      const result = await dispatch(
+      const result: any = await dispatch(
         pullRemoteChanges({ lastSyncTimestamp: lastSyncTime })
       );
-
-      console.log(result.payload);
 
       if (
         result.meta.requestStatus === "fulfilled" &&
