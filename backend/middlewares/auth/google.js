@@ -10,7 +10,7 @@ const config = {
 };
 
 const AUTH_OPTIONS = {
-  callbackURL: "/api/auth/google/callback",
+  callbackURL: "https://chatbot-tst-576722605828.us-central1.run.app/api/auth/google/callback",
   clientID: config.CLIENT_ID,
   clientSecret: config.CLIENT_SECRET,
 };
