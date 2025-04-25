@@ -72,3 +72,6 @@ openssl req -new -x509 -key key.pem -out cert.pem -days 365
 - Backend: API is available at [http://localhost:8081](http://localhost:8081).
 
 
+
+
+https://chatbot-576722605828.us-central1.run.app/api/auth/google?redirect=https://chatbot-two-gules.vercel.app/

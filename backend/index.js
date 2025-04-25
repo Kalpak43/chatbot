@@ -59,20 +59,20 @@ app.use(errorHandler);
 //   res.sendFile(path.join(__dirname, "public/index.html"));
 // });
 
-// const server = https.createServer(
-//   {
-//     key: fs.readFileSync("key.pem"),
-//     cert: fs.readFileSync("cert.pem"),
-//   },
-//   app
-// );
+const server = https.createServer(
+  {
+    key: fs.readFileSync("key.pem"),
+    cert: fs.readFileSync("cert.pem"),
+  },
+  app
+);
 
-const PORT = process.env.PORT || 8080
+const PORT = process.env.PORT || 8080;
 
 async function startServer() {
   await connectToDB();
 
-  app.listen(PORT, () => {
+  server.listen(PORT, () => {
     console.log(`Listening to http://localhost:${PORT}`);
   });
 }
