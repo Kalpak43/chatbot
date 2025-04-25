@@ -78,6 +78,12 @@ const Loginpage: React.FC = () => {
           <button
             className="btn bg-white text-black border-[#e5e5e5]"
             onClick={() => {
+              console.log(
+                `${API_URL}/api/auth/google?redirect=${
+                  window.location.origin + "/"
+                }`
+              );
+
               window.location.href = `${API_URL}/api/auth/google?redirect=${
                 window.location.origin + "/"
               }`;
