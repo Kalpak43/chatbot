@@ -18,6 +18,7 @@ const {
 } = require("./middlewares/auth/auth.middleware");
 
 const chatRoutes = require("./api/chat/chat.router");
+const uploadRoutes = require("./api/upload/upload.router");
 
 const cors = require("cors");
 
@@ -50,6 +51,7 @@ app.get("/success", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/upload", uploadRoutes);
 
 app.use(express.static(path.join(__dirname, "public")));
 
