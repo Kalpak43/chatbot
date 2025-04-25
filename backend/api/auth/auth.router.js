@@ -52,13 +52,6 @@ router.get(
   }),
   (req, res) => {
     const redirectTo = req.session.redirect || "/dashboard";
-    console.log(
-      "-------------------------------------------------------------------------------------------"
-    );
-    console.log(redirectTo);
-    console.log(
-      "-------------------------------------------------------------------------------------------"
-    );
     delete req.session.redirect; // Clean up after use
     res.redirect(redirectTo);
   }
