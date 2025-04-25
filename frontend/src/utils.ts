@@ -11,6 +11,7 @@ export const sendPrompt = async ({
   onError,
   uid,
   id,
+  signal,
 }: {
   chatHistory: {
     text: string;
@@ -22,6 +23,7 @@ export const sendPrompt = async ({
   onError: (error: unknown) => void;
   uid?: string;
   id?: string;
+  signal?: AbortSignal;
 }) => {
   try {
     let lock = 0;
@@ -33,6 +35,7 @@ export const sendPrompt = async ({
         uid,
         id,
       }),
+      signal,
     });
 
     if (!response.ok) {

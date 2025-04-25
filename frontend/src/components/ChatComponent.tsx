@@ -19,8 +19,8 @@ import {
   Pen,
   SendHorizonal,
   SendHorizontal,
-  Trash2,
   X,
+  Square,
 } from "lucide-react";
 import { resetMessages, setError } from "../features/chats/chatSlice";
 import { liveQuery } from "dexie";
@@ -39,6 +39,9 @@ export const ChatInput = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const activeMessages = useAppSelector((state) => state.chat.activeMessages);
+  const [abortController, setAbortController] =
+    useState<AbortController | null>(null);
+  const [isStreaming, setIsStreaming] = useState(false);
 
   const [input, setInput] = useState("");
 
@@ -96,6 +99,11 @@ export const ChatInput = () => {
         })
       ).then((action) => action.payload as string);
 
+      // Create and store AbortController
+      const controller = new AbortController();
+      setAbortController(controller);
+      setIsStreaming(true);
+
       await sendPrompt({
         chatHistory: [
           ...activeMessages.filter((message) => message.status != "deleted"),
@@ -126,21 +134,50 @@ export const ChatInput = () => {
               },
             })
           );
+
+          setIsStreaming(false);
+          setAbortController(null);
         },
         onError: async (error) => {
-          await dispatch(
-            updateMessageStatus({ messageId: responseId, status: "failed" })
-          );
+          // await dispatch(
+          //   updateMessageStatus({ messageId: responseId, status: "failed" })
+          // );
 
-          await dispatch(
-            updateChat({
-              chatId: id,
-              data: {
-                last_message_at: new Date().getTime(),
-                status: "failed",
-              },
-            })
-          );
+          if (error instanceof DOMException && error.name === "AbortError") {
+            console.log("ABORTED");
+            console.log(error);
+
+            await dispatch(
+              updateMessageStatus({ messageId: responseId, status: "done" })
+            );
+
+            await dispatch(
+              updateChat({
+                chatId: id,
+                data: {
+                  last_message_at: new Date().getTime(),
+                  status: "done",
+                },
+              })
+            );
+          } else {
+            await dispatch(
+              updateMessageStatus({ messageId: responseId, status: "failed" })
+            );
+
+            await dispatch(
+              updateChat({
+                chatId: id,
+                data: {
+                  last_message_at: new Date().getTime(),
+                  status: "failed",
+                },
+              })
+            );
+          }
+
+          setIsStreaming(false);
+          setAbortController(null);
 
           if (error instanceof Error) {
             dispatch(setError(error.message));
@@ -148,6 +185,7 @@ export const ChatInput = () => {
             dispatch(setError("Some Error occured"));
           }
         },
+        signal: controller.signal,
       });
     },
     [chatId, input, navigate, activeMessages]
@@ -182,8 +220,22 @@ export const ChatInput = () => {
             }}
           />
         ) : (
-          <button className="btn btn-soft  btn-primary btn-sm max-md:order-2">
+          <button className="btn btn-soft btn-primary btn-sm max-md:order-2">
             <SendHorizontal size={20} />
+          </button>
+        )}
+
+        {isStreaming && (
+          <button
+            type="button"
+            className="btn btn-soft btn-error btn-sm"
+            onClick={() => {
+              abortController?.abort();
+              setIsStreaming(false);
+              setAbortController(null);
+            }}
+          >
+            <Square size={20} />
           </button>
         )}
       </div>
@@ -344,14 +396,25 @@ export const ChatArea = () => {
 export function UserBubble({
   msg,
   onEdit,
-  onDelete,
-}: {
+}: // onDelete,
+{
   msg: MessageType;
   onEdit: (message: MessageType, content: string) => Promise<void>;
   onDelete: (message: MessageType) => Promise<void>;
 }) {
   const [content, setContent] = useState(msg.text);
   const [editing, setEditing] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch (err) {
+      // Optionally handle error
+    }
+  };
 
   return (
     <div className="chat chat-end relative mb-12">
@@ -390,20 +453,39 @@ export function UserBubble({
         >
           {editing ? <X size={12} /> : <Pen size={12} />}
         </button>
-        <button
-          className="btn btn-xs btn-soft btn-error  btn-square"
-          onClick={() => onDelete(msg)}
-        >
-          <Trash2 size={12} />
-        </button>
+        {!editing && (
+          <button
+            className="btn btn-xs btn-soft btn-ghost btn-square"
+            onClick={handleCopy}
+            title={copied ? "Copied!" : "Copy message"}
+          >
+            {copied ? (
+              <Check size={12} className="text-green-400" />
+            ) : (
+              <Copy size={12} />
+            )}
+          </button>
+        )}
       </div>
     </div>
   );
 }
 
 export function AIBubble({ msg }: { msg: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(msg);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch (err) {
+      // Optionally handle error
+    }
+  };
+
   return (
-    <div className="chat  leading-loose mb-8">
+    <div className="chat relative leading-loose mb-8">
       {/* <Markdown>{msg}</Markdown> */}
 
       <ReactMarkdown
@@ -576,6 +658,20 @@ export function AIBubble({ msg }: { msg: string }) {
       >
         {msg}
       </ReactMarkdown>
+
+      <div className="absolute top-full flex gap-2 items-center mt-2">
+        <button
+          className="btn btn-xs btn-soft btn-ghost btn-square"
+          onClick={handleCopy}
+          title={copied ? "Copied!" : "Copy message"}
+        >
+          {copied ? (
+            <Check size={12} className="text-green-400" />
+          ) : (
+            <Copy size={12} />
+          )}
+        </button>
+      </div>
     </div>
   );
 }

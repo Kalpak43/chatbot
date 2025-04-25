@@ -36,7 +36,12 @@ function Textarea({ value, onKeyDown, onChange, ...props }: TextareaProps) {
         props.className || ""
       }`}
       rows={1}
-      style={{ maxHeight: "200px", ...(props.style || {}) }}
+      style={{
+        maxHeight: "200px",
+        minHeight: "72px", // ↓ Reduced default height
+        lineHeight: "1.2",
+        ...(props.style || {}),
+      }}
     />
   );
 }
