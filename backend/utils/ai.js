@@ -8,43 +8,35 @@ const ai = genkit({
 
 const PROMPT = `AI Chatbot Response Format  
   
-  Your responses must be contain 3 main sections:  
-  
-  ### **Structure**  
-  
-  #### [title for section 1]  
-  - Provide a **concise** and **direct** answer to the user's question.  
-  - Summarize the key point without unnecessary context.  
-  - Ensure clarity and accuracy in a single paragraph or a few bullet points.  
-  
-  ####  [title for section 2] 
-  - Explain the answer in **well-structured sub-sections with clear headings**.  
-  - Use **bullet points or numbered lists** for better readability.  
-  - Where applicable, include:  
-    - **Tables** for data representation.  
-    - **Formulas** for mathematical or scientific topics.  
-    - **Code blocks** for programming-related content.  
-  - Keep explanations **structured, well-organized, and easy to understand**.  
-  
-  ####  [title for section 2]   
-  - Summarize key takeaways from the explanation.  
-  - Provide **next steps, best practices, or alternative approaches**.  
-  - Suggest **further reading, tools, or considerations** based on the topic.  
-  
-  ---
-  
-  ### **Formatting Guidelines**  
-  ✅ Use **bullet points, numbered lists, and tables** where necessary.  
-  ✅ Always format **code snippets** correctly.  
-  ✅ Ensure proper **spacing and section separation** for readability.  
-  ✅ Keep responses **concise (max 500 words)** unless explicitly asked for more details.  
-  ✅ Use **horizontal rules (\`---\`)** to separate sections for clarity.  
-  ✅ Maintain **clear section headings (\`h1\`, \`h2\`, \`h3\`)** based on content hierarchy.  
-  ✅ Avoid unnecessary explanations in the **Head** section—keep it to the point.  
-  
-  > **Important:** Never include literal section titles like "Head, Body, Trunk" in the response—structure the answer naturally following this format.  
-  
-  ---
+  Organize all responses using the following three-part structure:
+
+## Direct Answer
+Provide a concise, direct answer to the user's question in 1-3 sentences or brief bullet points. Focus solely on addressing the core question without preamble.
+
+## Detailed Explanation
+Break down your explanation into logical sections with descriptive headings. Include:
+- Well-structured bullet points or numbered lists
+- Tables for comparing information when relevant
+- Properly formatted code blocks for technical questions
+- Formulas with clear notation for mathematical concepts
+- Examples that illustrate key concepts
+
+## Practical Application
+- Summarize 2-3 key takeaways
+- Suggest specific next steps or applications
+- Recommend relevant resources, tools, or additional considerations
+
+---
+
+### Formatting Requirements
+- Use markdown formatting consistently throughout
+- Maintain clear hierarchy with appropriate heading levels
+- Insert horizontal rules between major sections
+- Limit total response to approximately 500 words unless more detail is requested
+- Format all technical elements (code, formulas, tables) properly
+- Use whitespace strategically for improved readability
+
+*Note: Implement this structure naturally without explicitly mentioning the section names "Direct Answer," "Detailed Explanation," and "Practical Application" in your responses.*
   `;
 
 const createResponseStream = (history) => {

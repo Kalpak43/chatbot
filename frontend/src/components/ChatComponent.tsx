@@ -309,12 +309,15 @@ export const ChatArea = () => {
           .filter((message) => message.status != "deleted")
           .map((message) => {
             return (
-              <div key={message.id}>
+              <>
                 {message.status == "typing" && (
-                  <span className="loading loading-dots loading-xl" />
+                  <span
+                    key={message.id}
+                    className="loading loading-dots loading-xl"
+                  />
                 )}
                 {message.status == "failed" && (
-                  <span className="">
+                  <span key={message.id} className="">
                     Failed to Generate a Response. Try again.
                   </span>
                 )}
@@ -322,14 +325,15 @@ export const ChatArea = () => {
                   {
                     user: (
                       <UserBubble
+                        key={message.id}
                         msg={message}
                         onEdit={handleEditMessage}
                         onDelete={handleDeleteMessge}
                       />
                     ),
-                    ai: <AIBubble msg={message.text} />,
+                    ai: <AIBubble key={message.id} msg={message.text} />,
                   }[message.role]}
-              </div>
+              </>
             );
           })}
       </div>
@@ -560,10 +564,10 @@ export function AIBubble({ msg }: { msg: string }) {
             // Inline code (single word/phrase inside backticks)
             return (
               <code
-                className="bg-gray-800 text-gray-100 px-1 rounded-md"
+                className="bg-neutral text-gray-300 px-1 rounded-md"
                 {...props}
               >
-                {children}
+                <pre className="inline-block">{children}</pre>
               </code>
             );
           },

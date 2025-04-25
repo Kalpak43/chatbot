@@ -52,9 +52,9 @@ export const updateChatTitle = createAsyncThunk(
 );
 
 export const getChats = createAsyncThunk("chat/getChats", async () => {
-  return (await db.chats.toArray()).sort(
-    (a, b) => b.last_message_at - a.last_message_at
-  );
+  return (await db.chats.toArray())
+    .filter((chat) => chat.status != "deleted")
+    .sort((a, b) => b.last_message_at - a.last_message_at);
 });
 
 export const getChat = createAsyncThunk(
@@ -162,7 +162,19 @@ export const deleteMessage = createAsyncThunk(
         .and((msg) => msg.created_at >= message.created_at)
         .modify((message) => {
           message.status = "deleted";
+          message.updated_at = Date.now();
+          message.syncStatus = SyncStatus.PENDING;
         });
+    });
+
+    const messagesToSync = await db.messages
+      .where("chatId")
+      .equals(chatId)
+      .and((msg) => msg.created_at >= message.created_at)
+      .toArray();
+
+    messagesToSync.forEach((msg) => {
+      syncService.syncMessage(msg.id);
     });
   }
 );
@@ -171,12 +183,29 @@ export const deleteChatAndMessages = createAsyncThunk(
   "chat/deleteChatAndMessages",
   async ({ chatId }: { chatId: string }) => {
     await db.transaction("rw", db.chats, db.messages, async () => {
-      // Delete all messages related to the chat
-      await db.messages.where("chatId").equals(chatId).delete();
+      // Soft delete all messages related to the chat
+      await db.messages
+        .where("chatId")
+        .equals(chatId)
+        .modify((message) => {
+          message.status = "deleted";
+          message.updated_at = Date.now();
+          message.syncStatus = SyncStatus.PENDING;
+        });
 
-      // Delete the chat itself
-      await db.chats.delete(chatId);
+      // Soft delete the chat itself
+      await db.chats.update(chatId, {
+        status: "deleted",
+        updated_at: Date.now(),
+        syncStatus: SyncStatus.PENDING,
+      });
     });
+
+    const messages = await db.messages.where("chatId").equals(chatId).toArray();
+    messages.forEach((msg) => {
+      syncService.syncMessage(msg.id);
+    });
+    syncService.syncChat(chatId);
 
     return chatId;
   }
@@ -209,7 +238,9 @@ export const pullRemoteChanges = createAsyncThunk(
 
     if (result.success) {
       // Reload chats and messages after sync
-      const updatedChats = await db.chats.toArray();
+      const updatedChats = (await db.chats.toArray()).filter(
+        (chat) => chat.status != "deleted"
+      );
       const updatedMessages = await db.messages.toArray();
       return {
         chats: updatedChats,

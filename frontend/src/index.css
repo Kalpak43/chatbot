@@ -89,7 +89,7 @@ body {
   --color-accent-content: hsla(0, 0%, 0%, 0.95);
 
   /* Neutral colors with transparency */
-  --color-neutral: hsla(220, 15%, 30%, 0.75);
+  --color-neutral: hsla(220, 15%, 30%, 0.4);
   --color-neutral-content: hsla(0, 0%, 100%, 0.95);
 
   /* Status colors with transparency */

@@ -76,6 +76,7 @@ const chatSlice = createSlice({
         state.error = action.error.message ?? "An error occurred";
       })
       .addCase(getChats.fulfilled, (state, action) => {
+        console.log(action.payload);
         state.chats = action.payload;
       })
       .addCase(getChats.rejected, (state, action) => {

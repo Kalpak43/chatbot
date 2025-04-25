@@ -101,6 +101,10 @@ const Recents = () => {
   useEffect(() => {
     dispatch(getChats());
   }, [dispatch]);
+  
+  useEffect(() => {
+    console.log(chats);
+  }, [chats]);
 
   if (chats.length === 0) {
     return (
