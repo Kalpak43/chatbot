@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { signin } from "../features/auth/authThunk";
+import { signin, signinWithGoogle } from "../features/auth/authThunk";
 import { Link, useNavigate } from "react-router";
 import { Loader2 } from "lucide-react";
-// import { GoogleLogin, GoogleLoginResponse } from "react-google-login";
-
-const API_URL = import.meta.env.VITE_API_URL;
 
 const Loginpage: React.FC = () => {
   const navigate = useNavigate();
@@ -78,15 +75,7 @@ const Loginpage: React.FC = () => {
           <button
             className="btn bg-white text-black border-[#e5e5e5]"
             onClick={() => {
-              console.log(
-                `${API_URL}/api/auth/google?redirect=${
-                  window.location.origin + "/"
-                }`
-              );
-
-              window.location.href = `${API_URL}/api/auth/google?redirect=${
-                window.location.origin + "/"
-              }`;
+              dispatch(signinWithGoogle());
             }}
             disabled={loading}
           >

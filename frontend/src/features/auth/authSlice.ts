@@ -1,5 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { checkLogin, signin, signout, signup } from "./authThunk";
+import {
+  checkLogin,
+  signin,
+  signinWithGoogle,
+  signout,
+  signup,
+} from "./authThunk";
+import { User } from "firebase/auth";
 
 interface AuthState {
   user: User | null;
@@ -35,9 +42,20 @@ export const authSlice = createSlice({
       })
       .addCase(signin.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload.user;
+        state.user = action.payload;
       })
       .addCase(signin.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(signinWithGoogle.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(signinWithGoogle.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(signinWithGoogle.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
@@ -46,7 +64,7 @@ export const authSlice = createSlice({
       })
       .addCase(checkLogin.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload.user;
+        state.user = action.payload;
       })
       .addCase(checkLogin.rejected, (state, action) => {
         state.loading = false;

@@ -1,5 +1,6 @@
 import axios from "axios";
 import db from "../db";
+import { auth } from "../firebase";
 
 export enum SyncStatus {
   DONE = "done",
@@ -51,6 +52,7 @@ export class SyncService {
 
     this.queueSync(async () => {
       try {
+        const idToken = await auth.currentUser?.getIdToken();
         console.log("SEND CHAT TO SERVER");
 
         const response = await axios.post(
@@ -60,6 +62,9 @@ export class SyncService {
           },
           {
             withCredentials: true,
+            headers: {
+              Authorization: `Bearer ${idToken}`,
+            },
           }
         );
 
@@ -95,6 +100,7 @@ export class SyncService {
 
     this.queueSync(async () => {
       try {
+        const idToken = await auth.currentUser?.getIdToken();
         console.log("SEND MESSAGE TO SERVER");
 
         const response = await axios.post(
@@ -104,6 +110,9 @@ export class SyncService {
           },
           {
             withCredentials: true,
+            headers: {
+              Authorization: `Bearer ${idToken}`,
+            },
           }
         );
 
@@ -152,10 +161,15 @@ export class SyncService {
   async pullChanges(lastSyncTimestamp: number) {
     // console.log(lastSyncTimestamp);
     try {
+      const idToken = await auth.currentUser?.getIdToken();
+
       const chatResponse = await axios.get(
         `${API_URL}/api/chat/get-chats?since=${lastSyncTimestamp}`,
         {
           withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${idToken}`,
+          },
         }
       );
 
@@ -166,6 +180,9 @@ export class SyncService {
         `${API_URL}/api/chat/get-messages?since=${lastSyncTimestamp}`,
         {
           withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${idToken}`,
+          },
         }
       );
 

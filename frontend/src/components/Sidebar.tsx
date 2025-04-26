@@ -5,6 +5,10 @@ import { useEffect, useState } from "react";
 import { signout } from "../features/auth/authThunk";
 import { useToast } from "../hooks/useToast";
 import { deleteChatAndMessages, getChats } from "../features/chats/chatThunk";
+import axios from "axios";
+import { auth } from "../firebase";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 function Sidebar() {
   const navigate = useNavigate();
@@ -54,11 +58,28 @@ function Sidebar() {
           <Recents />
         </div>
         <div className="mt-4">
+          <button
+            className="w-full btn btn-soft btn-secondary my-4"
+            onClick={async () => {
+              const idToken = await auth.currentUser?.getIdToken();
+              if (idToken) {
+                const res = await axios.get(`${API_URL}/secret`, {
+                  headers: {
+                    Authorization: `Bearer ${idToken}`,
+                  },
+                });
+
+                alert(`SECRET: ${res.data}`);
+              } else alert("Log in to view secret");
+            }}
+          >
+            SECRET
+          </button>
           {user ? (
             <div className="flex items-center gap-2">
               <div className="avatar">
                 <div className="ring-primary ring-offset-base-100 w-6 rounded-full ring ring-offset-2">
-                  <img src={user.profilePicture || "/default.webp"} />
+                  <img src={user.photoURL || "/default.webp"} />
                 </div>
               </div>
               <button
@@ -101,10 +122,6 @@ const Recents = () => {
   useEffect(() => {
     dispatch(getChats());
   }, [dispatch]);
-  
-  useEffect(() => {
-    console.log(chats);
-  }, [chats]);
 
   if (chats.length === 0) {
     return (

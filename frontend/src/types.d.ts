@@ -22,12 +22,12 @@ interface ChatType {
   syncStatus: SyncStatus;
 }
 
-interface User {
-  _id: string;
-  email: string;
-  role: "user";
-  googleId: string;
-  createdAt: Date;
-  updatedAt: Date;
-  profilePicture: string | null;
-}
+// interface User {
+//   _id: string;
+//   email: string;
+//   role: "user";
+//   googleId: string;
+//   createdAt: Date;
+//   updatedAt: Date;
+//   profilePicture: string | null;
+// }

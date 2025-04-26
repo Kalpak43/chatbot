@@ -1,7 +1,15 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-
-const API_URL = import.meta.env.VITE_API_URL;
+import {
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+  User,
+} from "firebase/auth";
+import { auth } from "../../firebase";
+import { FirebaseError } from "firebase/app";
 
 export const signup = createAsyncThunk(
   "auth/signup",
@@ -10,23 +18,12 @@ export const signup = createAsyncThunk(
     thunkAPI
   ) => {
     try {
-      const res = await axios.post(`${API_URL}/api/auth/register`, {
-        email,
-        password,
-      });
+      const res = await createUserWithEmailAndPassword(auth, email, password);
+      const user = res.user;
 
-      console.log("SIGNUP : ", res.data);
-      if (res.status !== 200) {
-        return thunkAPI.rejectWithValue(res.data.message);
-      }
-
-      return res.data;
+      return user;
     } catch (e) {
-      if (axios.isAxiosError(e)) {
-        return thunkAPI.rejectWithValue(
-          e.response?.data?.message || "An error occurred"
-        );
-      } else if (e instanceof Error) {
+      if (e instanceof Error || e instanceof FirebaseError) {
         return thunkAPI.rejectWithValue(e.message);
       } else {
         return thunkAPI.rejectWithValue("An unknown error occurred");
@@ -42,29 +39,12 @@ export const signin = createAsyncThunk(
     thunkAPI
   ) => {
     try {
-      const res = await axios.post(
-        `${API_URL}/api/auth/signin`,
-        {
-          email,
-          password,
-        },
-        {
-          withCredentials: true,
-        }
-      );
+      const res = await signInWithEmailAndPassword(auth, email, password);
+      const user = res.user;
 
-      console.log("SIGNUP : ", res.data);
-      if (res.status !== 200) {
-        return thunkAPI.rejectWithValue(res.data.message);
-      }
-
-      return res.data;
+      return user;
     } catch (e) {
-      if (axios.isAxiosError(e)) {
-        return thunkAPI.rejectWithValue(
-          e.response?.data?.message || "An error occurred"
-        );
-      } else if (e instanceof Error) {
+      if (e instanceof Error || e instanceof FirebaseError) {
         return thunkAPI.rejectWithValue(e.message);
       } else {
         return thunkAPI.rejectWithValue("An unknown error occurred");
@@ -77,21 +57,17 @@ export const checkLogin = createAsyncThunk(
   "auth/checkLogin",
   async (_, thunkAPI) => {
     try {
-      const res = await axios.get(`${API_URL}/api/auth/check`, {
-        withCredentials: true,
+      const user = await new Promise<User | null>((resolve, reject) => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+          unsubscribe();
+          if (user) resolve(user);
+          else reject(new Error("User not logged in"));
+        });
       });
 
-      if (res.status !== 200) {
-        return thunkAPI.rejectWithValue(res.data.message);
-      }
-
-      return res.data;
+      return user;
     } catch (e) {
-      if (axios.isAxiosError(e)) {
-        return thunkAPI.rejectWithValue(
-          e.response?.data?.message || "An error occurred"
-        );
-      } else if (e instanceof Error) {
+      if (e instanceof Error || e instanceof FirebaseError) {
         return thunkAPI.rejectWithValue(e.message);
       } else {
         return thunkAPI.rejectWithValue("An unknown error occurred");
@@ -102,28 +78,30 @@ export const checkLogin = createAsyncThunk(
 
 export const signout = createAsyncThunk("auth/signout", async (_, thunkAPI) => {
   try {
-    const res = await axios.get(`${API_URL}/api/auth/signout`, {
-      withCredentials: true,
-      headers: {
-        "Cache-Control": "no-cache",
-      },
-    });
-
-    console.log("SIGNOUT : ", res.data);
-    if (res.status !== 200) {
-      return thunkAPI.rejectWithValue(res.data.message);
-    }
-
-    return res.data;
+    await signOut(auth);
   } catch (e) {
-    if (axios.isAxiosError(e)) {
-      return thunkAPI.rejectWithValue(
-        e.response?.data?.message || "An error occurred"
-      );
-    } else if (e instanceof Error) {
+    if (e instanceof Error || e instanceof FirebaseError) {
       return thunkAPI.rejectWithValue(e.message);
     } else {
       return thunkAPI.rejectWithValue("An unknown error occurred");
     }
   }
 });
+
+export const signinWithGoogle = createAsyncThunk(
+  "auth/signinWithGoogle",
+  async (_, thunkAPI) => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const res = await signInWithPopup(auth, provider);
+
+      return res.user;
+    } catch (e) {
+      if (e instanceof Error || e instanceof FirebaseError) {
+        return thunkAPI.rejectWithValue(e.message);
+      } else {
+        return thunkAPI.rejectWithValue("An unknown error occurred");
+      }
+    }
+  }
+);

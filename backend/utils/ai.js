@@ -60,7 +60,7 @@ const generateTitle = async (history) => {
 
   try {
     const r = await ai.generate({
-      system: `You are given chat history, you are tasked to generate a title for the chat based on the discussion in chat. The title should be 5-15 words in length.`,
+      system: `You are given chat history, you are tasked to generate a title for the chat based on the discussion in chat. The title should be 5-10 words in length.`,
       prompt: `Chat history: ${formattedHistory}`,
     });
 

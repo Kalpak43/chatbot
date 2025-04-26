@@ -6,23 +6,17 @@ const path = require("path");
 const morgan = require("morgan");
 const express = require("express");
 const app = express();
-const helmet = require("helmet");
 
 const { connectToDB } = require("./db");
 const errorHandler = require("./middlewares/errorHandler");
 
-const authRoutes = require("./api/auth/auth.router");
-const {
-  configureAuth,
-  checkLoggedin,
-} = require("./middlewares/auth/auth.middleware");
+// const authRoutes = require("./api/auth/auth.router");
+const { checkLoggedin } = require("./middlewares/auth/auth.middleware");
 
 const chatRoutes = require("./api/chat/chat.router");
 const uploadRoutes = require("./api/upload/upload.router");
 
 const cors = require("cors");
-
-
 
 app.use(
   cors({
@@ -31,7 +25,7 @@ app.use(
   })
 );
 
-configureAuth(app);
+// configureAuth(app);
 
 app.use(express.json());
 app.use(morgan("short"));
@@ -51,7 +45,7 @@ app.get("/success", (req, res) => {
   res.send("Auth succeeded");
 });
 
-app.use("/api/auth", authRoutes);
+// app.use("/api/auth", authRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/upload", uploadRoutes);
 
@@ -63,13 +57,13 @@ app.use(errorHandler);
 //   res.sendFile(path.join(__dirname, "public/index.html"));
 // });
 
-const server = https.createServer(
-  {
-    key: fs.readFileSync("key.pem"),
-    cert: fs.readFileSync("cert.pem"),
-  },
-  app
-);
+// const server = https.createServer(
+//   {
+//     key: fs.readFileSync("key.pem"),
+//     cert: fs.readFileSync("cert.pem"),
+//   },
+//   app
+// );
 
 const PORT = process.env.PORT || 8080;
 
