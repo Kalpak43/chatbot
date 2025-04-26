@@ -22,6 +22,8 @@ const uploadRoutes = require("./api/upload/upload.router");
 
 const cors = require("cors");
 
+
+
 app.use(
   cors({
     origin: process.env.ALLOWED_URL,
@@ -74,7 +76,7 @@ const PORT = process.env.PORT || 8080;
 async function startServer() {
   await connectToDB();
 
-  server.listen(PORT, () => {
+  app.listen(PORT, () => {
     console.log(`Listening to http://localhost:${PORT}`);
   });
 }

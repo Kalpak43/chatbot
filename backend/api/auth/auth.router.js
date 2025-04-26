@@ -4,6 +4,7 @@ const passport = require("passport");
 const { register, signout, refreshToken } = require("./auth.controller");
 const { signinWithGoogle } = require("./oauth/google.controller");
 const { checkLoggedin } = require("../../middlewares/auth/auth.middleware");
+const { redirectUri } = require("../../const");
 
 const router = express.Router();
 
@@ -51,7 +52,13 @@ router.get(
     failureRedirect: "/failure",
   }),
   (req, res) => {
-    const redirectTo = req.session.redirect || "/dashboard";
+    const redirectTo = req.session.redirect || redirectUri.rd;
+
+    console.log("----------------------------");
+    console.log(redirectTo);
+    console.log(req.session.redirect);
+    console.log("----------------------------");
+
     delete req.session.redirect; // Clean up after use
     res.redirect(redirectTo);
   }

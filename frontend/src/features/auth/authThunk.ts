@@ -104,6 +104,9 @@ export const signout = createAsyncThunk("auth/signout", async (_, thunkAPI) => {
   try {
     const res = await axios.get(`${API_URL}/api/auth/signout`, {
       withCredentials: true,
+      headers: {
+        "Cache-Control": "no-cache",
+      },
     });
 
     console.log("SIGNOUT : ", res.data);
