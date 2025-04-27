@@ -32,6 +32,10 @@ const ChatSchema = new mongoose.Schema(
       type: Number,
       default: null,
     },
+    uid: {
+      type: String,
+      required: true,
+    },
   },
   {
     // This will ensure MongoDB adds _id field which corresponds to the id in TypeScript interface

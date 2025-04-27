@@ -59,6 +59,7 @@ export class SyncService {
           `${API_URL}/api/chat/sync-chat`,
           {
             chat,
+            // user,
           },
           {
             withCredentials: true,
@@ -107,6 +108,7 @@ export class SyncService {
           `${API_URL}/api/chat/sync-message`,
           {
             message,
+            // user,
           },
           {
             withCredentials: true,

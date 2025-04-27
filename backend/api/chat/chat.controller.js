@@ -179,43 +179,21 @@ const sync = asyncHandler(async (req, res, next) => {
   });
 });
 
-const syncBack = asyncHandler(async (req, res, next) => {
-  const { lastSynced } = req.body;
-
-  const chats = await chatModel.find({
-    $or: [
-      { created_at: { $gt: lastSynced } },
-      { updated_at: { $gt: lastSynced } },
-    ],
-  });
-
-  const messages = await MessagesModel.find({
-    $or: [
-      { created_at: { $gt: lastSynced } },
-      { updated_at: { $gt: lastSynced } },
-    ],
-  });
-
-  return res.status(200).send({
-    chats,
-    messages,
-    time: new Date().getTime(),
-  });
-});
-
 const syncChat = asyncHandler(async (req, res, next) => {
   const { chat } = req.body;
 
   const { id } = chat;
 
+  const { uid } = req.user;
+
   if (!id) {
-    const newChat = new chatModel(chat);
+    const newChat = new chatModel({ ...chat, uid });
     await newChat.save();
     return res.status(201).send({ chat: newChat, msg: "Chat created" });
   } else {
     const updatedChat = await chatModel.findOneAndUpdate(
       { _id: id },
-      { $set: chat },
+      { $set: { ...chat, uid } },
       { new: true, upsert: true }
     );
     return res.status(200).send({ chat: updatedChat, msg: "Chat updated" });
@@ -229,8 +207,11 @@ const getChats = asyncHandler(async (req, res, next) => {
     return res.status(400).json({ error: 'Missing "since" query parameter' });
   }
 
+  const { uid } = req.user;
+
   const chats = await chatModel
     .find({
+      uid,
       $or: [{ created_at: { $gte: since } }, { updated_at: { $gte: since } }],
     })
     .lean();
@@ -249,8 +230,10 @@ const syncMessage = asyncHandler(async (req, res, next) => {
   const { message } = req.body;
   const { id } = message;
 
+  const { uid } = req.user;
+
   if (!id) {
-    const newMessage = new MessagesModel(message);
+    const newMessage = new MessagesModel({ ...message, uid });
     await newMessage.save();
     return res
       .status(201)
@@ -258,7 +241,7 @@ const syncMessage = asyncHandler(async (req, res, next) => {
   } else {
     const updatedMessage = await MessagesModel.findOneAndUpdate(
       { _id: id },
-      { $set: message },
+      { $set: { ...message, uid } },
       { new: true, upsert: true }
     );
     return res
@@ -267,14 +250,16 @@ const syncMessage = asyncHandler(async (req, res, next) => {
   }
 });
 
-const getMessages = asyncHandler(async (req, res, next) => {
+const getMessages = asyncHandler(async (req, res) => {
   const since = req.query.since;
 
   if (!since) {
     return res.status(400).json({ error: 'Missing "since" query parameter' });
   }
 
+  const { uid } = req.user;
   const messages = await MessagesModel.find({
+    uid,
     $or: [{ created_at: { $gte: since } }, { updated_at: { $gte: since } }],
   }).lean();
 
