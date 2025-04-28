@@ -38,6 +38,18 @@ const MessageSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    attachments: [
+      {
+        url: {
+          type: String,
+          required: false,
+        },
+        type: {
+          type: String,
+          required: false,
+        },
+      },
+    ],
   },
   {
     // This will ensure MongoDB adds _id field which corresponds to the id in TypeScript interface

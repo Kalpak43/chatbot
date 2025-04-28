@@ -78,11 +78,13 @@ export const addNewMessage = createAsyncThunk(
     role,
     text,
     status,
+    attachments,
   }: {
     chatId: string;
     role: "user" | "ai";
     text: string;
     status: Status;
+    attachments?: Attachment[];
   }) => {
     const id = crypto.randomUUID();
     await db.messages.add({
@@ -94,6 +96,7 @@ export const addNewMessage = createAsyncThunk(
       created_at: new Date().getTime(),
       updated_at: new Date().getTime(),
       syncStatus: SyncStatus.PENDING,
+      attachments: attachments || [],
     });
     await db.chats.update(chatId, { last_message_at: new Date().getTime() });
 

@@ -1,9 +1,16 @@
 type Status = "done" | "pending" | "failed" | "typing" | "deleted";
 
+interface Attachment {
+  url: string;
+  type: "image" | "file";
+}
+
+
 interface MessageType {
   id: string;
   role: "user" | "ai";
   text: string;
+  attachments: Attachment[];
   chatId: string;
   status: Status;
   created_at: number;

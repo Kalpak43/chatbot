@@ -39,15 +39,72 @@ Break down your explanation into logical sections with descriptive headings. Inc
 *Note: Implement this structure naturally without explicitly mentioning the section names "Direct Answer," "Detailed Explanation," and "Practical Application" in your responses.*
   `;
 
-const createResponseStream = (history) => {
-  // Convert chat history into a string
-  const formattedHistory = history
-    .map(({ role, text }) => `${role === "user" ? "User" : "AI"}: ${text}`)
-    .join("\n");
+const createParts = async (history) => {
+  const finalPromptParts = [];
 
+  let lastMessage = history[history.length - 1];
+  history = history.slice(0, -1); // Remove the last message
+
+  history.forEach(({ role, text }) => {
+    finalPromptParts.push({
+      text: `${role === "user" ? "User" : "AI"}: ${text}`,
+    });
+  });
+
+  const { attachments } = lastMessage;
+
+  if (attachments && attachments.length > 0) {
+    for (const attachment of attachments) {
+      try {
+        const response = await fetch(attachment.url);
+        const contentType = response.headers.get("content-type");
+        const arrayBuffer = await response.arrayBuffer();
+
+        // Supported media types
+        const supportedMediaTypes = [
+          "image/png",
+          "image/jpeg",
+          "image/jpg",
+          "image/webp",
+          "application/pdf",
+        ];
+
+        if (supportedMediaTypes.includes(contentType)) {
+          const base64String = Buffer.from(arrayBuffer).toString("base64");
+
+          finalPromptParts.push({
+            media: {
+              url: `data:${contentType};base64,${base64String}`,
+              contentType: contentType,
+            },
+          });
+        } else {
+          // Convert non-supported media types into text
+          const textContent = Buffer.from(arrayBuffer).toString("utf-8");
+
+          finalPromptParts.push({
+            text: `User uploaded a file (${
+              attachment.name || "file"
+            }):\n\n${textContent}`,
+          });
+        }
+      } catch (error) {
+        console.error("Error processing attachment:", error);
+      }
+    }
+  }
+
+  finalPromptParts.push({
+    text: `${lastMessage.role === "user" ? "User" : "AI"}: ${lastMessage.text}`,
+  });
+
+  return finalPromptParts;
+};
+
+const createResponseStream = (history) => {
   const aiResponseStream = ai.generateStream({
     system: PROMPT,
-    prompt: `Chat history: ${formattedHistory}`,
+    prompt: history,
   }).stream;
 
   return aiResponseStream;
@@ -73,4 +130,8 @@ const generateTitle = async (history) => {
   }
 };
 
-module.exports = { createResponseStream, generateTitle };
+module.exports = {
+  createResponseStream,
+  generateTitle,
+  createParts,
+};

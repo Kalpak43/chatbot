@@ -12,7 +12,7 @@ import {
   updateMessageContent,
   updateMessageStatus,
 } from "../features/chats/chatThunk";
-import { sendPrompt } from "../utils";
+import { sendPrompt, uploadToStorage } from "../utils";
 import {
   Check,
   Copy,
@@ -21,6 +21,7 @@ import {
   SendHorizontal,
   X,
   Square,
+  Paperclip,
 } from "lucide-react";
 import { resetMessages, setError } from "../features/chats/chatSlice";
 import { liveQuery } from "dexie";
@@ -44,6 +45,7 @@ export const ChatInput = () => {
   const [isStreaming, setIsStreaming] = useState(false);
 
   const [input, setInput] = useState("");
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
 
   const handleSend = useCallback(
     async (message: string) => {
@@ -75,6 +77,7 @@ export const ChatInput = () => {
           role: "user",
           text: message,
           status: "done",
+          attachments: attachments,
         })
       );
 
@@ -107,7 +110,7 @@ export const ChatInput = () => {
       await sendPrompt({
         chatHistory: [
           ...activeMessages.filter((message) => message.status != "deleted"),
-          { role: "user", text: message },
+          { role: "user", text: message, attachments: attachments },
         ],
         onMessage: async (msg) => {
           await dispatch(
@@ -197,8 +200,44 @@ export const ChatInput = () => {
         e.preventDefault();
         handleSend(input);
       }}
-      className="glass-card flex max-md:flex-col items-end gap-2 p-4 border border-neutral bg-base-200 shadow-md xl:max-w-3xl xl:mx-auto xl:absolute xl:bottom-0 xl:inset-x-0 rounded-t-xl"
+      className="glass-card flex flex-col items-end gap-2 p-4 border border-neutral bg-base-200 shadow-md relative xl:max-w-3xl xl:mx-auto xl:absolute xl:bottom-0 xl:inset-x-0 rounded-t-xl"
     >
+      {/* Attachments */}
+      {attachments.length > 0 && (
+        <div className="absolute w-full inset-x-0 bottom-full flex gap-4 items-center p-2 rounded-t-box bg-base-200">
+          {attachments.map((attachment, idx) => (
+            <div
+              key={idx}
+              className="relative w-16 h-16 flex items-center justify-center bg-neutral text-neutral-content border border-base-100 rounded-box border border-neutral"
+            >
+              {/* Remove Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setAttachments((prev) => prev.filter((_, i) => i !== idx));
+                }}
+                className="btn btn-xs btn-error btn-circle absolute -top-2 -right-2 shadow-md"
+              >
+                ✕
+              </button>
+
+              {/* Preview */}
+              {attachment.type === "image" ? (
+                <img
+                  src={attachment.url}
+                  alt="attachment"
+                  className="object-cover w-full h-full rounded-box"
+                />
+              ) : (
+                <span className="text-xs text-center px-1">
+                  {attachment.url.split(".").pop()?.toUpperCase() || "FILE"}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
       <Textarea
         value={input}
         onKeyDown={(e) => {
@@ -213,6 +252,37 @@ export const ChatInput = () => {
       />
 
       <div className="flex gap-2 max-md:justify-between max-md:w-full">
+        <button className="btn btn-soft btn-sm max-md:order-2 relative">
+          <Paperclip size={20} />
+
+          <input
+            type="file"
+            // accept=""
+            className="absolute inset-0 opacity-0 cursor-pointer"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+          // Handle file upload here
+          const url = await uploadToStorage(file);
+          if (!url) {
+            console.error("Failed to upload file");
+            return;
+          }
+
+          const newAttachment: Attachment = {
+            url: url,
+            type: file.type.startsWith("image") ? "image" : "file",
+          };
+
+          setAttachments((prev) => [...prev, newAttachment]);
+          console.log("File uploaded:", url);
+
+          console.log("File selected:", file);
+              }
+            }}
+          />
+        </button>
+
         {!input.trim() ? (
           <VoiceToText
             onVoice={(x) => {
@@ -416,8 +486,42 @@ export function UserBubble({
     }
   };
 
+  // Preserve tabs/spaces and line breaks for markdown
+  const formatTextForMarkdown = (text: string) => {
+    // Replace tabs with 4 spaces, preserve spaces, and convert newlines to markdown line breaks
+    return text
+      .replace(/\t/g, "    ")
+      .replace(/ {2}/g, "&nbsp;&nbsp;")
+      .replace(/\n/g, "  \n");
+  };
+
   return (
     <div className="chat chat-end relative mb-12">
+      {/* Attachments */}
+      {msg.attachments && msg.attachments.length > 0 && (
+        <div className="flex gap-4 items-center p-2 rounded-t-box ">
+          {msg.attachments.map((attachment, idx) => (
+            <div
+              key={idx}
+              className="relative w-40 h-40 flex items-center justify-center bg-neutral text-neutral-content border border-base-100 rounded-box border border-neutral"
+            >
+              {/* Preview */}
+              {attachment.type === "image" ? (
+                <img
+                  src={attachment.url}
+                  alt="attachment"
+                  className="object-cover w-full h-full rounded-box"
+                />
+              ) : (
+                <span className="text-xs text-center px-1">
+                  {attachment.url.split(".").pop()?.toUpperCase() || "FILE"}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="chat-bubble chat-bubble-primary">
         {editing ? (
           <div className="sm:min-w-xs md:min-w-sm lg:min-w-md xl:min-w-lg">
@@ -429,7 +533,7 @@ export function UserBubble({
             />
           </div>
         ) : (
-          <ReactMarkdown>{content}</ReactMarkdown>
+          <ReactMarkdown>{formatTextForMarkdown(content)}</ReactMarkdown>
         )}
       </div>
       <div className="absolute top-full flex gap-2 items-center">

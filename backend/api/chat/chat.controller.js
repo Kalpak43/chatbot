@@ -1,7 +1,10 @@
-const { createResponseStream, generateTitle } = require("../../utils/ai");
+const {
+  createResponseStream,
+  generateTitle,
+  createParts,
+} = require("../../utils/ai");
 const asyncHandler = require("../../utils/asyncHandler");
 const Chat = require("../../models/chat.model");
-const { saveToChat } = require("../../utils/chat");
 const chatModel = require("../../models/chat.model");
 const MessagesModel = require("../../models/messages.model");
 
@@ -9,6 +12,8 @@ const streamResponse = asyncHandler(async (req, res, next) => {
   const { history, id, uid } = req.body;
 
   console.log(history, id, uid);
+
+  console.log(history[0].attachments);
 
   if (!history) {
     const err = new Error("Invalid Chat History");
@@ -20,26 +25,29 @@ const streamResponse = asyncHandler(async (req, res, next) => {
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
 
-  const aiResponseStream = createResponseStream(history);
+  const parts = await createParts(history);
+  console.log("Parts:", parts);
 
-  let chatId = null;
+  const aiResponseStream = createResponseStream(parts);
 
-  if (!id) {
-    if (uid) {
-      const newChat = new Chat({
-        title: "New Chat",
-        messages: history,
-        uid: uid,
-      });
+  // let chatId = null;
 
-      await newChat.save();
-      chatId = newChat._id.toString();
-    }
-  } else {
-    chatId = id;
-  }
+  // if (!id) {
+  //   if (uid) {
+  //     const newChat = new Chat({
+  //       title: "New Chat",
+  //       messages: history,
+  //       uid: uid,
+  //     });
 
-  res.write(`id: ${chatId} \n\n`);
+  //     await newChat.save();
+  //     chatId = newChat._id.toString();
+  //   }
+  // } else {
+  //   chatId = id;
+  // }
+
+  // res.write(`id: ${chatId} \n\n`);
   let aiResponse = "";
   for await (const chunk of aiResponseStream) {
     const cleanedChunk = chunk.text;
@@ -50,14 +58,14 @@ const streamResponse = asyncHandler(async (req, res, next) => {
     }
   }
 
-  if (chatId && uid)
-    await saveToChat(chatId, [
-      ...history,
-      {
-        role: "ai",
-        text: aiResponse,
-      },
-    ]);
+  // if (chatId && uid)
+  //   await saveToChat(chatId, [
+  //     ...history,
+  //     {
+  //       role: "ai",
+  //       text: aiResponse,
+  //     },
+  //   ]);
 
   return res.end();
 });

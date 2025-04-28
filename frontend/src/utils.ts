@@ -1,5 +1,7 @@
 import { Mp3Encoder } from "@breezystack/lamejs";
 import axios from "axios";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { auth, storage } from "./firebase";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -16,6 +18,7 @@ export const sendPrompt = async ({
   chatHistory: {
     text: string;
     role: "user" | "ai";
+    attachments?: Attachment[];
   }[];
   onMessage: (msg: string) => Promise<void>;
   onStart: () => Promise<void>;
@@ -150,22 +153,29 @@ export async function getTitle(history: MessageType[]) {
   return res.data;
 }
 
-export async function sync(
-  chats: ChatType[],
-  messages: MessageType[],
-  lastSynced: number
-) {
-  const res = await axios.post(
-    `${API_URL}/api/chat/sync`,
-    {
-      chats,
-      messages,
-      lastSynced,
-    },
-    {
-      withCredentials: true,
-    }
-  );
+export async function uploadToStorage(file: File) {
+  try {
+    const user = auth.currentUser;
 
-  return res.data;
+    if (!user) {
+      console.error("User not authenticated");
+      return null;
+    }
+
+    const storageRef = ref(storage, `uploads/${user.uid}/${file.name}`);
+
+    const snapshot = await uploadBytes(storageRef, file);
+
+    if (!snapshot.metadata) {
+      console.error("Snapshot metadata is null");
+      return null;
+    }
+
+    const downloadURL = await getDownloadURL(snapshot.ref);
+
+    return downloadURL;
+  } catch (error) {
+    console.error("Error uploading file:", error);
+    return null;
+  }
 }
