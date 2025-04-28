@@ -47,11 +47,14 @@ export const ChatInput = () => {
   const [input, setInput] = useState("");
   const [attachments, setAttachments] = useState<Attachment[]>([]);
 
+  const { showToast } = useToast();
+
   const handleSend = useCallback(
-    async (message: string) => {
+    async (message: string, attachments: Attachment[]) => {
       if (!message.trim()) return;
 
       setInput("");
+      setAttachments([]);
       // reset the height
       const textarea = document.querySelector("textarea");
       if (textarea) {
@@ -191,14 +194,14 @@ export const ChatInput = () => {
         signal: controller.signal,
       });
     },
-    [chatId, input, navigate, activeMessages]
+    [chatId, input, navigate, activeMessages, attachments]
   );
 
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        handleSend(input);
+        handleSend(input, attachments);
       }}
       className="glass-card flex flex-col items-end gap-2 p-4 border border-neutral bg-base-200 shadow-md relative xl:max-w-3xl xl:mx-auto xl:absolute xl:bottom-0 xl:inset-x-0 rounded-t-xl"
     >
@@ -230,7 +233,7 @@ export const ChatInput = () => {
                 />
               ) : (
                 <span className="text-xs text-center px-1">
-                  {attachment.url.split(".").pop()?.toUpperCase() || "FILE"}
+                  {attachment.url.split(".").pop()?.split("?")[0] || "FILE"}
                 </span>
               )}
             </div>
@@ -243,7 +246,7 @@ export const ChatInput = () => {
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
-            handleSend(input);
+            handleSend(input, attachments);
           }
         }}
         onChange={(e) => {
@@ -262,22 +265,22 @@ export const ChatInput = () => {
             onChange={async (e) => {
               const file = e.target.files?.[0];
               if (file) {
-          // Handle file upload here
-          const url = await uploadToStorage(file);
-          if (!url) {
-            console.error("Failed to upload file");
-            return;
-          }
+                showToast("Uploading Your File...", "loading");
+                // Handle file upload here
+                const url = await uploadToStorage(file);
+                if (!url) {
+                  console.error("Failed to upload file");
+                  showToast("Failed to upload file", "error");
+                  return;
+                }
 
-          const newAttachment: Attachment = {
-            url: url,
-            type: file.type.startsWith("image") ? "image" : "file",
-          };
+                const newAttachment: Attachment = {
+                  url: url,
+                  type: file.type.startsWith("image") ? "image" : "file",
+                };
 
-          setAttachments((prev) => [...prev, newAttachment]);
-          console.log("File uploaded:", url);
-
-          console.log("File selected:", file);
+                setAttachments((prev) => [...prev, newAttachment]);
+                showToast("Successfully uploaded the file", "success");
               }
             }}
           />
@@ -503,7 +506,7 @@ export function UserBubble({
           {msg.attachments.map((attachment, idx) => (
             <div
               key={idx}
-              className="relative w-40 h-40 flex items-center justify-center bg-neutral text-neutral-content border border-base-100 rounded-box border border-neutral"
+              className="relative w-fit h-40 min-w-40 flex items-center justify-center bg-neutral text-neutral-content border border-base-100 rounded-box border border-neutral"
             >
               {/* Preview */}
               {attachment.type === "image" ? (
@@ -514,7 +517,7 @@ export function UserBubble({
                 />
               ) : (
                 <span className="text-xs text-center px-1">
-                  {attachment.url.split(".").pop()?.toUpperCase() || "FILE"}
+                  {attachment.url.split(".").pop()?.split("?")[0]  || "FILE"}
                 </span>
               )}
             </div>
@@ -548,15 +551,18 @@ export function UserBubble({
             <SendHorizonal size={12} />
           </button>
         )}
-        <button
-          className="btn btn-xs btn-soft btn-info  btn-square"
-          onClick={() => {
-            editing && setContent(msg.text);
-            setEditing((x) => !x);
-          }}
-        >
-          {editing ? <X size={12} /> : <Pen size={12} />}
-        </button>
+
+        {!msg.attachments && (
+          <button
+            className="btn btn-xs btn-soft btn-info  btn-square"
+            onClick={() => {
+              editing && setContent(msg.text);
+              setEditing((x) => !x);
+            }}
+          >
+            {editing ? <X size={12} /> : <Pen size={12} />}
+          </button>
+        )}
         {!editing && (
           <button
             className="btn btn-xs btn-soft btn-ghost btn-square"
