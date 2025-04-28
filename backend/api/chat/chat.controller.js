@@ -7,6 +7,7 @@ const asyncHandler = require("../../utils/asyncHandler");
 const Chat = require("../../models/chat.model");
 const chatModel = require("../../models/chat.model");
 const MessagesModel = require("../../models/messages.model");
+const { setupLangChain } = require("../../utils/langchain");
 
 const streamResponse = asyncHandler(async (req, res, next) => {
   const { history, id, uid } = req.body;
@@ -28,44 +29,23 @@ const streamResponse = asyncHandler(async (req, res, next) => {
   const parts = await createParts(history);
   console.log("Parts:", parts);
 
-  const aiResponseStream = createResponseStream(parts);
+  const { memory, streamable: aiResponseStream } = await setupLangChain(
+    history,
+    id
+  );
 
-  // let chatId = null;
-
-  // if (!id) {
-  //   if (uid) {
-  //     const newChat = new Chat({
-  //       title: "New Chat",
-  //       messages: history,
-  //       uid: uid,
-  //     });
-
-  //     await newChat.save();
-  //     chatId = newChat._id.toString();
-  //   }
-  // } else {
-  //   chatId = id;
-  // }
-
-  // res.write(`id: ${chatId} \n\n`);
   let aiResponse = "";
   for await (const chunk of aiResponseStream) {
-    const cleanedChunk = chunk.text;
-    aiResponse += cleanedChunk;
-
-    if (cleanedChunk) {
-      res.write(`data: ${JSON.stringify({ msg: cleanedChunk })} \n\n`);
+    if (chunk) {
+      aiResponse += chunk;
+      res.write(`data: ${JSON.stringify({ msg: chunk })} \n\n`);
     }
   }
 
-  // if (chatId && uid)
-  //   await saveToChat(chatId, [
-  //     ...history,
-  //     {
-  //       role: "ai",
-  //       text: aiResponse,
-  //     },
-  //   ]);
+  await memory.saveContext(
+    { input: history[history.length - 1].text },
+    { output: aiResponse }
+  );
 
   return res.end();
 });

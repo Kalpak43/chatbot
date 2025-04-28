@@ -51,49 +51,6 @@ const createParts = async (history) => {
     });
   });
 
-  const { attachments } = lastMessage;
-
-  if (attachments && attachments.length > 0) {
-    for (const attachment of attachments) {
-      try {
-        const response = await fetch(attachment.url);
-        const contentType = response.headers.get("content-type");
-        const arrayBuffer = await response.arrayBuffer();
-
-        // Supported media types
-        const supportedMediaTypes = [
-          "image/png",
-          "image/jpeg",
-          "image/jpg",
-          "image/webp",
-          "application/pdf",
-        ];
-
-        if (supportedMediaTypes.includes(contentType)) {
-          const base64String = Buffer.from(arrayBuffer).toString("base64");
-
-          finalPromptParts.push({
-            media: {
-              url: `data:${contentType};base64,${base64String}`,
-              contentType: contentType,
-            },
-          });
-        } else {
-          // Convert non-supported media types into text
-          const textContent = Buffer.from(arrayBuffer).toString("utf-8");
-
-          finalPromptParts.push({
-            text: `User uploaded a file (${
-              attachment.name || "file"
-            }):\n\n${textContent}`,
-          });
-        }
-      } catch (error) {
-        console.error("Error processing attachment:", error);
-      }
-    }
-  }
-
   finalPromptParts.push({
     text: `${lastMessage.role === "user" ? "User" : "AI"}: ${lastMessage.text}`,
   });
@@ -135,3 +92,50 @@ module.exports = {
   generateTitle,
   createParts,
 };
+
+
+
+
+
+// const { attachments } = lastMessage;
+
+// if (attachments && attachments.length > 0) {
+//   for (const attachment of attachments) {
+//     try {
+//       const response = await fetch(attachment.url);
+//       const contentType = response.headers.get("content-type");
+//       const arrayBuffer = await response.arrayBuffer();
+
+//       // Supported media types
+//       const supportedMediaTypes = [
+//         "image/png",
+//         "image/jpeg",
+//         "image/jpg",
+//         "image/webp",
+//         "application/pdf",
+//       ];
+
+//       if (supportedMediaTypes.includes(contentType)) {
+//         const base64String = Buffer.from(arrayBuffer).toString("base64");
+
+//         finalPromptParts.push({
+//           media: {
+//             url: `data:${contentType};base64,${base64String}`,
+//             contentType: contentType,
+//           },
+//         });
+//       } else {
+//         // Convert non-supported media types into text
+//         const textContent = Buffer.from(arrayBuffer).toString("utf-8");
+
+//         finalPromptParts.push({
+//           text: `User uploaded a file (${
+//             attachment.name || "file"
+//           }):\n\n${textContent}`,
+//         });
+//       }
+//     } catch (error) {
+//       console.error("Error processing attachment:", error);
+//     }
+//   }
+// }
