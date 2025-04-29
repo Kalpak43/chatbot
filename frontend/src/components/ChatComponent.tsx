@@ -192,6 +192,7 @@ export const ChatInput = () => {
           }
         },
         signal: controller.signal,
+        id
       });
     },
     [chatId, input, navigate, activeMessages, attachments]

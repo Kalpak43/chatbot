@@ -26,8 +26,8 @@ const streamResponse = asyncHandler(async (req, res, next) => {
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
 
-  const parts = await createParts(history);
-  console.log("Parts:", parts);
+  // const parts = await createParts(history);
+  // console.log("Parts:", parts);
 
   const { memory, streamable: aiResponseStream } = await setupLangChain(
     history,

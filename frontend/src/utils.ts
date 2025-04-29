@@ -35,8 +35,8 @@ export const sendPrompt = async ({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         history: chatHistory,
-        uid,
         id,
+        uid,
       }),
       signal,
     });
