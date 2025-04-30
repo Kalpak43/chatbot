@@ -26,8 +26,6 @@ import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 
 import { createStuffDocumentsChain } from "langchain/chains/combine_documents";
 
-import { Annotation, StateGraph } from "@langchain/langgraph";
-
 dotenv.config();
 
 import { fileURLToPath } from "url";
@@ -35,7 +33,6 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 // Set __dirname to the project root (assumes this file is in a subdirectory)
 const __dirname = path.resolve(path.dirname(__filename), "..");
-console.log("Project root directory:", __dirname);
 
 const PROMPT = `AI Chatbot Response Format  
   
@@ -177,7 +174,7 @@ If the documents don't contain the information needed to answer the question, be
 export const setupLangChain = async (history, chatId) => {
   const model = new ChatGoogleGenerativeAI({
     model: "gemini-2.0-flash",
-    maxOutputTokens: 2048,
+    // maxOutputTokens: 2048,
     streaming: true,
   });
 
@@ -301,7 +298,9 @@ export const setupLangChain = async (history, chatId) => {
       });
 
       // Retrieve relevant documents (adjust the k value based on your needs)
-      const retriever = vectorStore.asRetriever({ k: 5 });
+      const retriever = vectorStore.asRetriever({
+        k: 5,
+      });
 
       // Chat history context
       const chatHistory = await memory
@@ -320,9 +319,6 @@ export const setupLangChain = async (history, chatId) => {
         {
           question: async () => lastMessage.text,
           context: async (input) => {
-            // Use the retriever instead of direct similarity search
-            console.log(input);
-
             const docs = await retriever.getRelevantDocuments(lastMessage.text);
             return docs;
           },
