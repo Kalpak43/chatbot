@@ -12,7 +12,7 @@ import { StringOutputParser } from "@langchain/core/output_parsers";
 
 import fs from "fs/promises";
 import path from "path";
-import { fileTypeFromBuffer } from "file-type";
+import { fileTypeFromBlob } from "file-type";
 
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { DocxLoader } from "@langchain/community/document_loaders/fs/docx";
@@ -105,27 +105,29 @@ const getDocumentStoreForChat = async (chatId) => {
 };
 
 // Function to process text files and add to vector store
-async function processTextFile(filePath, chatId, filename, ext) {
+async function processTextFile(fileBlob, chatId, ext) {
   let loader;
 
   try {
     if (ext === "pdf") {
-      loader = new PDFLoader(filePath);
+      loader = new PDFLoader(fileBlob);
     } else if (ext === "docx") {
-      loader = new DocxLoader(filePath);
+      loader = new DocxLoader(fileBlob);
     } else {
       // Default to text loader for .txt and other text formats
-      loader = new TextLoader(filePath);
+      loader = new TextLoader(fileBlob);
     }
 
     const docs = await loader.load();
 
-    console.log(docs);
-
     // Add metadata to identify the source file
     docs.forEach((doc) => {
-      doc.metadata.source = filename;
+      doc.metadata.source = fileBlob || "unknown";
+      doc.metadata.fileType = ext;
     });
+
+    console.log(docs);
+    console.log("Loaded documents:", fileBlob);
 
     // Split text into manageable chunks
     const textSplitter = new RecursiveCharacterTextSplitter({
@@ -147,11 +149,50 @@ async function processTextFile(filePath, chatId, filename, ext) {
   }
 }
 
-// Function to determine if a file is an image
-async function isImageFile(filePath) {
-  const buffer = await fs.readFile(filePath);
-  const fileType = await fileTypeFromBuffer(buffer);
-  return fileType && fileType.mime.startsWith("image/");
+async function processImage(imageBlob, chatId, ext) {
+  const arrayBuffer = await imageBlob.arrayBuffer();
+  const base64String = Buffer.from(arrayBuffer).toString("base64");
+  const base64Data = `data:${imageBlob.type};base64,${base64String}`;
+
+  const imageData = {
+    type: "image_url",
+    image_url: base64Data,
+  };
+
+  const descriptionModel = new ChatGoogleGenerativeAI({
+    model: "gemini-2.0-flash",
+  });
+
+  const response = await descriptionModel.invoke([
+    new SystemMessage("Generate a detailed description of this image."),
+    new HumanMessage({
+      content: [imageData],
+    }),
+  ]);
+
+  const imageDescription = response.content;
+
+  console.log("Image Description:", imageDescription);
+
+  // Add description to vector store
+  const vectorStore = await getDocumentStoreForChat(chatId);
+  const textSplitter = new RecursiveCharacterTextSplitter({
+    chunkSize: 1000,
+    chunkOverlap: 200,
+  });
+
+  const doc = {
+    pageContent: `[Image Description: ${imageDescription}]`,
+    metadata: { source: "image_description", type: "image" },
+  };
+
+  const splitDocs = await textSplitter.splitDocuments([doc]);
+  console.log("Split Documents:", splitDocs);
+
+  await vectorStore.addDocuments(splitDocs);
+
+  console.log("Documents added to vector store:", splitDocs.length);
+  console.log("Vector store updated for chat ID:", chatId);
 }
 
 // Create the RAG prompt template
@@ -161,11 +202,19 @@ const createRAGPromptTemplate = () => {
       "system",
       `${PROMPT}
 
-You have access to the following documents. Use them to answer the user's question.
-    
+You have access to the following documents/images. Use them to assist the user effectively.
+
 {context}
-    
-If the documents don't contain the information needed to answer the question, be honest about what you don't know.`,
+
+For quiz or test questions:
+1. Identify the question and all answer options
+2. Apply your knowledge to determine the most likely correct answer
+3. Explain your reasoning with confidence
+4. If the question is from a specialized field and you're uncertain, make your best educated guess and explain your reasoning
+      
+For factual questions:
+- If the documents don't contain enough information, use your knowledge to provide the most helpful response possible
+- Only state that you don't know if the question requires very specific information that you genuinely cannot determine`,
     ],
     ["human", "{question}"],
   ]);
@@ -186,30 +235,28 @@ export const setupLangChain = async (history, chatId) => {
 
   // Process any attached files
   let fileProcessingMessages = [];
-  let imageFiles = [];
 
   if (attachments && attachments.length > 0) {
     for (const attachment of attachments) {
       try {
         const response = await fetch(attachment.url);
         const contentType = response.headers.get("content-type");
-        const arrayBuffer = await response.arrayBuffer();
+        const fileBlob = await response.blob();
 
-        const buffer = Buffer.from(arrayBuffer);
+        const { ext } = await fileTypeFromBlob(fileBlob);
+        // const filename = uuidv4();
+        // const filePath = path.join(__dirname, "uploads", filename + "." + ext);
+        // await fs.writeFile(filePath, buffer);
 
-        const { ext } = await fileTypeFromBuffer(buffer);
-        const filename = uuidv4();
-        const filePath = path.join(__dirname, "uploads", filename + "." + ext);
-        await fs.writeFile(filePath, buffer);
-
-        console.log("File saved to:", filePath);
+        // console.log("File saved to:", filePath);
         console.log("File type detected:", ext);
         console.log("Content type:", contentType);
 
-        if (await isImageFile(filePath)) {
-          imageFiles.push(filePath);
+        if (contentType.startsWith("image/")) {
+          const result = await processImage(fileBlob, chatId, ext);
+          fileProcessingMessages.push(result);
         } else {
-          const result = await processTextFile(filePath, chatId, filename, ext);
+          const result = await processTextFile(fileBlob, chatId, ext);
           fileProcessingMessages.push(result);
         }
       } catch (err) {
@@ -220,30 +267,17 @@ export const setupLangChain = async (history, chatId) => {
 
   let promptMessages;
 
-  if (imageFiles.length > 0) {
-    const imageBuffers = await Promise.all(
-      imageFiles.map(async (filePath) => {
-        const fileData = await fs.readFile(filePath);
-        const fileType = await fileTypeFromBuffer(fileData);
+  // Get document store and perform similarity search
+  const vectorStore = await getDocumentStoreForChat(chatId);
 
-        // Format specifically for Google Generative AI
-        return {
-          type: "image_url", // This is the required type for image content
-          image_url: {
-            // For Google Gemini, we need to use base64 data URLs
-            url: `data:${fileType.mime};base64,${fileData.toString("base64")}`,
-          },
-        };
-      })
-    );
-
+  if (vectorStore.memoryVectors.length === 0) {
     promptMessages = [
       new SystemMessage(PROMPT),
       ...(await memory
         .loadMemoryVariables({})
         .then((vars) => vars.history || [])),
       new HumanMessage({
-        content: [{ type: "text", text: lastMessage.text }, ...imageBuffers],
+        content: lastMessage.text,
       }),
     ];
 
@@ -261,77 +295,51 @@ export const setupLangChain = async (history, chatId) => {
       streamable: await chain.stream(),
     };
   } else {
-    // Get document store and perform similarity search
-    const vectorStore = await getDocumentStoreForChat(chatId);
+    // Create prompt for RAG
+    const ragPrompt = createRAGPromptTemplate();
 
-    if (vectorStore.memoryVectors.length === 0) {
-      promptMessages = [
-        new SystemMessage(PROMPT),
-        ...(await memory
-          .loadMemoryVariables({})
-          .then((vars) => vars.history || [])),
-        new HumanMessage({
-          content: lastMessage.text,
-        }),
-      ];
+    const documentChain = await createStuffDocumentsChain({
+      llm: model,
+      prompt: ragPrompt,
+    });
 
-      // Create prompt with system instructions and history context
-      const prompt = ChatPromptTemplate.fromMessages(promptMessages);
+    const retriever = vectorStore.asRetriever({
+      k: 3,
+      searchType: "similarity",
+      filter: null,
+      scoreThreshold: 0.7,
+      maxConcurrency: 5,
+    });
 
-      const chain = RunnableSequence.from([
-        prompt,
-        model,
-        new StringOutputParser(),
-      ]);
+    // Chat history context
+    const chatHistory = await memory
+      .loadMemoryVariables({})
+      .then((vars) => vars.history || [])
+      .then((history) =>
+        history
+          .map(
+            (msg) =>
+              `${msg.type === "user" ? "Human" : "Assistant"}: ${msg.text}`
+          )
+          .join("\n")
+      );
 
-      return {
-        memory,
-        streamable: await chain.stream(),
-      };
-    } else {
-      // Create prompt for RAG
-      const ragPrompt = createRAGPromptTemplate();
-
-      const documentChain = await createStuffDocumentsChain({
-        llm: model,
-        prompt: ragPrompt,
-      });
-
-      // Retrieve relevant documents (adjust the k value based on your needs)
-      const retriever = vectorStore.asRetriever({
-        k: 5,
-      });
-
-      // Chat history context
-      const chatHistory = await memory
-        .loadMemoryVariables({})
-        .then((vars) => vars.history || [])
-        .then((history) =>
-          history
-            .map(
-              (msg) =>
-                `${msg.type === "user" ? "Human" : "Assistant"}: ${msg.text}`
-            )
-            .join("\n")
-        );
-
-      const ragChain = RunnableSequence.from([
-        {
-          question: async () => lastMessage.text,
-          context: async (input) => {
-            const docs = await retriever.getRelevantDocuments(lastMessage.text);
-            return docs;
-          },
-          chatHistory: async () => chatHistory,
+    const ragChain = RunnableSequence.from([
+      {
+        question: async () => lastMessage.text,
+        context: async (input) => {
+          const docs = await retriever.getRelevantDocuments(lastMessage.text);
+          return docs;
         },
-        documentChain,
-        new StringOutputParser(),
-      ]);
+        chatHistory: async () => chatHistory,
+      },
+      documentChain,
+      new StringOutputParser(),
+    ]);
 
-      return {
-        memory,
-        streamable: await ragChain.stream(),
-      };
-    }
+    return {
+      memory,
+      streamable: await ragChain.stream(),
+    };
   }
 };
