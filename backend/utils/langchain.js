@@ -18,6 +18,7 @@ import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { createStuffDocumentsChain } from "langchain/chains/combine_documents";
 import { Chroma } from "@langchain/community/vectorstores/chroma";
+import { QdrantVectorStore } from "@langchain/qdrant";
 
 dotenv.config();
 
@@ -87,6 +88,12 @@ const getDocumentStoreForChat = async (chatId) => {
       url: "http://localhost:8000",
     });
 
+    // const qdrantStore = await QdrantVectorStore.fromTexts([], [], embeddings, {
+    //   collectionName: chatId,
+    //   url: process.env.QDRANT_URL,
+    //   apiKey: process.env.QDRANT_API_KEY,
+    // });
+
     documentStores.set(chatId, chromaStore);
   }
 
@@ -126,9 +133,8 @@ async function processTextFile(fileBlob, chatId, ext) {
     });
 
     const splitDocs = await textSplitter.splitDocuments(docs);
-    console.log("----------------------------------------------------");
+
     console.log("Split Documents:", splitDocs);
-    console.log("----------------------------------------------------");
 
     // Add to vector store
     const vectorStore = await getDocumentStoreForChat(chatId);
@@ -262,10 +268,10 @@ export const setupLangChain = async (history, chatId) => {
   });
 
   const retriever = vectorStore.asRetriever({
-    k: 3,
+    k: 5,
     searchType: "similarity",
     filter: null,
-    scoreThreshold: 0.7,
+    scoreThreshold: 0.5,
     maxConcurrency: 5,
   });
 
