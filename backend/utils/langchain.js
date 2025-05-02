@@ -6,33 +6,20 @@ import {
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 
 import { BufferMemory } from "langchain/memory";
-import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { RunnableSequence } from "@langchain/core/runnables";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 
-import fs from "fs/promises";
-import path from "path";
 import { fileTypeFromBlob } from "file-type";
-
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { DocxLoader } from "@langchain/community/document_loaders/fs/docx";
 import { TextLoader } from "langchain/document_loaders/fs/text";
-
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 
-import { v4 as uuidv4 } from "uuid";
-
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
-
 import { createStuffDocumentsChain } from "langchain/chains/combine_documents";
+import { Chroma } from "@langchain/community/vectorstores/chroma";
 
 dotenv.config();
-
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-// Set __dirname to the project root (assumes this file is in a subdirectory)
-const __dirname = path.resolve(path.dirname(__filename), "..");
 
 const PROMPT = `AI Chatbot Response Format  
   
@@ -70,9 +57,6 @@ Break down your explanation into logical sections with descriptive headings. Inc
 // Memory store to maintain separate memory for each chat session
 const chatMemories = new Map();
 
-// Vector stores for document retrieval
-const documentStores = new Map();
-
 // Get or create memory for a specific chat
 const getMemoryForChat = (chatId) => {
   if (!chatMemories.has(chatId)) {
@@ -88,6 +72,9 @@ const getMemoryForChat = (chatId) => {
   return chatMemories.get(chatId);
 };
 
+// Vector stores for document retrieval
+const documentStores = new Map();
+
 // Get or create document store for a specific chat
 const getDocumentStoreForChat = async (chatId) => {
   if (!documentStores.has(chatId)) {
@@ -95,10 +82,12 @@ const getDocumentStoreForChat = async (chatId) => {
       modelName: "embedding-001",
     });
 
-    documentStores.set(
-      chatId,
-      await MemoryVectorStore.fromTexts([], [], embeddings)
-    );
+    const chromaStore = await Chroma.fromTexts([], [], embeddings, {
+      collectionName: chatId,
+      url: "http://localhost:8000",
+    });
+
+    documentStores.set(chatId, chromaStore);
   }
 
   return documentStores.get(chatId);
@@ -122,12 +111,13 @@ async function processTextFile(fileBlob, chatId, ext) {
 
     // Add metadata to identify the source file
     docs.forEach((doc) => {
-      doc.metadata.source = fileBlob || "unknown";
-      doc.metadata.fileType = ext;
+      doc.metadata = {
+        source: "File Content",
+        type: "pdf",
+        blobType: "application/pdf",
+        fileName: fileBlob.name || "unknown",
+      };
     });
-
-    console.log(docs);
-    console.log("Loaded documents:", fileBlob);
 
     // Split text into manageable chunks
     const textSplitter = new RecursiveCharacterTextSplitter({
@@ -136,13 +126,13 @@ async function processTextFile(fileBlob, chatId, ext) {
     });
 
     const splitDocs = await textSplitter.splitDocuments(docs);
+    console.log("----------------------------------------------------");
+    console.log("Split Documents:", splitDocs);
+    console.log("----------------------------------------------------");
 
     // Add to vector store
     const vectorStore = await getDocumentStoreForChat(chatId);
     await vectorStore.addDocuments(splitDocs);
-
-    console.log("Documents added to vector store:", splitDocs.length);
-    console.log("Vector store updated for chat ID:", chatId);
   } catch (error) {
     console.error("Error processing file:", error);
     throw new Error("Failed to process the file.");
@@ -248,10 +238,6 @@ export const setupLangChain = async (history, chatId) => {
         // const filePath = path.join(__dirname, "uploads", filename + "." + ext);
         // await fs.writeFile(filePath, buffer);
 
-        // console.log("File saved to:", filePath);
-        console.log("File type detected:", ext);
-        console.log("Content type:", contentType);
-
         if (contentType.startsWith("image/")) {
           const result = await processImage(fileBlob, chatId, ext);
           fileProcessingMessages.push(result);
@@ -265,81 +251,51 @@ export const setupLangChain = async (history, chatId) => {
     }
   }
 
-  let promptMessages;
-
   // Get document store and perform similarity search
   const vectorStore = await getDocumentStoreForChat(chatId);
 
-  if (vectorStore.memoryVectors.length === 0) {
-    promptMessages = [
-      new SystemMessage(PROMPT),
-      ...(await memory
-        .loadMemoryVariables({})
-        .then((vars) => vars.history || [])),
-      new HumanMessage({
-        content: lastMessage.text,
-      }),
-    ];
+  const ragPrompt = createRAGPromptTemplate();
 
-    // Create prompt with system instructions and history context
-    const prompt = ChatPromptTemplate.fromMessages(promptMessages);
+  const documentChain = await createStuffDocumentsChain({
+    llm: model,
+    prompt: ragPrompt,
+  });
 
-    const chain = RunnableSequence.from([
-      prompt,
-      model,
-      new StringOutputParser(),
-    ]);
+  const retriever = vectorStore.asRetriever({
+    k: 3,
+    searchType: "similarity",
+    filter: null,
+    scoreThreshold: 0.7,
+    maxConcurrency: 5,
+  });
 
-    return {
-      memory,
-      streamable: await chain.stream(),
-    };
-  } else {
-    // Create prompt for RAG
-    const ragPrompt = createRAGPromptTemplate();
+  // Chat history context
+  const chatHistory = await memory
+    .loadMemoryVariables({})
+    .then((vars) => vars.history || [])
+    .then((history) =>
+      history
+        .map(
+          (msg) => `${msg.type === "user" ? "Human" : "Assistant"}: ${msg.text}`
+        )
+        .join("\n")
+    );
 
-    const documentChain = await createStuffDocumentsChain({
-      llm: model,
-      prompt: ragPrompt,
-    });
-
-    const retriever = vectorStore.asRetriever({
-      k: 3,
-      searchType: "similarity",
-      filter: null,
-      scoreThreshold: 0.7,
-      maxConcurrency: 5,
-    });
-
-    // Chat history context
-    const chatHistory = await memory
-      .loadMemoryVariables({})
-      .then((vars) => vars.history || [])
-      .then((history) =>
-        history
-          .map(
-            (msg) =>
-              `${msg.type === "user" ? "Human" : "Assistant"}: ${msg.text}`
-          )
-          .join("\n")
-      );
-
-    const ragChain = RunnableSequence.from([
-      {
-        question: async () => lastMessage.text,
-        context: async (input) => {
-          const docs = await retriever.getRelevantDocuments(lastMessage.text);
-          return docs;
-        },
-        chatHistory: async () => chatHistory,
+  const ragChain = RunnableSequence.from([
+    {
+      question: async () => lastMessage.text,
+      context: async (input) => {
+        const docs = await retriever.getRelevantDocuments(lastMessage.text);
+        return docs;
       },
-      documentChain,
-      new StringOutputParser(),
-    ]);
+      chatHistory: async () => chatHistory,
+    },
+    documentChain,
+    new StringOutputParser(),
+  ]);
 
-    return {
-      memory,
-      streamable: await ragChain.stream(),
-    };
-  }
+  return {
+    memory,
+    streamable: await ragChain.stream(),
+  };
 };
