@@ -1,0 +1,48 @@
+name: "chatbot"
+
+services:
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+    networks:
+      - net
+
+  chroma:
+    image: chromadb/chroma
+    volumes:
+      - chroma:/chroma/.chroma/index
+    ports:
+      - "8000:8000"
+    networks:
+      - net
+
+
+  server:
+    build:
+      context: .
+    ports:
+      - 8080:8080
+    volumes:
+      - ./:/app
+    env_file:
+      - path: ./.env
+    depends_on:
+      - mongodb
+      - chroma
+    networks:
+      - net
+
+
+volumes:
+  mongo:
+  chroma:
+
+networks:
+  net:
+    driver: bridge
