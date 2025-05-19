@@ -16,8 +16,8 @@ import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { createStuffDocumentsChain } from "langchain/chains/combine_documents";
-import { Chroma } from "@langchain/community/vectorstores/chroma";
-// import { QdrantVectorStore } from "@langchain/qdrant";
+// import { Chroma } from "@langchain/community/vectorstores/chroma";
+import { QdrantVectorStore } from "@langchain/qdrant";
 import { createRAGPromptTemplate } from "./prompts.util.js";
 
 dotenv.config();
@@ -50,18 +50,18 @@ const getDocumentStoreForChat = async (chatId) => {
       modelName: "embedding-001",
     });
 
-    const chromaStore = await Chroma.fromTexts([], [], embeddings, {
-      collectionName: chatId,
-      url: process.env.CHROMADB_URI,
-    });
-
-    // const qdrantStore = await QdrantVectorStore.fromTexts([], [], embeddings, {
+    // const chromaStore = await Chroma.fromTexts([], [], embeddings, {
     //   collectionName: chatId,
-    //   url: process.env.QDRANT_URL,
-    //   apiKey: process.env.QDRANT_API_KEY,
+    //   url: process.env.CHROMADB_URI,
     // });
 
-    documentStores.set(chatId, chromaStore);
+    const qdrantStore = await QdrantVectorStore.fromTexts([], [], embeddings, {
+      collectionName: chatId,
+      url: process.env.QDRANT_URL,
+      apiKey: process.env.QDRANT_API_KEY,
+    });
+
+    documentStores.set(chatId, qdrantStore);
   }
 
   return documentStores.get(chatId);

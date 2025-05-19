@@ -16,6 +16,7 @@
     "@langchain/community": "^0.3.42",
     "@langchain/core": "^0.3.55",
     "@langchain/google-genai": "^0.2.7",
+    "@langchain/qdrant": "^0.1.2",
     "chromadb": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
