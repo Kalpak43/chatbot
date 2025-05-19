@@ -418,6 +418,8 @@ Chat.Input = function Input() {
     isStreaming,
   } = useChat();
 
+  const user = useAppSelector(state => state.auth.user)
+
   const [isListening, setIsListening] = useState(false);
 
   const handleVoiceText = (text: string) => {
@@ -517,6 +519,7 @@ Chat.Input = function Input() {
                 variant={"outline"}
                 size={"icon"}
                 className="relative"
+                disabled={!user}
               >
                 <Paperclip />
                 <input

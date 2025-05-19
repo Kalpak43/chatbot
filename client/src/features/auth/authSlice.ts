@@ -6,10 +6,16 @@ import {
   signout,
   signup,
 } from "./authThunk";
-import { User } from "firebase/auth";
+
+interface SimpleUser {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+}
 
 interface AuthState {
-  user: User | null;
+  user: SimpleUser | null;
   error: string | null;
   loading: boolean;
 }

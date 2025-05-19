@@ -1,4 +1,4 @@
-import React from "react";
+
 import { motion } from "motion/react";
 
 function TypingIndicator({ id }: { id: string }) {
