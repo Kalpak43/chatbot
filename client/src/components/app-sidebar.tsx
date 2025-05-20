@@ -164,7 +164,7 @@ const RecentList = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               {/* Last 7 days */}
-              {last7Days.map((chat) => (
+              {last7Days.sort((a,b) => b.created_at - a.created_at).map((chat) => (
                 <SidebarMenuItem key={chat.id}>
                   <ChatButton chat={chat} />
                 </SidebarMenuItem>

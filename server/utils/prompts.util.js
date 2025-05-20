@@ -60,3 +60,18 @@ export const createRAGPromptTemplate = () => {
     ["human", "{question}"],
   ]);
 };
+
+// export const 
+
+export const TITLE_PROMPT = ChatPromptTemplate.fromMessages([
+  [
+    "system",
+    "You are an expert at summarizing conversations and creating titles. Please generate a concise title that captures the main topic of the following chat history."
+  ],
+  [
+    "human",
+    `
+      {chat_history}
+    `
+  ]
+])

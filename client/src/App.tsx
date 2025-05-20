@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { checkLogin } from "./features/auth/authThunk";
 import Signuppage from "./pages/Signuppage";
 import { useSync } from "./hooks/useSync";
+import { syncService } from "./services/sync-service";
 
 function App() {
   const dispatch = useAppDispatch();
@@ -46,6 +47,12 @@ function App() {
 
   useEffect(() => {
     if (user) toast.success("Signed in successfully");
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      syncService.pullChanges(new Date().getTime());
+    }
   }, [user]);
 
   useEffect(() => {

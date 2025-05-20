@@ -1,5 +1,5 @@
 import { asyncHandler } from "../../utils/async-handler.util.js";
-import { setupLangChain } from "../../utils/langchain.util.js";
+import { generateTitle, setupLangChain } from "../../utils/langchain.util.js";
 import { Chat } from "../../models/chat.model.js";
 import { Message } from "../../models/messages.model.js";
 
@@ -41,27 +41,27 @@ const streamResponse = asyncHandler(async (req, res) => {
   return res.end();
 });
 
-// const getTitle = asyncHandler(async (req, res, next) => {
-//   const { history } = req.body;
+const getTitle = asyncHandler(async (req, res, next) => {
+  const { chatId } = req.body;
 
-//   if (!history) {
-//     const err = new Error("Invalid Chat History");
-//     err.status = 400;
-//     throw err;
-//   }
+  if (!chatId) {
+    const err = new Error("Invalid Chat History");
+    err.status = 400;
+    throw err;
+  }
 
-//   const title = await generateTitle(history);
+  const title = await generateTitle(chatId);
 
-//   if (!title) {
-//     const err = new Error("Unable to generate a title");
-//     err.status = 500;
-//     throw err;
-//   }
+  if (!title) {
+    const err = new Error("Unable to generate a title");
+    err.status = 500;
+    throw err;
+  }
 
-//   return res.status(200).send({
-//     title,
-//   });
-// });
+  return res.status(200).send({
+    title,
+  });
+});
 
 const syncChat = asyncHandler(async (req, res, next) => {
   const { chat } = req.body;
@@ -155,4 +155,11 @@ const getMessages = asyncHandler(async (req, res) => {
   return res.status(200).json({ messages: formattedMessages });
 });
 
-export { streamResponse, syncChat, getChats, syncMessage, getMessages };
+export {
+  streamResponse,
+  syncChat,
+  getChats,
+  syncMessage,
+  getMessages,
+  getTitle,
+};

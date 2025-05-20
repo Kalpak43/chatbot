@@ -1,7 +1,5 @@
 import {
-  createListenerMiddleware,
   createSlice,
-  isAnyOf,
 } from "@reduxjs/toolkit";
 import {
   createNewChat,
@@ -12,7 +10,6 @@ import {
   pullRemoteChanges,
   updateChat,
 } from "./chatThunk";
-import { RootState } from "@/app/store";
 
 type ChatState = {
   chats: ChatType[];
@@ -29,32 +26,6 @@ const initialState: ChatState = {
   activeMessages: [],
   activeChat: null,
 };
-
-export const chatListenerMiddleware = createListenerMiddleware();
-
-chatListenerMiddleware.startListening({
-  matcher: isAnyOf(
-    getChats.fulfilled,
-    updateChat.fulfilled,
-    pullRemoteChanges.fulfilled,
-    deleteChatAndMessages.fulfilled
-  ),
-  effect: async (_, listenerApi) => {
-    const state = listenerApi.getState() as RootState;
-
-    // Filter out deleted chats (e.g., assuming a `deleted` flag)
-    const filteredChats = state.chat.chats.filter(
-      (chat) => chat.status != "deleted"
-    );
-
-    console.log("Filtered Chats (middleware):", filteredChats);
-
-    // Optional: Dispatch an error if filtering goes wrong
-    if (!Array.isArray(filteredChats)) {
-      listenerApi.dispatch(setError("Filtering chats failed"));
-    }
-  },
-});
 
 const chatSlice = createSlice({
   name: "chat",

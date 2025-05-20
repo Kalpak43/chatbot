@@ -30,7 +30,7 @@ import {
 } from "@/features/chat/chatThunk";
 import { liveQuery } from "dexie";
 import { useNavigate } from "react-router";
-import { sendPrompt } from "@/services/ai-service";
+import { getTitle, sendPrompt } from "@/services/ai-service";
 import TypingIndicator from "./ui/typing-indicator";
 import VoiceToText from "./voice-to-text";
 import { uploadToStorage } from "@/services/upload-service";
@@ -71,6 +71,7 @@ function Chat({
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const activeMessages = useAppSelector((state) => state.chat.activeMessages);
+  const activeChat = useAppSelector((state) => state.chat.activeChat);
 
   const [prompt, setPrompt] = useState("");
   const [attachments, setAttachments] = useState<Attachment[]>([]);
@@ -78,6 +79,23 @@ function Chat({
   const [isStreaming, setIsStreaming] = useState(false);
   const [abortController, setAbortController] =
     useState<AbortController | null>(null);
+
+  useEffect(() => {
+    const getTitleSomeHow = async () => {
+      if (chatId && activeChat && !activeChat.title.trim() && activeMessages.length > 1) {
+        const title = await getTitle(chatId);
+
+        updateChat({
+          chatId,
+          data: {
+            title,
+          },
+        });
+      }
+    };
+
+    getTitleSomeHow();
+  }, [chatId, activeChat]);
 
   useEffect(() => {
     dispatch(resetMessages());
@@ -418,7 +436,7 @@ Chat.Input = function Input() {
     isStreaming,
   } = useChat();
 
-  const user = useAppSelector(state => state.auth.user)
+  const user = useAppSelector((state) => state.auth.user);
 
   const [isListening, setIsListening] = useState(false);
 

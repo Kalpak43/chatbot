@@ -18,11 +18,10 @@ import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { createStuffDocumentsChain } from "langchain/chains/combine_documents";
 // import { Chroma } from "@langchain/community/vectorstores/chroma";
 import { QdrantVectorStore } from "@langchain/qdrant";
-import { createRAGPromptTemplate } from "./prompts.util.js";
+import { createRAGPromptTemplate, TITLE_PROMPT } from "./prompts.util.js";
+import { model } from "mongoose";
 
 dotenv.config();
-
-console.log(process.env.CHROMADB_URI);
 
 const chatMemories = new Map();
 
@@ -257,4 +256,36 @@ export const setupLangChain = async (history, chatId) => {
     memory,
     streamable: await ragChain.stream(),
   };
+};
+
+export const generateTitle = async (chatId) => {
+  const model = new ChatGoogleGenerativeAI({
+    model: "gemini-2.0-flash",
+    // maxOutputTokens: 2048,
+    streaming: true,
+  });
+
+  const memory = getMemoryForChat(chatId);
+
+  const chatHistory = await memory
+    .loadMemoryVariables({})
+    .then((vars) => vars.history || [])
+    .then((history) =>
+      history
+        .map((msg) => {
+          return `${msg.role === "user" ? "Human" : "Assistant"}: ${
+            msg.content
+          }`;
+        })
+        .join("\n")
+    );
+
+  const prompt = await TITLE_PROMPT.formatMessages({
+    chat_history: chatHistory,
+  });
+
+  const response = await model.call(prompt);
+  console.log(response);
+
+  return response.content;
 };
