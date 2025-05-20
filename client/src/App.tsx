@@ -49,11 +49,11 @@ function App() {
     if (user) toast.success("Signed in successfully");
   }, [user]);
 
-  useEffect(() => {
-    if (user) {
-      syncService.pullChanges(new Date().getTime());
-    }
-  }, [user]);
+  // useEffect(() => {
+  //   if (user) {
+  //     syncService.pullChanges(new Date().getTime());
+  //   }
+  // }, [user]);
 
   useEffect(() => {
     if (error) toast.error(error);
