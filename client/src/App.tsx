@@ -9,7 +9,6 @@ import { toast } from "sonner";
 import { checkLogin } from "./features/auth/authThunk";
 import Signuppage from "./pages/Signuppage";
 import { useSync } from "./hooks/useSync";
-import { syncService } from "./services/sync-service";
 
 function App() {
   const dispatch = useAppDispatch();

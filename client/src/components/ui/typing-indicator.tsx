@@ -1,47 +1,42 @@
 
-import { motion } from "motion/react";
+
+import { motion, Variants } from "framer-motion"
 
 function TypingIndicator({ id }: { id: string }) {
   const typingIndicator = {
+    initial: {}, // Added missing initial state
     animate: {
       transition: {
         staggerChildren: 0.2,
-        repeat: Infinity,
-        repeatType: "loop" as "loop",
+        repeat: Number.POSITIVE_INFINITY,
+        repeatType: "loop" as const,
       },
     },
-  };
+  }
 
-  const dotBounce = {
+  const dotBounce: Variants = {
     initial: { y: 0 },
     animate: {
-      y: [0, -6, 0],
+      y: [0, -6, 0, 0, 0], // Added extra "0" values to create a pause
       transition: {
-        duration: 0.6,
-        repeat: Infinity,
+        times: [0, 0.3, 0.6, 0.8, 1], // Control the timing of each keyframe
+        duration: 2, // Increased duration to accommodate the pause
         ease: "easeInOut",
+        repeat: Number.POSITIVE_INFINITY,
+        repeatType: "loop",
       },
     },
-  };
+  }
 
   return (
     <div key={id} className="flex gap-2">
-      <motion.div
-        className="flex gap-2"
-        variants={typingIndicator}
-        initial="initial"
-        animate="animate"
-      >
+      <motion.div className="flex gap-2" variants={typingIndicator} initial="initial" animate="animate">
         {[...Array(3)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="size-2 rounded-full bg-[radial-gradient(at_25%_25%,white,black)]"
-            variants={dotBounce}
-          />
+          <motion.div key={i} className="size-2 rounded-full bg-gray-400 dark:bg-gray-600" variants={dotBounce} />
         ))}
       </motion.div>
     </div>
-  );
+  )
 }
 
-export default TypingIndicator;
+export default TypingIndicator

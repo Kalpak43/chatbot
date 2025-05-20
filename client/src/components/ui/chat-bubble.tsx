@@ -63,7 +63,7 @@ function ChatBubble({
                       <div
                         key={idx}
                         className={cn(
-                          "w-30 aspect-square rounded-xl [box-shadow:0px_0px_3px_#e3e3e320]",
+                          "w-30 aspect-square rounded-xl [box-shadow:0px_0px_3px_#e3e3e320]  bg-card",
                           "relative before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-linear-to-t before:from-black/40 before:to-transparent"
                         )}
                       >
@@ -74,7 +74,7 @@ function ChatBubble({
                             className="object-cover w-full h-full rounded-xl"
                           />
                         ) : (
-                          <span className="text-xs text-center px-1 block h-full flex items-center justify-center">
+                          <span className="text-xs text-center px-1 h-full flex items-center justify-center">
                             {attachment.url.split(".").pop()?.split("?")[0] ||
                               "FILE"}
                           </span>

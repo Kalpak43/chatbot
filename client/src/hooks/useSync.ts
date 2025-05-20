@@ -58,18 +58,18 @@ export const useSync = () => {
       // First sync local changes to server
       await dispatch(syncLocalChanges());
 
-      // // Then pull changes from server
-      // const result: any = await dispatch(
-      //   pullRemoteChanges({ lastSyncTimestamp: lastSyncTime })
-      // );
+      // Then pull changes from server
+      const result: any = await dispatch(
+        pullRemoteChanges({ lastSyncTimestamp: lastSyncTime })
+      );
 
-      // if (
-      //   result.meta.requestStatus === "fulfilled" &&
-      //   result.payload?.syncTimestamp
-      // ) {
-      //   // Update last sync time
-      //   setLastSyncTime(result.payload.syncTimestamp);
-      // }
+      if (
+        result.meta.requestStatus === "fulfilled" &&
+        result.payload?.syncTimestamp
+      ) {
+        // Update last sync time
+        setLastSyncTime(result.payload.syncTimestamp);
+      }
     } catch (error) {
       console.error("Sync failed:", error);
     } finally {
