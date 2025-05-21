@@ -34,7 +34,7 @@ function Layout() {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <main className="w-full md:p-4 relative max-h-screen">
+      <main className="w-full md:p-4 relative max-h-[100dvh]">
         <div className="flex items-center gap-2 absolute top-0 left-0 lg:ml-4 mt-2 z-50">
           <SidebarTrigger
             size={"lg"}
