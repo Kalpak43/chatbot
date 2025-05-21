@@ -6,7 +6,7 @@ function Chatpage() {
 
   return (
     <Chat chatId={chatId ?? null}>
-      <Chat.Area />
+      {chatId ? <Chat.Area /> : <Chat.Intro />}
       <Chat.Input />
     </Chat>
   );

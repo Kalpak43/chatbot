@@ -610,4 +610,78 @@ Chat.Input = function Input() {
   );
 };
 
+Chat.Intro = function Intro() {
+  const { handlePromptInput } = useChat();
+  return (
+    <div className="h-full overflow-y-auto">
+      <div className="max-w-3xl mx-auto px-4 md:px-8 flex flex-col justify-center h-full space-y-4">
+        <h1 className="text-3xl font-600">Hello, What can I help you with?</h1>
+        <ul className="flex flex-col space-y-2 w-full">
+          <li>
+            <Button
+              variant="outline"
+              className="w-full justify-start italic font-400"
+              onClick={() => {
+          handlePromptInput(
+            "What can I cook with chicken, garlic, and rice?"
+          );
+              }}
+            >
+              What can I cook with chicken, garlic, and rice?
+            </Button>
+          </li>
+          <li>
+            <Button
+              variant="outline"
+              className="w-full justify-start italic font-400"
+              onClick={() => {
+          handlePromptInput(
+            "Can you explain quantum physics in simple terms?"
+          );
+              }}
+            >
+              Can you explain quantum physics in simple terms?
+            </Button>
+          </li>
+          <li>
+            <Button
+              variant="outline"
+              className="w-full justify-start italic font-400"
+              onClick={() => {
+          handlePromptInput(
+            "Help me write a professional email to my manager."
+          );
+              }}
+            >
+              Help me write a professional email to my manager.
+            </Button>
+          </li>
+          <li>
+            <Button
+              variant="outline"
+              className="w-full justify-start italic font-400"
+              onClick={() => {
+          handlePromptInput("What's a fun weekend activity near me?");
+              }}
+            >
+              What's a fun weekend activity near me?
+            </Button>
+          </li>
+          <li>
+            <Button
+              variant="outline"
+              className="w-full justify-start italic font-400"
+              onClick={() => {
+          handlePromptInput("Can you summarize this article for me?");
+              }}
+            >
+              Can you summarize this article for me?
+            </Button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  );
+};
+
 export default Chat;

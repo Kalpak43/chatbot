@@ -48,7 +48,7 @@ function ChatBubble({
     >
       <div
         className={cn(
-          "flex flex-col gap-1 max-w-full",
+          "flex flex-col gap-1 w-full",
           sender === "user" && "items-end",
           editing && "w-full"
         )}
