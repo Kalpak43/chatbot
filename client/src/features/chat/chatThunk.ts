@@ -196,6 +196,10 @@ export const pullRemoteChanges = createAsyncThunk(
   async ({ lastSyncTimestamp }: { lastSyncTimestamp: number }, thunkAPI) => {
     const result = await syncService.pullChanges(lastSyncTimestamp);
 
+    if (!result) {
+      return thunkAPI.rejectWithValue("Failed to pull remote changes");
+    }
+
     if (result.success) {
       // Reload chats and messages after sync
       const updatedChats = (await db.chats.toArray()).filter(
