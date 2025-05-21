@@ -71,9 +71,7 @@ function AppSidebar() {
               onClick={() => navigate("/chat")}
             >
               <Plus />
-              <span>
-                New Chat
-              </span>
+              <span>New Chat</span>
             </Button>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -166,11 +164,13 @@ const RecentList = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               {/* Last 7 days */}
-              {last7Days.sort((a, b) => b.created_at - a.created_at).map((chat) => (
-                <SidebarMenuItem key={chat.id}>
-                  <ChatButton chat={chat} />
-                </SidebarMenuItem>
-              ))}
+              {last7Days
+                .sort((a, b) => b.created_at - a.created_at)
+                .map((chat) => (
+                  <SidebarMenuItem key={chat.id}>
+                    <ChatButton chat={chat} />
+                  </SidebarMenuItem>
+                ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -184,11 +184,13 @@ const RecentList = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               {/* Last 30 days */}
-              {last30Days.sort((a, b) => b.created_at - a.created_at).map((chat) => (
-                <SidebarMenuItem key={chat.id}>
-                  <ChatButton chat={chat} />
-                </SidebarMenuItem>
-              ))}
+              {last30Days
+                .sort((a, b) => b.created_at - a.created_at)
+                .map((chat) => (
+                  <SidebarMenuItem key={chat.id}>
+                    <ChatButton chat={chat} />
+                  </SidebarMenuItem>
+                ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -202,11 +204,13 @@ const RecentList = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               {/* Older */}
-              {older.sort((a, b) => b.created_at - a.created_at).map((chat) => (
-                <SidebarMenuItem key={chat.id}>
-                  <ChatButton chat={chat} />
-                </SidebarMenuItem>
-              ))}
+              {older
+                .sort((a, b) => b.created_at - a.created_at)
+                .map((chat) => (
+                  <SidebarMenuItem key={chat.id}>
+                    <ChatButton chat={chat} />
+                  </SidebarMenuItem>
+                ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -222,6 +226,10 @@ const ChatButton = ({ chat }: { chat: ChatType }) => {
 
   const [title, setTitle] = useState(chat.title);
   const [editing, setEditing] = useState(false);
+
+  useEffect(() => {
+    setTitle(chat.title);
+  }, [chat.title]);
 
   const handleDelete = async () => {
     await dispatch(
@@ -278,8 +286,14 @@ const ChatButton = ({ chat }: { chat: ChatType }) => {
       ) : (
         <>
           <SidebarMenuButton asChild>
-            <Link to={`/chat/${chat.id}`} className={cn("relative group", location.pathname == `/chat/${chat.id}` && "bg-accent/50")}>
-              <span>{!chat.title.trim() ? "New Chat" : chat.title}</span>
+            <Link
+              to={`/chat/${chat.id}`}
+              className={cn(
+                "relative group",
+                location.pathname == `/chat/${chat.id}` && "bg-accent/50"
+              )}
+            >
+              <span>{!title.trim() ? "New Chat" : title}</span>
             </Link>
           </SidebarMenuButton>
           <DropdownMenu>
