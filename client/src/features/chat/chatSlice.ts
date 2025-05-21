@@ -54,7 +54,6 @@ const chatSlice = createSlice({
         state.error = action.error.message ?? "An error occurred";
       })
       .addCase(getChats.fulfilled, (state, action) => {
-        console.log(action.payload);
         state.chats = action.payload.sort(
           (a, b) => b.created_at - a.created_at
         );
@@ -78,7 +77,7 @@ const chatSlice = createSlice({
         }
 
         if (state.activeChat && state.activeChat.id == chatId) {
-          Object.assign(state.activeChat, updateChat);
+          Object.assign(state.activeChat, data);
         }
       })
       .addCase(updateChat.rejected, (state, action) => {

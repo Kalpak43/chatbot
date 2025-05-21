@@ -266,6 +266,7 @@ const ChatButton = ({ chat }: { chat: ChatType }) => {
                 setEditing(false);
               }
             }}
+            className="pr-10"
           />
 
           <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">

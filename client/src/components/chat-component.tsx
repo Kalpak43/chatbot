@@ -82,20 +82,34 @@ function Chat({
 
   useEffect(() => {
     const getTitleSomeHow = async () => {
-      if (chatId && activeChat && !activeChat.title.trim() && activeMessages.length > 1) {
-        const title = await getTitle(chatId);
+      if (
+        chatId &&
+        activeChat &&
+        !activeChat.title.trim() &&
+        activeMessages.length > 1 &&
+        activeMessages[activeMessages.length - 1].status == "done"
+      ) {
+        console.log("GETTING TITLE");
+        const title = await getTitle(activeMessages);
 
-        updateChat({
-          chatId,
-          data: {
-            title,
-          },
-        });
+        dispatch(
+          updateChat({
+            chatId,
+            data: {
+              title,
+            },
+          })
+        );
       }
     };
 
     getTitleSomeHow();
-  }, [chatId, activeChat]);
+  }, [
+    chatId,
+    activeChat?.title,
+    activeMessages.length,
+    activeMessages[activeMessages.length - 1]?.status,
+  ]);
 
   useEffect(() => {
     dispatch(resetMessages());
@@ -498,7 +512,7 @@ Chat.Input = function Input() {
                   className="object-cover w-full h-full rounded-md"
                 />
               ) : (
-                <span className="text-xs text-center px-1 block h-full flex items-center justify-center">
+                <span className="text-xs text-center px-1 h-full flex items-center justify-center">
                   {attachment.url.split(".").pop()?.split("?")[0] || "FILE"}
                 </span>
               )}

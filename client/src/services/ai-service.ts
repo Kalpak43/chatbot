@@ -82,10 +82,12 @@ export const sendPrompt = async ({
   }
 };
 
-export async function getTitle(chatId: string) {
+export async function getTitle(chatHistory: MessageType[]) {
   const res = await axios.post(`${API_URL}/api/chat/generate-title`, {
-    chatId,
+    chatHistory,
   });
 
-  return res.data;
+  if (res.data.title) return res.data.title;
+
+  return "";
 }

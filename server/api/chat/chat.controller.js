@@ -42,15 +42,15 @@ const streamResponse = asyncHandler(async (req, res) => {
 });
 
 const getTitle = asyncHandler(async (req, res, next) => {
-  const { chatId } = req.body;
+  const { chatHistory } = req.body;
 
-  if (!chatId) {
+  if (!chatHistory) {
     const err = new Error("Invalid Chat History");
     err.status = 400;
     throw err;
   }
 
-  const title = await generateTitle(chatId);
+  const title = await generateTitle(chatHistory);
 
   if (!title) {
     const err = new Error("Unable to generate a title");

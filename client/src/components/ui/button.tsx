@@ -60,6 +60,6 @@ const ButtonComponent = React.forwardRef<HTMLButtonElement, ButtonProps>(
 );
 ButtonComponent.displayName = "Button";
 
-const Button = motion(ButtonComponent);
+const Button = motion.create(ButtonComponent);
 
 export { Button, buttonVariants };

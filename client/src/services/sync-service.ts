@@ -164,7 +164,8 @@ export class SyncService {
     // console.log(lastSyncTimestamp);
     try {
       const idToken = await auth.currentUser?.getIdToken();
-      console.log("TOKEN: ",idToken)
+
+      if (!idToken) return;
 
       const chatResponse = await axios.get(
         `${API_URL}/api/chat/get-chats?since=${lastSyncTimestamp}`,

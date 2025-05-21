@@ -14,7 +14,7 @@ import { DocxLoader } from "@langchain/community/document_loaders/fs/docx";
 import { TextLoader } from "langchain/document_loaders/fs/text";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 
-import { HumanMessage, SystemMessage } from "@langchain/core/messages";
+import { AIMessage, HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { createStuffDocumentsChain } from "langchain/chains/combine_documents";
 // import { Chroma } from "@langchain/community/vectorstores/chroma";
 import { QdrantVectorStore } from "@langchain/qdrant";
@@ -165,7 +165,7 @@ export const setupLangChain = async (history, chatId) => {
   // Get chat-specific memory
   const memory = getMemoryForChat(chatId);
 
-  console.log(memory);
+  console.log("CHAT: ", memory);
 
   const lastMessage = history[history.length - 1];
   const { attachments } = lastMessage;
@@ -232,9 +232,8 @@ export const setupLangChain = async (history, chatId) => {
     .then((history) =>
       history
         .map((msg) => {
-          return `${msg.role === "user" ? "Human" : "Assistant"}: ${
-            msg.content
-          }`;
+          return `${msg.role === "user" ? "Human" : "Assistant"}: ${msg.content
+            }`;
         })
         .join("\n")
     );
@@ -258,34 +257,31 @@ export const setupLangChain = async (history, chatId) => {
   };
 };
 
-export const generateTitle = async (chatId) => {
+export const generateTitle = async (chatHistory) => {
   const model = new ChatGoogleGenerativeAI({
     model: "gemini-2.0-flash",
     // maxOutputTokens: 2048,
     streaming: true,
   });
 
-  const memory = getMemoryForChat(chatId);
+  console.log("HISTORY: ", chatHistory)
 
-  const chatHistory = await memory
-    .loadMemoryVariables({})
-    .then((vars) => vars.history || [])
-    .then((history) =>
-      history
-        .map((msg) => {
-          return `${msg.role === "user" ? "Human" : "Assistant"}: ${
-            msg.content
-          }`;
-        })
-        .join("\n")
-    );
-
-  const prompt = await TITLE_PROMPT.formatMessages({
-    chat_history: chatHistory,
+  // Convert chatHistory array into Langchain message objects
+  const messages = chatHistory.map((item) => {
+    if (item.role === "user") {
+      return new HumanMessage(item.text);
+    } else if (item.role === "ai") {
+      return new AIMessage(item.text);
+    }
   });
 
-  const response = await model.call(prompt);
-  console.log(response);
+
+  const prompt = await TITLE_PROMPT.formatMessages({
+    chat_history: messages,
+  });
+
+  const response = await model.invoke(prompt);
+  console.log(response.content);
 
   return response.content;
 };
