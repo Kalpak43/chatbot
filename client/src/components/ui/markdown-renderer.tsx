@@ -64,10 +64,7 @@ function MarkdownRenderer({ content, className }: MarkdownProps) {
             />
           ),
           p: ({ node, ...props }) => (
-            <p
-              className="leading-7 [&:not(:first-child)]:mt-6"
-              {...props}
-            />
+            <p className="leading-7 [&:not(:first-child)]:mt-6" {...props} />
           ),
           strong: ({ node, ...props }) => (
             <strong className="font-bold" {...props} />

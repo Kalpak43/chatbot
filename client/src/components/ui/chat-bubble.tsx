@@ -101,7 +101,7 @@ function ChatBubble({
                       className="resize-none"
                     />
                   ) : (
-                    <MarkdownRenderer content={prompt} />
+                    <MarkdownRenderer className="whitespace-pre-wrap" content={prompt} />
                   )}
                 </Card>
               </>

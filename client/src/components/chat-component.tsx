@@ -540,7 +540,7 @@ Chat.Input = function Input() {
             }}
             rows={5}
             placeholder="Type your message..."
-            className="resize-none"
+            className="resize-none max-h-[200px]"
           />
 
           <div className="flex items-center justify-between">
