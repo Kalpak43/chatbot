@@ -491,7 +491,7 @@ Chat.Input = function Input() {
   };
 
   return (
-    <Card className="w-full max-w-3xl mx-auto relative">
+    <Card className="w-full max-w-3xl mx-auto sticky bottom-0 md:mb-2">
       {attachments.length > 0 && (
         <div className="absolute inset-x-0 bottom-full md:mx-6 bg-card/50 backdrop-blur-md rounded-t-xl -z-1 [box-shadow:0px_-2px_4px_#e3e3e320] p-4 flex items-center gap-2">
           {attachments.map((attachment, idx) => (
