@@ -80,7 +80,7 @@ function AppSidebar() {
       <SidebarContent className="overflow-y-auto">
         <RecentList />
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="max-md:hidden">
         {user ? (
           <div className="flex items-center gap-2">
             <Avatar className="h-8 w-8 rounded-full outline outline-primary/40">
