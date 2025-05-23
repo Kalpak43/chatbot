@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Card, CardContent } from "./ui/card";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
@@ -461,9 +467,26 @@ Chat.Input = function Input() {
     isStreaming,
   } = useChat();
 
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
   const user = useAppSelector((state) => state.auth.user);
 
   const [isListening, setIsListening] = useState(false);
+
+  useEffect(() => {
+    const el = inputRef.current;
+
+    const handleFocus = () => {
+      setTimeout(() => {
+        el?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 300); // allow time for keyboard to appear
+    };
+
+    el?.addEventListener("focus", handleFocus);
+    return () => {
+      el?.removeEventListener("focus", handleFocus);
+    };
+  }, []);
 
   const handleVoiceText = (text: string) => {
     handlePromptInput(prompt + text);
@@ -541,6 +564,7 @@ Chat.Input = function Input() {
           }}
         >
           <Textarea
+            ref={inputRef}
             value={prompt}
             onChange={(e) => handlePromptInput(e.target.value)}
             onKeyDown={(e) => {
