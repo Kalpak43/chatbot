@@ -350,6 +350,14 @@ Chat.Area = function Area() {
   const dispatch = useAppDispatch();
   const activeMessages = useAppSelector((state) => state.chat.activeMessages);
 
+  const messagesEndRef = React.useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [activeMessages]);
+
   const handleEditMessage = async (messageId: string, content: string) => {
     if (!chatId) return;
 
@@ -435,6 +443,7 @@ Chat.Area = function Area() {
             return null; // Handle any other status
           })}
       </div>
+      <div ref={messagesEndRef} />
     </div>
   );
 };
@@ -622,9 +631,9 @@ Chat.Intro = function Intro() {
               variant="outline"
               className="w-full justify-start italic font-400"
               onClick={() => {
-          handlePromptInput(
-            "What can I cook with chicken, garlic, and rice?"
-          );
+                handlePromptInput(
+                  "What can I cook with chicken, garlic, and rice?"
+                );
               }}
             >
               What can I cook with chicken, garlic, and rice?
@@ -635,9 +644,9 @@ Chat.Intro = function Intro() {
               variant="outline"
               className="w-full justify-start italic font-400"
               onClick={() => {
-          handlePromptInput(
-            "Can you explain quantum physics in simple terms?"
-          );
+                handlePromptInput(
+                  "Can you explain quantum physics in simple terms?"
+                );
               }}
             >
               Can you explain quantum physics in simple terms?
@@ -648,9 +657,9 @@ Chat.Intro = function Intro() {
               variant="outline"
               className="w-full justify-start italic font-400"
               onClick={() => {
-          handlePromptInput(
-            "Help me write a professional email to my manager."
-          );
+                handlePromptInput(
+                  "Help me write a professional email to my manager."
+                );
               }}
             >
               Help me write a professional email to my manager.
@@ -661,7 +670,7 @@ Chat.Intro = function Intro() {
               variant="outline"
               className="w-full justify-start italic font-400"
               onClick={() => {
-          handlePromptInput("What's a fun weekend activity near me?");
+                handlePromptInput("What's a fun weekend activity near me?");
               }}
             >
               What's a fun weekend activity near me?
@@ -672,7 +681,7 @@ Chat.Intro = function Intro() {
               variant="outline"
               className="w-full justify-start italic font-400"
               onClick={() => {
-          handlePromptInput("Can you summarize this article for me?");
+                handlePromptInput("Can you summarize this article for me?");
               }}
             >
               Can you summarize this article for me?

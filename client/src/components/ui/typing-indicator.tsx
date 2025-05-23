@@ -1,6 +1,4 @@
-
-
-import { motion, Variants } from "framer-motion"
+import { motion, Variants } from "framer-motion";
 
 function TypingIndicator({ id }: { id: string }) {
   const typingIndicator = {
@@ -12,7 +10,7 @@ function TypingIndicator({ id }: { id: string }) {
         repeatType: "loop" as const,
       },
     },
-  }
+  };
 
   const dotBounce: Variants = {
     initial: { y: 0 },
@@ -26,17 +24,26 @@ function TypingIndicator({ id }: { id: string }) {
         repeatType: "loop",
       },
     },
-  }
+  };
 
   return (
-    <div key={id} className="flex gap-2">
-      <motion.div className="flex gap-2" variants={typingIndicator} initial="initial" animate="animate">
+    <div key={id} className="flex gap-2 py-8">
+      <motion.div
+        className="flex gap-2"
+        variants={typingIndicator}
+        initial="initial"
+        animate="animate"
+      >
         {[...Array(3)].map((_, i) => (
-          <motion.div key={i} className="size-2 rounded-full bg-gray-400 dark:bg-gray-600" variants={dotBounce} />
+          <motion.div
+            key={i}
+            className="size-2 rounded-full bg-gray-400 dark:bg-gray-600"
+            variants={dotBounce}
+          />
         ))}
       </motion.div>
     </div>
-  )
+  );
 }
 
-export default TypingIndicator
+export default TypingIndicator;
