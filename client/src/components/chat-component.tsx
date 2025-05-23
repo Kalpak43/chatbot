@@ -337,7 +337,9 @@ function Chat({
         isStreaming,
       }}
     >
-      <div className="w-full h-full flex flex-col">{children}</div>
+      <div className="w-full flex-1 overflow-y-auto flex flex-col">
+        {children}
+      </div>
     </ChatContext.Provider>
   );
 }
