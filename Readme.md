@@ -9,7 +9,7 @@ This project is a full-stack chat application with a React + TypeScript + Vite c
 - [Node.js](https://nodejs.org/) (v18+ recommended)
 - [npm](https://www.npmjs.com/) (comes with Node.js)
 - [MongoDB](https://www.mongodb.com/) instance (local or cloud)
-- [Qdrant] (https://qdrant.tech/) instance (local or cloud) OR [Chroma](https://www.trychroma.com/) instance (local)
+- [Qdrant](https://qdrant.tech/) instance (local or cloud) OR [Chroma](https://www.trychroma.com/) instance (local)
 - [Firebase](https://firebase.google.com/) project for authentication
 - (Optional) [Docker](https://www.docker.com/) for containerized setup
 
