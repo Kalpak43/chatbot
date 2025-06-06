@@ -68,7 +68,9 @@ function Signuppage() {
     <div className="flex items-center justify-center min-h-screen p-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl text-center">Sign Up</CardTitle>
+          <CardTitle className="text-2xl text-center font-newsreader">
+            Sign Up
+          </CardTitle>
           <CardDescription className="text-center">
             Enter your details to create an account.
           </CardDescription>

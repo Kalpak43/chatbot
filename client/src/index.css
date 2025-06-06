@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap');
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -39,6 +41,8 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-newsreader: var(--font-newsreader);
 }
 
 :root {
@@ -74,42 +78,63 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  --font-newsreader: "Newsreader", serif;
 }
 
 .dark {
-  --background: oklch(16.36% 0 0); /* unchanged */
-  --foreground: oklch(0.95 0.02 270); /* light bluish text */
-  --card: oklch(20.73% 0 0); /* unchanged */
-  --card-foreground: oklch(0.95 0.02 270); /* same as foreground */
+  --background: oklch(16.36% 0 0);
+  /* unchanged */
+  --foreground: oklch(0.95 0.02 270);
+  /* light bluish text */
+  --card: oklch(20.73% 0 0);
+  /* unchanged */
+  --card-foreground: oklch(0.95 0.02 270);
+  /* same as foreground */
 
-  --popover: oklch(25% 0.02 270); /* subtle bluish popover */
+  --popover: oklch(25% 0.02 270);
+  /* subtle bluish popover */
   --popover-foreground: oklch(0.95 0.02 270);
 
-  --primary: oklch(0.75 0.2 260); /* vibrant violet-blue */
-  --primary-foreground: oklch(0.1 0 0); /* dark for contrast */
+  --primary: oklch(0.75 0.2 260);
+  /* vibrant violet-blue */
+  --primary-foreground: oklch(0.1 0 0);
+  /* dark for contrast */
 
-  --secondary: oklch(0.6 0.15 220); /* soft blue */
-  --secondary-foreground: oklch(0.98 0 0); /* white text */
+  --secondary: oklch(0.6 0.15 220);
+  /* soft blue */
+  --secondary-foreground: oklch(0.98 0 0);
+  /* white text */
 
-  --muted: oklch(0.35 0.05 240); /* muted gray-blue */
+  --muted: oklch(0.35 0.05 240);
+  /* muted gray-blue */
   --muted-foreground: oklch(0.75 0.02 270);
 
-  --accent: oklch(0.39 0.0896 291.96); /* violet accent */
+  --accent: oklch(0.39 0.0896 291.96);
+  /* violet accent */
   --accent-foreground: oklch(0.98 0 0);
 
-  --destructive: oklch(0.65 0.23 27); /* slightly orange-red */
+  --destructive: oklch(0.65 0.23 27);
+  /* slightly orange-red */
 
   --border: oklch(1 0 0 / 15%);
   --input: oklch(1 0 0 / 10%);
-  --ring: oklch(0.6 0.2 260); /* matching primary tone */
+  --ring: oklch(0.6 0.2 260);
+  /* matching primary tone */
 
-  --chart-1: oklch(0.72 0.24 260); /* blue */
-  --chart-2: oklch(0.7 0.23 180); /* cyan */
-  --chart-3: oklch(0.75 0.2 320); /* pink */
-  --chart-4: oklch(0.7 0.25 280); /* purple */
-  --chart-5: oklch(0.75 0.23 200); /* teal */
+  --chart-1: oklch(0.72 0.24 260);
+  /* blue */
+  --chart-2: oklch(0.7 0.23 180);
+  /* cyan */
+  --chart-3: oklch(0.75 0.2 320);
+  /* pink */
+  --chart-4: oklch(0.7 0.25 280);
+  /* purple */
+  --chart-5: oklch(0.75 0.23 200);
+  /* teal */
 
-  --sidebar: oklch(0.205 0 0); /* unchanged */
+  --sidebar: oklch(0.205 0 0);
+  /* unchanged */
   --sidebar-foreground: oklch(0.95 0.02 270);
   --sidebar-primary: oklch(0.72 0.24 260);
   --sidebar-primary-foreground: oklch(0.985 0 0);
@@ -123,6 +148,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -149,8 +175,10 @@
 }
 
 ::selection {
-  background: var(--muted); /* Highlight background color */
-  color: var(--secondary-foreground); /* Highlighted text color */
+  background: var(--muted);
+  /* Highlight background color */
+  color: var(--secondary-foreground);
+  /* Highlighted text color */
 }
 
 /* Firefox */

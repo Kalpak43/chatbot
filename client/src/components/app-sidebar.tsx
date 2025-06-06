@@ -129,18 +129,36 @@ const RecentList = () => {
   const dispatch = useAppDispatch();
   const chats = useAppSelector((state) => state.chat.chats);
 
-  const now = Date.now();
+  const now = Date.now() - 1 * 24 * 60 * 60 * 1000;
   const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
   const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
 
-  const last7Days = useMemo(
-    () => chats.filter((chat) => chat.updated_at >= sevenDaysAgo),
+  const today = useMemo(
+    () => chats.filter((chat) => chat.updated_at >= now),
     [chats]
   );
-  const last30Days = chats.filter(
-    (chat) => chat.updated_at < sevenDaysAgo && chat.updated_at >= thirtyDaysAgo
+
+  const last7Days = useMemo(
+    () =>
+      chats.filter(
+        (chat) => chat.updated_at >= sevenDaysAgo && chat.updated_at < now
+      ),
+    [chats]
   );
-  const older = chats.filter((chat) => chat.updated_at < thirtyDaysAgo);
+
+  const last30Days = useMemo(
+    () =>
+      chats.filter(
+        (chat) =>
+          chat.updated_at < sevenDaysAgo && chat.updated_at >= thirtyDaysAgo
+      ),
+    [chats]
+  );
+
+  const older = useMemo(
+    () => chats.filter((chat) => chat.updated_at < thirtyDaysAgo),
+    [chats]
+  );
 
   useEffect(() => {
     dispatch(getChats());
@@ -156,9 +174,29 @@ const RecentList = () => {
 
   return (
     <>
+      {today.length > 0 && (
+        <SidebarGroup className="">
+          <SidebarGroupLabel className="text-secondary sticky top-0 z-10 bg-sidebar font-newsreader">
+            Today
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {/* Last 7 days */}
+              {today
+                .sort((a, b) => b.created_at - a.created_at)
+                .map((chat) => (
+                  <SidebarMenuItem key={chat.id}>
+                    <ChatButton chat={chat} />
+                  </SidebarMenuItem>
+                ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      )}
+
       {last7Days.length > 0 && (
         <SidebarGroup className="">
-          <SidebarGroupLabel className="text-secondary">
+          <SidebarGroupLabel className="text-secondary sticky top-0 z-10 bg-sidebar font-newsreader">
             Last 7 days
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -178,7 +216,7 @@ const RecentList = () => {
 
       {last30Days.length > 0 && (
         <SidebarGroup className="">
-          <SidebarGroupLabel className="text-secondary">
+          <SidebarGroupLabel className="text-secondary sticky top-0 z-10 bg-sidebar font-newsreader">
             Last 30 days
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -198,7 +236,7 @@ const RecentList = () => {
 
       {older.length > 0 && (
         <SidebarGroup className="">
-          <SidebarGroupLabel className="text-secondary">
+          <SidebarGroupLabel className="text-secondary sticky top-0 z-10 bg-sidebar font-newsreader">
             Older
           </SidebarGroupLabel>
           <SidebarGroupContent>

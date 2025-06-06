@@ -45,7 +45,7 @@ const Loginpage: React.FC = () => {
       {/* Added background color */}
       <Card className="w-96">
         <CardHeader>
-          <CardTitle className="text-center text-2xl font-bold">
+          <CardTitle className="text-center text-2xl font-bold font-newsreader">
             Login
           </CardTitle>
           <CardDescription className="text-center">

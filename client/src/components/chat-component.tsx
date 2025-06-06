@@ -514,7 +514,7 @@ Chat.Input = function Input() {
   };
 
   return (
-    <Card className="w-full max-w-3xl mx-auto sticky bottom-0 md:mb-2">
+    <Card className="w-full max-w-3xl mx-auto sticky bottom-0 md:mb-2 py-4 px-0">
       {attachments.length > 0 && (
         <div className="absolute inset-x-0 bottom-full md:mx-6 bg-card/50 backdrop-blur-md rounded-t-xl -z-1 [box-shadow:0px_-2px_4px_#e3e3e320] p-4 flex items-center gap-2">
           {attachments.map((attachment, idx) => (
@@ -554,7 +554,7 @@ Chat.Input = function Input() {
           ))}
         </div>
       )}
-      <CardContent>
+      <CardContent className="md:px-4">
         <form
           action=""
           className="space-y-2"
@@ -650,7 +650,7 @@ Chat.Intro = function Intro() {
   return (
     <div className="h-full overflow-y-auto">
       <div className="max-w-3xl mx-auto px-4 md:px-8 flex flex-col justify-center h-full space-y-4">
-        <h1 className="text-3xl font-600">Hello, What can I help you with?</h1>
+        <h1 className="text-3xl font-600 font-newsreader">Hello, What can I help you with?</h1>
         <ul className="flex flex-col space-y-2 w-full">
           <li>
             <Button
