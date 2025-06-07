@@ -41,6 +41,7 @@ function ChatBubble({
 
   return (
     <div
+      id={`message-${id}`}
       className={cn(
         "flex w-full gap-2 mb-12 group relative group pt-6",
         sender === "user" ? "justify-end" : "justify-start",

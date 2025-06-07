@@ -129,21 +129,27 @@ const RecentList = () => {
   const dispatch = useAppDispatch();
   const chats = useAppSelector((state) => state.chat.chats);
 
-  const now = Date.now() - 1 * 24 * 60 * 60 * 1000;
-  const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
-  const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
+  const startOfToday = useMemo(() => {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    return now.getTime();
+  }, []);
+
+  const sevenDaysAgo = startOfToday - 7 * 24 * 60 * 60 * 1000;
+  const thirtyDaysAgo = startOfToday - 30 * 24 * 60 * 60 * 1000;
 
   const today = useMemo(
-    () => chats.filter((chat) => chat.updated_at >= now),
-    [chats]
+    () => chats.filter((chat) => chat.updated_at >= startOfToday),
+    [chats, startOfToday]
   );
 
   const last7Days = useMemo(
     () =>
       chats.filter(
-        (chat) => chat.updated_at >= sevenDaysAgo && chat.updated_at < now
+        (chat) =>
+          chat.updated_at >= sevenDaysAgo && chat.updated_at < startOfToday
       ),
-    [chats]
+    [chats, sevenDaysAgo, startOfToday]
   );
 
   const last30Days = useMemo(
@@ -152,12 +158,12 @@ const RecentList = () => {
         (chat) =>
           chat.updated_at < sevenDaysAgo && chat.updated_at >= thirtyDaysAgo
       ),
-    [chats]
+    [chats, sevenDaysAgo, thirtyDaysAgo]
   );
 
   const older = useMemo(
     () => chats.filter((chat) => chat.updated_at < thirtyDaysAgo),
-    [chats]
+    [chats, thirtyDaysAgo]
   );
 
   useEffect(() => {

@@ -54,6 +54,7 @@ export class SyncService {
       try {
         const idToken = await auth.currentUser?.getIdToken();
         console.log("SEND CHAT TO SERVER");
+        console.log(chat);
 
         const response = await axios.post(
           `${API_URL}/api/chat/sync-chat`,
@@ -103,6 +104,7 @@ export class SyncService {
       try {
         const idToken = await auth.currentUser?.getIdToken();
         console.log("SEND MESSAGE TO SERVER");
+        console.log(message);
 
         const response = await axios.post(
           `${API_URL}/api/chat/sync-message`,

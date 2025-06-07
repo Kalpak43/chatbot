@@ -2,6 +2,7 @@ import React, {
   createContext,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -358,13 +359,46 @@ Chat.Area = function Area() {
   const dispatch = useAppDispatch();
   const activeMessages = useAppSelector((state) => state.chat.activeMessages);
 
-  const messagesEndRef = React.useRef<HTMLDivElement | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const chatContainerRef = useRef<HTMLDivElement | null>(null); // Ref for the chat container
+
+  const latestUserMessage = useMemo(
+    () =>
+      activeMessages
+        .slice()
+        .reverse()
+        .find((msg) => msg.role === "user"),
+    [activeMessages]
+  );
+
+  useEffect(() => {
+    if (
+      latestUserMessage &&
+      chatContainerRef.current &&
+      messagesEndRef.current
+    ) {
+      messagesEndRef.current.style.height = "200px";
+
+      const userMessageElement = document.getElementById(
+        `message-${latestUserMessage.id}`
+      );
+
+      if (userMessageElement) {
+        const container = chatContainerRef.current;
+        const elementTop = userMessageElement.offsetTop;
+        container.scrollTo({
+          top: elementTop,
+          behavior: "smooth",
+        });
+      }
+    }
+  }, [latestUserMessage?.id]);
 
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [activeMessages]);
+  }, []);
 
   const handleEditMessage = async (messageId: string, content: string) => {
     if (!chatId) return;
@@ -423,14 +457,14 @@ Chat.Area = function Area() {
   };
 
   return (
-    <div className="h-full overflow-y-auto">
+    <div className="h-full overflow-y-auto" ref={chatContainerRef}>
       <div className="max-w-3xl mx-auto px-4">
         {activeMessages
           .filter((msg) => msg.status != "deleted")
           .map((message) => {
             // Don't pre-create the component and reuse it
             if (message.status === "typing") {
-              return <TypingIndicator id={message.id} />;
+              return <TypingIndicator key={message.id} id={message.id} />;
             } else if (
               message.status === "pending" ||
               message.status === "done"

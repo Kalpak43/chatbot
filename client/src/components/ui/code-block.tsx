@@ -51,7 +51,7 @@ export function CodeBlock({
         </Button>
       </CardHeader>
       <CardContent className="p-0!">
-        <pre className="overflow-x-auto bg-muted/20 p-4 font-mono text-sm">
+        <pre className="overflow-x-auto bg-muted/20 p-4 font-mono text-sm text-gray-300">
           <code>{code}</code>
         </pre>
       </CardContent>
