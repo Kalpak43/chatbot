@@ -37,6 +37,10 @@ app.get("/", (req, res) => {
   res.send("HELLO WORLD");
 });
 
+app.get("/health", (req, res) => {
+  res.status(200).send("Healthy!!!")
+})
+
 app.get("/failure", (req, res) => {
   res.send("Auth failed");
 });
