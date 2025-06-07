@@ -473,6 +473,8 @@ Chat.Input = function Input() {
 
   const [isListening, setIsListening] = useState(false);
 
+  const [isDragOver, setIsDragOver] = useState(false);
+
   useEffect(() => {
     const el = inputRef.current;
 
@@ -513,8 +515,69 @@ Chat.Input = function Input() {
     toast.success("Successfully uploaded the file");
   };
 
+  // Drag and drop handlers
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // setDragCounter((prev) => prev + 1);
+
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      setIsDragOver(true);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (
+      e.currentTarget &&
+      !(e.currentTarget as Node).contains(e.relatedTarget as Node | null)
+    ) {
+      setIsDragOver(false);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setIsDragOver(true);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setIsDragOver(false);
+
+    if (!user) {
+      toast.error("Please log in to upload files");
+      return;
+    }
+
+    const files = Array.from(e.dataTransfer.files);
+
+    if (files.length === 0) return;
+
+    // Handle multiple files
+    for (const file of files) {
+      await handleUpload(file);
+    }
+  };
+
   return (
-    <Card className="w-full max-w-3xl mx-auto sticky bottom-0 md:mb-2 py-4 px-0">
+    <Card
+      className={`w-full max-w-3xl mx-auto sticky bottom-0 md:mb-2 py-4 px-0 transition-colors duration-200 ${
+        isDragOver
+          ? "border-2 border-secondary border-dashed bg-blue-50 dark:bg-primary/10"
+          : "border border-transparent"
+      }`}
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
       {attachments.length > 0 && (
         <div className="absolute inset-x-0 bottom-full md:mx-6 bg-card/50 backdrop-blur-md rounded-t-xl -z-1 [box-shadow:0px_-2px_4px_#e3e3e320] p-4 flex items-center gap-2">
           {attachments.map((attachment, idx) => (
@@ -650,7 +713,9 @@ Chat.Intro = function Intro() {
   return (
     <div className="h-full overflow-y-auto">
       <div className="max-w-3xl mx-auto px-4 md:px-8 flex flex-col justify-center h-full space-y-4">
-        <h1 className="text-3xl font-600 font-newsreader">Hello, What can I help you with?</h1>
+        <h1 className="text-3xl font-600 font-newsreader">
+          Hello, What can I help you with?
+        </h1>
         <ul className="flex flex-col space-y-2 w-full">
           <li>
             <Button
