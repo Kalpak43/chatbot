@@ -5,10 +5,11 @@ function Chatpage() {
   const { chatId } = useParams();
 
   return (
-    <Chat chatId={chatId ?? null}>
-      {chatId ? <Chat.Area /> : <Chat.Intro />}
-      <Chat.Input />
-    </Chat>
+    <div>hello</div>
+    // <Chat chatId={chatId ?? null}>
+    //   {chatId ? <Chat.Area /> : <Chat.Intro />}
+    //   <Chat.Input />
+    // </Chat>
   );
 }
 

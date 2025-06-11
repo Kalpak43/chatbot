@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { syncLocalChanges, pullRemoteChanges } from "@/features/chat/chatThunk";
+import { syncLocalChanges, pullRemoteChanges } from "@/features/chats/chatThunk";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 
 export const useSync = () => {

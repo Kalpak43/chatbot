@@ -28,11 +28,7 @@ import { Button } from "./ui/button";
 import { signout } from "@/features/auth/authThunk";
 import { toast } from "sonner";
 import { useEffect, useMemo, useState } from "react";
-import {
-  deleteChatAndMessages,
-  getChats,
-  updateChat,
-} from "@/features/chat/chatThunk";
+import { deleteChat, getChats, updateChat } from "@/features/chats/chatThunk";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -277,7 +273,7 @@ const ChatButton = ({ chat }: { chat: ChatType }) => {
 
   const handleDelete = async () => {
     await dispatch(
-      deleteChatAndMessages({
+      deleteChat({
         chatId: chat.id,
       })
     );

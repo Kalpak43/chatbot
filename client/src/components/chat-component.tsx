@@ -25,7 +25,7 @@ import {
   resetMessages,
   setActiveChat,
   setError,
-} from "@/features/chat/chatSlice";
+} from "@/features/chats/chatSlice";
 import {
   addNewMessage,
   appendMessageContent,
@@ -34,7 +34,7 @@ import {
   getChat,
   updateChat,
   updateMessage,
-} from "@/features/chat/chatThunk";
+} from "@/features/chats/chatThunk";
 import { liveQuery } from "dexie";
 import { useNavigate } from "react-router";
 import { getTitle, sendPrompt } from "@/services/ai-service";
