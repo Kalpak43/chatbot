@@ -11,11 +11,7 @@ export const sendPrompt = async ({
   id,
   signal,
 }: {
-  chatHistory: {
-    text: string;
-    role: "user" | "ai";
-    attachments?: Attachment[];
-  }[];
+  chatHistory: ChatHistory[];
   onMessage: (msg: string) => Promise<void>;
   onStart: () => Promise<void>;
   onEnd: () => Promise<void>;

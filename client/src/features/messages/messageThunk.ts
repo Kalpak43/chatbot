@@ -66,3 +66,22 @@ export const updateMessage = createAsyncThunk(
     return { messageId, data };
   }
 );
+
+export const appendMessageContent = createAsyncThunk(
+  "messages/append",
+  async ({ messageId, content }: { messageId: string; content: string }) => {
+    const message = await db.messages.get(messageId);
+    if (!message) throw new Error("Message not found");
+
+    const updatedContent = message.text + content;
+    await db.messages.update(messageId, {
+      text: updatedContent,
+      updated_at: new Date().getTime(),
+      syncStatus: SyncStatus.PENDING,
+    });
+
+    // syncService.syncMessage(messageId);
+
+    return { messageId, content: updatedContent };
+  }
+);

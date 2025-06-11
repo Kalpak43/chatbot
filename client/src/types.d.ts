@@ -28,3 +28,8 @@ interface ChatType {
   syncStatus: SyncStatus;
 }
 
+interface ChatHistory {
+  role: "user" | "ai";
+  text: string;
+  attachments: Attachment[];
+}

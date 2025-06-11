@@ -1,16 +1,10 @@
-import Chat from "@/components/chat-component";
+import Chat from "@/components/chat-component-2";
 import { useParams } from "react-router";
 
 function Chatpage() {
   const { chatId } = useParams();
 
-  return (
-    <div>hello</div>
-    // <Chat chatId={chatId ?? null}>
-    //   {chatId ? <Chat.Area /> : <Chat.Intro />}
-    //   <Chat.Input />
-    // </Chat>
-  );
+  return <Chat chatId={chatId} />;
 }
 
 export default Chatpage;

@@ -1,7 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
+
 import authReducer from "@/features/auth/authSlice";
 import chatReducer from "@/features/chats/chatSlice";
 import messageReducer from "@/features/messages/messageSlice";
+import promptReducer from "@/features/prompt/promptSlice";
+
 import {
   deleteChatMiddleware,
   syncMiddleware,
@@ -12,6 +15,7 @@ export const store = configureStore({
     auth: authReducer,
     chat: chatReducer,
     messages: messageReducer,
+    prompt: promptReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat([deleteChatMiddleware, syncMiddleware]),

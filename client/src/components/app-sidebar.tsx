@@ -122,7 +122,6 @@ function AppSidebar() {
 export default AppSidebar;
 
 const RecentList = () => {
-  const dispatch = useAppDispatch();
   const chats = useAppSelector((state) => state.chat.chats);
 
   const startOfToday = useMemo(() => {
@@ -161,10 +160,6 @@ const RecentList = () => {
     () => chats.filter((chat) => chat.updated_at < thirtyDaysAgo),
     [chats, thirtyDaysAgo]
   );
-
-  useEffect(() => {
-    dispatch(getChats());
-  }, [dispatch]);
 
   if (chats.length === 0) {
     return (

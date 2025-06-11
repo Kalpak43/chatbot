@@ -8,15 +8,13 @@ import { useAppDispatch, useAppSelector } from "./app/hooks";
 import { toast } from "sonner";
 import { checkLogin } from "./features/auth/authThunk";
 import Signuppage from "./pages/Signuppage";
-import { useSync } from "./hooks/useSync";
+import { getChats } from "./features/chats/chatThunk";
 
 function App() {
   const dispatch = useAppDispatch();
 
   const user = useAppSelector((state) => state.auth.user);
   const error = useAppSelector((state) => state.auth.error);
-
-  const { syncData, isOnline } = useSync();
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -25,20 +23,24 @@ function App() {
   }, []);
 
   useEffect(() => {
-    // Initial sync when component mounts
-    if (isOnline) {
-      syncData();
-    }
+    dispatch(getChats());
+  }, [dispatch]);
 
-    // Set up periodic sync every 5 minutes when online
-    const intervalId = setInterval(() => {
-      if (isOnline) {
-        syncData();
-      }
-    }, 5 * 60 * 1000);
+  // useEffect(() => {
+  //   // Initial sync when component mounts
+  //   if (isOnline) {
+  //     syncData();
+  //   }
 
-    return () => clearInterval(intervalId);
-  }, [isOnline, dispatch]);
+  //   // Set up periodic sync every 5 minutes when online
+  //   const intervalId = setInterval(() => {
+  //     if (isOnline) {
+  //       syncData();
+  //     }
+  //   }, 5 * 60 * 1000);
+
+  //   return () => clearInterval(intervalId);
+  // }, [isOnline, dispatch]);
 
   useEffect(() => {
     dispatch(checkLogin());

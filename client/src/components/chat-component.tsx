@@ -44,11 +44,6 @@ import { uploadToStorage } from "@/services/upload-service";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-interface History {
-  role: "user" | "ai";
-  text: string;
-  attachments: Attachment[];
-}
 
 interface ChatContextType {
   chatId: string | null;
