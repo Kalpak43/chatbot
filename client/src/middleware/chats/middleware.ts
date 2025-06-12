@@ -1,7 +1,7 @@
 import db from "@/dexie";
 import { deleteChat, getChats } from "@/features/chats/chatThunk";
 import { getMessages } from "@/features/messages/messageThunk";
-import { SyncStatus } from "@/services/sync-service";
+import { syncService, SyncStatus } from "@/services/sync-service";
 import { Middleware, PayloadAction } from "@reduxjs/toolkit";
 
 export const deleteChatMiddleware: Middleware =
@@ -27,9 +27,10 @@ export const deleteChatMiddleware: Middleware =
           .filter((msg) => msg.status === "deleted")
           .toArray();
 
-        // deletedMessages.forEach((msg) => {
-        //   syncService.syncMessage(msg.id);
-        // });
+        deletedMessages.forEach((msg) => {
+          syncService.syncMessage(msg.id);
+          console.log("SYNCING", action.type);
+        });
 
         console.log(
           `Deleted ${deletedMessages.length} messages for chat ${chatId}`
@@ -46,23 +47,19 @@ export const syncMiddleware: Middleware =
   (store) => (next) => async (action: any) => {
     const result = next(action);
 
-    if (action.type.endsWith("/fulfilled")) {
-      const isChatAction = action.type.startsWith("chat/");
-      const isMessageAction = action.type.startsWith("messages/");
+    const allowedActions = [
+      "chat/update/fulfilled",
+      "chat/delete/fulfilled",
+      "messages/update/fulfilled",
+    ];
 
-      // Exclude get operations
-      const isGetChats = getChats.fulfilled.match(action);
-      const isGetMessages = getMessages.fulfilled.match(action);
-      console.log("TYPE: ", action.type);
+    if (allowedActions.includes(action.type)) {
+      if (action.type.startsWith("chat/")) {
+        syncService.syncChat(action.payload.chatId);
+      }
 
-      if ((isChatAction || isMessageAction) && !isGetChats && !isGetMessages) {
-        console.log(
-          "SYNCING",
-          isChatAction,
-          isMessageAction,
-          isGetChats,
-          isGetMessages
-        );
+      if (action.type.startsWith("messages/")) {
+        syncService.syncMessage(action.payload.messageId);
       }
     }
 

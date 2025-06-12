@@ -18,7 +18,11 @@ const initialState: ChatState = {
 const chatSlice = createSlice({
   name: "chat",
   initialState,
-  reducers: {},
+  reducers: {
+    setActiveChatId: (state, action) => {
+      state.activeChatId = action.payload;
+    },
+  },
   extraReducers(builder) {
     builder
       .addCase(createNewChat.fulfilled, (state, action) => {
@@ -83,5 +87,7 @@ const chatSlice = createSlice({
       );
   },
 });
+
+export const { setActiveChatId } = chatSlice.actions;
 
 export default chatSlice.reducer;

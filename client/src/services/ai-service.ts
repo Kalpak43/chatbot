@@ -55,7 +55,8 @@ export const sendPrompt = async ({
       }
 
       const chunk = decoder.decode(value, { stream: true });
-      chunk.split("\n").forEach(async (line) => {
+      // Use for...of loop to correctly await each line's processing
+      for (const line of chunk.split("\n")) {
         if (line.startsWith("data: ")) {
           try {
             if (!lock) {
@@ -69,9 +70,10 @@ export const sendPrompt = async ({
             onError(parseError);
           }
         }
-      });
+      }
     }
-    await onEnd();
+
+    await onEnd(); // This will now correctly wait for all messages to be processed
   } catch (error) {
     console.error("Streaming error:", error);
     onError(error);

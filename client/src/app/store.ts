@@ -18,7 +18,9 @@ export const store = configureStore({
     prompt: promptReducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat([deleteChatMiddleware, syncMiddleware]),
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }).concat([deleteChatMiddleware, syncMiddleware]),
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

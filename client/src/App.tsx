@@ -9,12 +9,15 @@ import { toast } from "sonner";
 import { checkLogin } from "./features/auth/authThunk";
 import Signuppage from "./pages/Signuppage";
 import { getChats } from "./features/chats/chatThunk";
+import { useSync } from "./hooks/use-sync";
 
 function App() {
   const dispatch = useAppDispatch();
 
   const user = useAppSelector((state) => state.auth.user);
   const error = useAppSelector((state) => state.auth.error);
+
+  useSync();
 
   useEffect(() => {
     const root = window.document.documentElement;

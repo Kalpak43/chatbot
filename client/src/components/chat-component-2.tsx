@@ -35,10 +35,18 @@ import {
   updateMessage,
 } from "@/features/messages/messageThunk";
 import { useNavigate } from "react-router";
-import { sendPrompt } from "@/services/ai-service";
+import { getTitle, sendPrompt } from "@/services/ai-service";
 import { cn } from "@/lib/utils";
+import { setActiveChatId } from "@/features/chats/chatSlice";
+import useTitleGetter from "@/hooks/use-title-getter";
 
 function Chat({ chatId }: { chatId?: string }) {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(setActiveChatId(chatId));
+  }, [chatId]);
+
   return (
     <div className="w-full flex-1 overflow-y-auto flex flex-col">
       {chatId ? <ChatArea chatId={chatId} /> : <ChatIntro />}
@@ -51,6 +59,7 @@ export default Chat;
 
 export function ChatArea({ chatId }: { chatId?: string }) {
   useMessageListener(chatId);
+  useTitleGetter(chatId);
 
   const dispatch = useAppDispatch();
   const messages = useAppSelector((state) => state.messages.messages);
@@ -89,12 +98,6 @@ export function ChatArea({ chatId }: { chatId?: string }) {
       }
     }
   }, [latestUserMessage?.id]);
-
-  //   useEffect(() => {
-  //     if (messagesEndRef.current) {
-  //       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-  //     }
-  //   }, []);
 
   const handleEditMessage = async (messageId: string, content: string) => {
     if (!chatId) return;
@@ -148,8 +151,6 @@ export function ChatArea({ chatId }: { chatId?: string }) {
     await sendPrompt({
       chatHistory,
       onMessage: async (msg) => {
-        console.log(msg);
-
         await dispatch(
           appendMessageContent({
             messageId: responseId,
@@ -438,8 +439,6 @@ export function ChatInput({ chatId }: { chatId?: string }) {
       await sendPrompt({
         chatHistory,
         onMessage: async (msg) => {
-          console.log(msg);
-
           await dispatch(
             appendMessageContent({
               messageId: responseId,
@@ -505,7 +504,7 @@ export function ChatInput({ chatId }: { chatId?: string }) {
           } else {
             await dispatch(
               updateMessage({
-                messageId: id,
+                messageId: responseId,
                 data: {
                   status: "failed",
                 },

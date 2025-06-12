@@ -13,6 +13,7 @@ export const useSync = () => {
     const storedTime = localStorage.getItem("lastSyncTime");
     return storedTime ? parseInt(storedTime, 10) : 0;
   });
+  
   const [isSyncing, setIsSyncing] = useState(false);
 
   // Update local storage when lastSyncTime changes
