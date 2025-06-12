@@ -14,7 +14,6 @@ import { useSync } from "./hooks/use-sync";
 function App() {
   const dispatch = useAppDispatch();
 
-  const user = useAppSelector((state) => state.auth.user);
   const error = useAppSelector((state) => state.auth.error);
 
   useSync();
@@ -29,43 +28,17 @@ function App() {
     dispatch(getChats());
   }, [dispatch]);
 
-  // useEffect(() => {
-  //   // Initial sync when component mounts
-  //   if (isOnline) {
-  //     syncData();
-  //   }
-
-  //   // Set up periodic sync every 5 minutes when online
-  //   const intervalId = setInterval(() => {
-  //     if (isOnline) {
-  //       syncData();
-  //     }
-  //   }, 5 * 60 * 1000);
-
-  //   return () => clearInterval(intervalId);
-  // }, [isOnline, dispatch]);
-
   useEffect(() => {
     dispatch(checkLogin());
   }, [dispatch]);
 
-  useEffect(() => {
-    if (user) toast.success("Signed in successfully");
-  }, [user]);
-
   // useEffect(() => {
-  //   if (user) {
-  //     syncService.pullChanges(new Date().getTime());
-  //   }
+  //   if (user) toast.success("Signed in successfully");
   // }, [user]);
 
   useEffect(() => {
     if (error) toast.error(error);
   }, [error]);
-
-  // useEffect(() => {
-  //   toast.loading("Uploading your file");
-  // }, []);
 
   return (
     <Suspense>

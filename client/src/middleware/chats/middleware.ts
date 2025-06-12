@@ -1,8 +1,7 @@
 import db from "@/dexie";
-import { deleteChat, getChats } from "@/features/chats/chatThunk";
-import { getMessages } from "@/features/messages/messageThunk";
+import { deleteChat } from "@/features/chats/chatThunk";
 import { syncService, SyncStatus } from "@/services/sync-service";
-import { Middleware, PayloadAction } from "@reduxjs/toolkit";
+import { Middleware } from "@reduxjs/toolkit";
 
 export const deleteChatMiddleware: Middleware =
   (store) => (next) => async (action) => {

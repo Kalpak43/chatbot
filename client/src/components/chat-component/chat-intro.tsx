@@ -1,0 +1,42 @@
+import { useAppDispatch } from "@/app/hooks";
+import { setPrompt } from "@/features/prompt/promptSlice";
+import { Button } from "../ui/button";
+
+export function ChatIntro() {
+  const dispatch = useAppDispatch();
+
+  const prompts = [
+    "What can I cook with chicken, garlic, and rice?",
+    "Can you explain quantum physics in simple terms?",
+    "Help me write a professional email to my manager.",
+    "What's a fun weekend activity near me?",
+    "Can you summarize this article for me?",
+  ];
+
+  const handlePromptInput = (prompt: string) => {
+    dispatch(setPrompt(prompt));
+  };
+
+  return (
+    <div className="h-full overflow-y-auto">
+      <div className="max-w-3xl mx-auto px-4 md:px-8 flex flex-col justify-center h-full space-y-4">
+        <h1 className="text-3xl font-600 font-newsreader">
+          Hello, What can I help you with?
+        </h1>
+        <ul className="flex flex-col space-y-2 w-full">
+          {prompts.map((prompt) => (
+            <li key={prompt}>
+              <Button
+                variant="outline"
+                className="w-full justify-start italic font-400"
+                onClick={() => handlePromptInput(prompt)}
+              >
+                {prompt}
+              </Button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}

@@ -6,7 +6,6 @@ import {
   Plus,
   Trash,
 } from "lucide-react";
-
 import {
   Sidebar,
   SidebarContent,
@@ -28,7 +27,7 @@ import { Button } from "./ui/button";
 import { signout } from "@/features/auth/authThunk";
 import { toast } from "sonner";
 import { useEffect, useMemo, useState } from "react";
-import { deleteChat, getChats, updateChat } from "@/features/chats/chatThunk";
+import { deleteChat, updateChat } from "@/features/chats/chatThunk";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,10 +39,6 @@ import { cn } from "@/lib/utils";
 
 function AppSidebar() {
   const navigate = useNavigate();
-
-  const user = useAppSelector((state) => state.auth.user);
-  const loading = useAppSelector((state) => state.auth.loading);
-  const dispatch = useAppDispatch();
 
   return (
     <Sidebar>
@@ -77,42 +72,7 @@ function AppSidebar() {
         <RecentList />
       </SidebarContent>
       <SidebarFooter className="max-md:hidden">
-        {user ? (
-          <div className="flex items-center gap-2">
-            <Avatar className="h-8 w-8 rounded-full outline outline-primary/40">
-              <AvatarImage src={user.photoURL!} alt={user.displayName!} />
-              <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-            </Avatar>
-
-            <Button
-              variant={"destructive"}
-              size={"sm"}
-              className="flex-1 "
-              onClick={async () => {
-                await dispatch(signout());
-                // showToast("Signed out successfully", "success");
-                toast.success("Signed Out", {
-                  description: "Signed out successfully",
-                });
-              }}
-            >
-              {loading ? <Loader2 className="animate-spin" /> : "Sign out"}
-              {/* Added margin to icon */}
-            </Button>
-          </div>
-        ) : (
-          <Button
-            variant="outline"
-            size={"sm"}
-            className="border-green-400"
-            asChild
-          >
-            <Link to="/login">
-              <LogIn />
-              Login
-            </Link>
-          </Button>
-        )}
+        <UserOptions />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
@@ -361,5 +321,52 @@ const ChatButton = ({ chat }: { chat: ChatType }) => {
         </>
       )}
     </SidebarMenuItem>
+  );
+};
+
+const UserOptions = () => {
+  const user = useAppSelector((state) => state.auth.user);
+  const loading = useAppSelector((state) => state.auth.loading);
+  const dispatch = useAppDispatch();
+
+  return (
+    <>
+      {user ? (
+        <div className="flex items-center gap-2">
+          <Avatar className="h-8 w-8 rounded-full outline outline-primary/40">
+            <AvatarImage src={user.photoURL!} alt={user.displayName!} />
+            <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+          </Avatar>
+
+          <Button
+            variant={"destructive"}
+            size={"sm"}
+            className="flex-1 "
+            onClick={async () => {
+              await dispatch(signout());
+              // showToast("Signed out successfully", "success");
+              toast.success("Signed Out", {
+                description: "Signed out successfully",
+              });
+            }}
+          >
+            {loading ? <Loader2 className="animate-spin" /> : "Sign out"}
+            {/* Added margin to icon */}
+          </Button>
+        </div>
+      ) : (
+        <Button
+          variant="outline"
+          size={"sm"}
+          className="border-green-400"
+          asChild
+        >
+          <Link to="/login">
+            <LogIn />
+            Login
+          </Link>
+        </Button>
+      )}
+    </>
   );
 };
