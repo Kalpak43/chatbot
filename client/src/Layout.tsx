@@ -7,7 +7,7 @@ function Layout() {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <main className="w-full md:p-4 relative h-[100dvh] flex flex-col">
+      <main className="w-full md:p-0 relative h-[100dvh] flex flex-col overflow-x-hidden">
         <AppHeader />
         <Outlet />
       </main>

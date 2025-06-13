@@ -299,10 +299,10 @@ export function ChatInput({ chatId }: { chatId?: string }) {
 
   return (
     <Card
-      className={`w-full max-w-3xl mx-auto sticky bottom-0 md:mb-2 py-4 px-0 transition-colors duration-200 ${
+      className={`w-full max-w-3xl mx-auto sticky bottom-0 xl:mb-2 py-4 px-0 transition-colors duration-200 max-xl:rounded-b-none ${
         isDragOver
           ? "border-2 border-secondary border-dashed bg-blue-50 dark:bg-primary/10"
-          : "border border-transparent"
+          : "border border-primary/10"
       }`}
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}

@@ -60,12 +60,12 @@ function ChatBubble({
             user: (
               <>
                 {attachments && attachments.length > 0 && (
-                  <Card className="px-1 py-1 bg-secondary text-secondary-foreground rounded-br flex gap-2 items-center overflow-x-auto">
+                  <Card className="px-1 py-1 bg-secondary/50 text-secondary-foreground rounded-br flex flex-row gap-2 items-center overflow-x-auto">
                     {attachments.map((attachment, idx) => (
                       <div
                         key={idx}
                         className={cn(
-                          "w-30 aspect-square rounded-xl [box-shadow:0px_0px_3px_#e3e3e320]  bg-card",
+                          "w-30 aspect-square rounded-xl [box-shadow:0px_0px_3px_#e3e3e320] bg-card",
                           "relative before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-linear-to-t before:from-black/40 before:to-transparent"
                         )}
                       >
@@ -89,7 +89,7 @@ function ChatBubble({
                   className={cn(
                     "px-3 py-2 break-words max-w-full",
                     sender === "user"
-                      ? "bg-secondary text-secondary-foreground rounded-tr"
+                      ? "bg-secondary/50 text-secondary-foreground rounded-tr"
                       : "bg-muted rounded-tl-none",
                     editing && "w-full"
                   )}

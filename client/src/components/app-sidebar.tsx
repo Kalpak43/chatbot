@@ -68,9 +68,12 @@ function AppSidebar() {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent className="overflow-y-auto">
-        <RecentList />
-      </SidebarContent>
+      <div className="h-full overflow-y-hidden relative">
+        <SidebarContent className="h-full overflow-y-auto">
+          <RecentList />
+        </SidebarContent>
+        <div className="absolute bottom-0 w-full h-8 bg-gradient-to-t from-sidebar to-transparent"></div>
+      </div>
       <SidebarFooter className="max-md:hidden">
         <UserOptions />
       </SidebarFooter>
@@ -93,33 +96,26 @@ const RecentList = () => {
   const sevenDaysAgo = startOfToday - 7 * 24 * 60 * 60 * 1000;
   const thirtyDaysAgo = startOfToday - 30 * 24 * 60 * 60 * 1000;
 
-  const today = useMemo(
-    () => chats.filter((chat) => chat.updated_at >= startOfToday),
-    [chats, startOfToday]
-  );
-
-  const last7Days = useMemo(
-    () =>
-      chats.filter(
-        (chat) =>
-          chat.updated_at >= sevenDaysAgo && chat.updated_at < startOfToday
-      ),
-    [chats, sevenDaysAgo, startOfToday]
-  );
-
-  const last30Days = useMemo(
-    () =>
-      chats.filter(
-        (chat) =>
-          chat.updated_at < sevenDaysAgo && chat.updated_at >= thirtyDaysAgo
-      ),
-    [chats, sevenDaysAgo, thirtyDaysAgo]
-  );
-
-  const older = useMemo(
-    () => chats.filter((chat) => chat.updated_at < thirtyDaysAgo),
-    [chats, thirtyDaysAgo]
-  );
+  const groups = [
+    {
+      label: "Today",
+      filter: (chat: ChatType) => chat.updated_at >= startOfToday,
+    },
+    {
+      label: "Last 7 days",
+      filter: (chat: ChatType) =>
+        chat.updated_at >= sevenDaysAgo && chat.updated_at < startOfToday,
+    },
+    {
+      label: "Last 30 days",
+      filter: (chat: ChatType) =>
+        chat.updated_at < sevenDaysAgo && chat.updated_at >= thirtyDaysAgo,
+    },
+    {
+      label: "Older",
+      filter: (chat: ChatType) => chat.updated_at < thirtyDaysAgo,
+    },
+  ];
 
   if (chats.length === 0) {
     return (
@@ -131,85 +127,26 @@ const RecentList = () => {
 
   return (
     <>
-      {today.length > 0 && (
-        <SidebarGroup className="">
-          <SidebarGroupLabel className="text-secondary sticky top-0 z-10 bg-sidebar font-newsreader">
-            Today
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {/* Last 7 days */}
-              {today
-                .sort((a, b) => b.created_at - a.created_at)
-                .map((chat) => (
-                  <SidebarMenuItem key={chat.id}>
-                    <ChatButton chat={chat} />
-                  </SidebarMenuItem>
+      {groups.map(({ label, filter }) => {
+        const filtered = chats
+          .filter(filter)
+          .sort((a, b) => b.created_at - a.created_at);
+        if (filtered.length === 0) return null;
+        return (
+          <SidebarGroup key={label}>
+            <SidebarGroupLabel className="text-secondary sticky top-0 z-10 bg-sidebar font-newsreader before:content-[' '] before:absolute before:left-0 before:top-full before:h-2 before:w-full before:bg-gradient-to-b before:from-sidebar before:to-transparent">
+              {label}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {filtered.map((chat) => (
+                  <ChatButton key={chat.id} chat={chat} />
                 ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      )}
-
-      {last7Days.length > 0 && (
-        <SidebarGroup className="">
-          <SidebarGroupLabel className="text-secondary sticky top-0 z-10 bg-sidebar font-newsreader">
-            Last 7 days
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {/* Last 7 days */}
-              {last7Days
-                .sort((a, b) => b.created_at - a.created_at)
-                .map((chat) => (
-                  <SidebarMenuItem key={chat.id}>
-                    <ChatButton chat={chat} />
-                  </SidebarMenuItem>
-                ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      )}
-
-      {last30Days.length > 0 && (
-        <SidebarGroup className="">
-          <SidebarGroupLabel className="text-secondary sticky top-0 z-10 bg-sidebar font-newsreader">
-            Last 30 days
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {/* Last 30 days */}
-              {last30Days
-                .sort((a, b) => b.created_at - a.created_at)
-                .map((chat) => (
-                  <SidebarMenuItem key={chat.id}>
-                    <ChatButton chat={chat} />
-                  </SidebarMenuItem>
-                ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      )}
-
-      {older.length > 0 && (
-        <SidebarGroup className="">
-          <SidebarGroupLabel className="text-secondary sticky top-0 z-10 bg-sidebar font-newsreader">
-            Older
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {/* Older */}
-              {older
-                .sort((a, b) => b.created_at - a.created_at)
-                .map((chat) => (
-                  <SidebarMenuItem key={chat.id}>
-                    <ChatButton chat={chat} />
-                  </SidebarMenuItem>
-                ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      )}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        );
+      })}
     </>
   );
 };

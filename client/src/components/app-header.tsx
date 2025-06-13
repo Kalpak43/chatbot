@@ -22,7 +22,7 @@ function AppHeader() {
   const user = useAppSelector((state) => state.auth.user);
 
   return (
-    <div className="flex items-center justify-between gap-2 sticky md:absolute top-0 max-md:inset-x-0 left-0 py-1 max-md:px-2 md:ml-4 md:mt-2 z-50 bg-background max-md:border-b">
+    <div className="flex items-center justify-between gap-2 sticky md:absolute top-0 max-md:inset-x-0 left-0 py-1 max-md:px-2 md:ml-2 md:mt-1 z-50 bg-card max-md:border-b">
       <div className="flex gap-2">
         <SidebarTrigger
           size={"lg"}

@@ -17,7 +17,11 @@ function Chatpage() {
 
   return (
     <div className="w-full flex-1 overflow-y-auto flex flex-col">
-      {chatId ? <ChatArea chatId={chatId} /> : <ChatIntro />}
+      <div className="h-full overflow-y-hidden relative">
+        {chatId ? <ChatArea chatId={chatId} /> : <ChatIntro />}
+        <div className="absolute top-0 bg-gradient-to-b from-background to-transparent w-full h-4"></div>
+        <div className="absolute bottom-0 bg-gradient-to-t from-background to-transparent w-full h-4"></div>
+      </div>
       <ChatInput chatId={chatId} />
     </div>
   );

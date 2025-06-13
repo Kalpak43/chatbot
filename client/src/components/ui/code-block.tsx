@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Check, Copy } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { createHighlighter, type Highlighter, bundledLanguages } from "shiki";
 
 interface CodeBlockProps {
   title?: string;
@@ -14,61 +13,11 @@ interface CodeBlockProps {
 
 export function CodeBlock({
   title = "Code",
-  language = "text",
+  language,
   code,
   className,
 }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
-  const [highlightedCode, setHighlightedCode] = useState<string>("");
-  const [highlighter, setHighlighter] = useState<Highlighter | null>(null);
-
-  // Initialize Shiki highlighter
-  useEffect(() => {
-    const initHighlighter = async () => {
-      try {
-        const hl = await createHighlighter({
-          themes: ["github-dark", "github-light"],
-          langs: [
-            "javascript",
-            "typescript",
-            "python",
-            "java",
-            "cpp",
-            "html",
-            "css",
-            "json",
-            "markdown",
-            "bash",
-            "sql",
-            "go",
-            // Add more languages as needed
-          ],
-        });
-        setHighlighter(hl);
-      } catch (error) {
-        console.error("Failed to initialize Shiki highlighter:", error);
-      }
-    };
-
-    initHighlighter();
-  }, []);
-
-  // Highlight code when highlighter or code changes
-  useEffect(() => {
-    if (!highlighter || !code) return;
-
-    try {
-      const highlighted = highlighter.codeToHtml(code, {
-        lang: language,
-        theme: "github-dark", // You can make this dynamic based on theme
-      });
-      setHighlightedCode(highlighted);
-    } catch (error) {
-      console.error("Failed to highlight code:", error);
-      // Fallback to plain text
-      setHighlightedCode(`<pre><code>${code}</code></pre>`);
-    }
-  }, [highlighter, code, language]);
 
   const copyToClipboard = async () => {
     await navigator.clipboard.writeText(code);
@@ -77,7 +26,7 @@ export function CodeBlock({
   };
 
   return (
-    <Card className={cn("overflow-hidden p-0 gap-0 my-4", className)}>
+    <Card className={cn("overflow-hidden p-0 gap-0 my-4 border-secondary/20", className)}>
       <CardHeader className="flex flex-row items-center justify-between bg-muted/50 py-2 px-4">
         <CardTitle className="text-sm font-medium uppercase">
           {title}
@@ -101,20 +50,132 @@ export function CodeBlock({
           )}
         </Button>
       </CardHeader>
-      <CardContent className="p-0">
-        <div className="overflow-x-auto">
-          {highlightedCode ? (
-            <div
-              className="[&_pre]:!bg-transparent [&_pre]:py-4 [&_pre]:m-0 [&_code]:text-sm [&_code]:font-mono"
-              dangerouslySetInnerHTML={{ __html: highlightedCode }}
-            />
-          ) : (
-            <pre className="overflow-x-auto p-4 font-mono text-sm">
-              <code>{code}</code>
-            </pre>
-          )}
-        </div>
+      <CardContent className="p-0!">
+        <pre className="overflow-x-auto bg-muted/20 p-4 font-mono text-sm text-gray-300">
+          <code>{code}</code>
+        </pre>
       </CardContent>
     </Card>
   );
 }
+
+// import { useState, useEffect } from "react";
+// import { Check, Copy } from "lucide-react";
+// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { Button } from "@/components/ui/button";
+// import { cn } from "@/lib/utils";
+// import { createHighlighter, type Highlighter } from "shiki";
+
+// interface CodeBlockProps {
+//   title?: string;
+//   language?: string;
+//   code: string;
+//   className?: string;
+// }
+
+// export function CodeBlock({
+//   title = "Code",
+//   language = "text",
+//   code,
+//   className,
+// }: CodeBlockProps) {
+//   const [copied, setCopied] = useState(false);
+//   const [highlightedCode, setHighlightedCode] = useState<string>("");
+//   const [highlighter, setHighlighter] = useState<Highlighter | null>(null);
+
+//   // Initialize Shiki highlighter
+//   useEffect(() => {
+//     const initHighlighter = async () => {
+//       try {
+//         const hl = await createHighlighter({
+//           themes: ["github-dark", "github-light"],
+//           langs: [
+//             "javascript",
+//             "typescript",
+//             "python",
+//             "java",
+//             "cpp",
+//             "html",
+//             "css",
+//             "json",
+//             "markdown",
+//             "bash",
+//             "sql",
+//             "go",
+//             // Add more languages as needed
+//           ],
+//         });
+//         setHighlighter(hl);
+//       } catch (error) {
+//         console.error("Failed to initialize Shiki highlighter:", error);
+//       }
+//     };
+
+//     initHighlighter();
+//   }, []);
+
+//   // Highlight code when highlighter or code changes
+//   useEffect(() => {
+//     if (!highlighter || !code) return;
+
+//     try {
+//       const highlighted = highlighter.codeToHtml(code, {
+//         lang: language,
+//         theme: "github-dark", // You can make this dynamic based on theme
+//       });
+//       setHighlightedCode(highlighted);
+//     } catch (error) {
+//       console.error("Failed to highlight code:", error);
+//       // Fallback to plain text
+//       setHighlightedCode(`<pre><code>${code}</code></pre>`);
+//     }
+//   }, [highlighter, code, language]);
+
+//   const copyToClipboard = async () => {
+//     await navigator.clipboard.writeText(code);
+//     setCopied(true);
+//     setTimeout(() => setCopied(false), 2000);
+//   };
+
+//   return (
+//     <Card className={cn("overflow-hidden p-0 gap-0 my-4 shadow-none! border border-secondary/10", className)}>
+//       <CardHeader className="flex flex-row items-center justify-between bg-muted/50 py-2 px-4">
+//         <CardTitle className="text-sm font-medium uppercase">
+//           {title}
+//           {language && (
+//             <span className="ml-2 text-xs text-muted-foreground">
+//               {language}
+//             </span>
+//           )}
+//         </CardTitle>
+//         <Button
+//           variant="ghost"
+//           size="icon"
+//           className="h-8 w-8"
+//           onClick={copyToClipboard}
+//           aria-label="Copy code to clipboard"
+//         >
+//           {copied ? (
+//             <Check className="h-4 w-4" />
+//           ) : (
+//             <Copy className="h-4 w-4" />
+//           )}
+//         </Button>
+//       </CardHeader>
+//       <CardContent className="p-0">
+//         <div className="overflow-x-auto">
+//           {highlightedCode ? (
+//             <div
+//               className="[&_pre]:!bg-transparent [&_pre]:py-4 [&_pre]:m-0 [&_code]:text-sm [&_code]:font-mono"
+//               dangerouslySetInnerHTML={{ __html: highlightedCode }}
+//             />
+//           ) : (
+//             <pre className="overflow-x-auto p-4 font-mono text-sm">
+//               <code>{code}</code>
+//             </pre>
+//           )}
+//         </div>
+//       </CardContent>
+//     </Card>
+//   );
+// }

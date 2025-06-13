@@ -23,12 +23,12 @@ export function ChatIntro() {
         <h1 className="text-3xl font-600 font-newsreader">
           Hello, What can I help you with?
         </h1>
-        <ul className="flex flex-col space-y-2 w-full">
+        <ul className="flex flex-col w-full divide-y divide-accent/60">
           {prompts.map((prompt) => (
             <li key={prompt}>
               <Button
-                variant="outline"
-                className="w-full justify-start italic font-400"
+                variant="ghost"
+                className="w-full justify-start italic font-400 my-1"
                 onClick={() => handlePromptInput(prompt)}
               >
                 {prompt}

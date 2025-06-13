@@ -202,7 +202,7 @@ export function ChatArea({ chatId }: { chatId?: string }) {
   };
 
   return (
-    <div className="h-full overflow-y-auto" ref={chatContainerRef}>
+    <div className="h-full overflow-y-auto relative" ref={chatContainerRef}>
       <div className="max-w-3xl mx-auto px-4">
         {messages
           .filter((msg) => msg.status != "deleted")
