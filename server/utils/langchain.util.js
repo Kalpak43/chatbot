@@ -157,7 +157,7 @@ async function processImage(imageBlob, chatId, ext) {
 export const setupLangChain = async (history, chatId) => {
   const model = new ChatGoogleGenerativeAI({
     model: "gemini-2.0-flash",
-    // maxOutputTokens: 2048,
+    maxOutputTokens: 2048,
     streaming: true,
   });
 

@@ -28,8 +28,12 @@ const streamResponse = asyncHandler(async (req, res) => {
   let aiResponse = "";
   for await (const chunk of aiResponseStream) {
     if (chunk) {
+      const words = chunk.match(/.*?\s|.+$/g);
+
+      for (const word of words) {
+        res.write(`msg: \"${escapeJsonString(word)}\"\n`);
+      }
       aiResponse += chunk;
-      res.write(`data: ${JSON.stringify({ msg: chunk })} \n\n`);
     }
   }
 
@@ -40,6 +44,15 @@ const streamResponse = asyncHandler(async (req, res) => {
 
   return res.end();
 });
+
+function escapeJsonString(str) {
+  return str
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, "\\n")
+    .replace(/\r/g, "\\r")
+    .replace(/\t/g, "\\t");
+}
 
 const getTitle = asyncHandler(async (req, res, next) => {
   const { chatHistory } = req.body;
