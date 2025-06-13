@@ -27,6 +27,7 @@ function useMessageListener(chatId?: string) {
     });
 
     return () => {
+      dispatch(setMessages([]));
       subscription.unsubscribe(); // Clean up subscription on unmount
     };
   }, [chatId]);

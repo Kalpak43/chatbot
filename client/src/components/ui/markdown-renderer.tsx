@@ -121,7 +121,13 @@ function MarkdownRenderer({ content, className }: MarkdownProps) {
               const language = match[1];
               const codeString = String(children).trim();
 
-              return <CodeBlock title={language} code={codeString} />;
+              return (
+                <CodeBlock
+                  title={language}
+                  language={language}
+                  code={codeString}
+                />
+              );
             }
 
             // Inline code (single word/phrase inside backticks)

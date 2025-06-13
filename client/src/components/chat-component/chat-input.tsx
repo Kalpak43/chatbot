@@ -286,10 +286,16 @@ export function ChatInput({ chatId }: { chatId?: string }) {
           //   dispatch(setError("Some Error occured"));
           // }
         },
+        signal: controller.signal,
+        id: chatId,
       });
     },
     [chatId]
   );
+
+  const handleAbort = () => {
+    abortController?.abort();
+  };
 
   return (
     <Card
@@ -399,7 +405,7 @@ export function ChatInput({ chatId }: { chatId?: string }) {
                   variant={"secondary"}
                   type="button"
                   size={"icon"}
-                  //   onClick={handleAbort}
+                  onClick={handleAbort}
                 >
                   <StopCircle />
                 </Button>

@@ -57,14 +57,14 @@ export const sendPrompt = async ({
       const chunk = decoder.decode(value, { stream: true });
       // Use for...of loop to correctly await each line's processing
       for (const line of chunk.split("\n")) {
-        if (line.startsWith("data: ")) {
+        if (line.startsWith("msg: ")) {
           try {
             if (!lock) {
               await onStart();
               lock = 1;
             }
-            const parsedData = JSON.parse(line.replace("data: ", ""));
-            await onMessage(parsedData.msg);
+            const parsedData = JSON.parse(line.replace("msg: ", ""));
+            await onMessage(parsedData);
           } catch (parseError) {
             console.error("Error parsing JSON:", parseError);
             onError(parseError);
