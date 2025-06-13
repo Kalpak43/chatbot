@@ -102,7 +102,7 @@ function ChatBubble({
                       className="resize-none"
                     />
                   ) : (
-                    <pre className="font-newsreader">{prompt}</pre>
+                    <pre className="font-newsreader whitespace-pre-line">{prompt}</pre>
                   )}
                 </Card>
               </>
