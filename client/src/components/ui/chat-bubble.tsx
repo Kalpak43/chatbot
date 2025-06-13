@@ -5,7 +5,6 @@ import { Button } from "./button";
 import { Check, Copy, Pen, SendHorizonal, X } from "lucide-react";
 import { useState } from "react";
 import { Textarea } from "./textarea";
-import ReactMarkdown from "react-markdown";
 
 export interface ChatBubbleProps {
   id: string;
@@ -103,7 +102,7 @@ function ChatBubble({
                       className="resize-none"
                     />
                   ) : (
-                    <ReactMarkdown>{prompt}</ReactMarkdown>
+                    <pre className="font-newsreader">{prompt}</pre>
                   )}
                 </Card>
               </>

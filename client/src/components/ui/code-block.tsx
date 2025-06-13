@@ -3,38 +3,50 @@ import { Check, Copy } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Highlight, themes } from "prism-react-renderer";
 
 interface CodeBlockProps {
   title?: string;
   language?: string;
   code: string;
   className?: string;
+  theme?: "light" | "dark";
 }
 
 export function CodeBlock({
   title = "Code",
-  language,
+  language = "text",
   code,
   className,
+  theme = "dark",
 }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
 
   const copyToClipboard = async () => {
-    await navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error("Failed to copy to clipboard:", error);
+    }
   };
 
   return (
-    <Card className={cn("overflow-hidden p-0 gap-0 my-4 border-secondary/20", className)}>
+    <Card
+      className={cn(
+        "overflow-hidden p-0 gap-0 my-4 shadow-none border border-secondary/10",
+        className
+      )}
+    >
       <CardHeader className="flex flex-row items-center justify-between bg-muted/50 py-2 px-4">
         <CardTitle className="text-sm font-medium uppercase">
           {title}
-          {language && (
+          {/* {language && (
             <span className="ml-2 text-xs text-muted-foreground">
               {language}
             </span>
-          )}
+          )} */}
         </CardTitle>
         <Button
           variant="ghost"
@@ -50,10 +62,43 @@ export function CodeBlock({
           )}
         </Button>
       </CardHeader>
-      <CardContent className="p-0!">
-        <pre className="overflow-x-auto bg-muted/20 p-4 font-mono text-sm text-gray-300">
-          <code>{code}</code>
-        </pre>
+      <CardContent className="p-0 bg-muted/10">
+        <div className="overflow-x-auto">
+          <Highlight
+            theme={theme === "dark" ? themes.vsDark : themes.vsLight}
+            code={code}
+            language={language as any}
+          >
+            {({
+              className: prismClassName,
+              style,
+              tokens,
+              getLineProps,
+              getTokenProps,
+            }) => (
+              <pre
+                className={cn(
+                  "overflow-x-auto py-4 font-mono text-sm",
+                  // Override Prism's background with your card background
+                  "", // Your original background
+                  prismClassName
+                )}
+                style={{
+                  ...style,
+                  background: "transparent", // Remove Prism's background
+                }}
+              >
+                {tokens.map((line, i) => (
+                  <div key={i} {...getLineProps({ line })}>
+                    {line.map((token, key) => (
+                      <span key={key} {...getTokenProps({ token })} />
+                    ))}
+                  </div>
+                ))}
+              </pre>
+            )}
+          </Highlight>
+        </div>
       </CardContent>
     </Card>
   );
