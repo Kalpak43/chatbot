@@ -8,8 +8,6 @@ const streamResponse = asyncHandler(async (req, res) => {
 
   console.log(history, id, uid);
 
-  console.log(history[0].attachments);
-
   if (!history) {
     const err = new Error("Invalid Chat History");
     err.status = 400;

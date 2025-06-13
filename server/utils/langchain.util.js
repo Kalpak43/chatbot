@@ -164,8 +164,6 @@ export const setupLangChain = async (history, chatId) => {
   // Get chat-specific memory
   const memory = getMemoryForChat(chatId);
 
-  console.log("CHAT: ", memory);
-
   const lastMessage = history[history.length - 1];
   const { attachments } = lastMessage;
 
@@ -263,7 +261,7 @@ export const generateTitle = async (chatHistory) => {
     streaming: true,
   });
 
-  console.log("HISTORY: ", chatHistory)
+  // console.log("HISTORY: ", chatHistory)
 
   // Convert chatHistory array into Langchain message objects
   const messages = chatHistory.map((item) => {

@@ -34,6 +34,7 @@ import {
 import { useNavigate } from "react-router";
 import { sendPrompt } from "@/services/ai-service";
 import { cn } from "@/lib/utils";
+import { syncService } from "@/services/sync-service";
 
 export function ChatInput({ chatId }: { chatId?: string }) {
   const navigate = useNavigate();
@@ -163,7 +164,7 @@ export function ChatInput({ chatId }: { chatId?: string }) {
         id = (newChat.payload as ChatType).id;
       }
 
-      await dispatch(
+      const userMessageId = await dispatch(
         addNewMessage({
           chatId: id,
           role: "user",
@@ -171,7 +172,9 @@ export function ChatInput({ chatId }: { chatId?: string }) {
           status: "done",
           attachments: attachments,
         })
-      );
+      ).then((action) => action.payload as string);
+
+      syncService.syncMessage(userMessageId);
 
       if (!chatId) navigate(`/chat/${id}`);
 
@@ -287,10 +290,10 @@ export function ChatInput({ chatId }: { chatId?: string }) {
           // }
         },
         signal: controller.signal,
-        id: chatId,
+        id: id,
       });
     },
-    [chatId]
+    [chatId, messages]
   );
 
   const handleAbort = () => {
