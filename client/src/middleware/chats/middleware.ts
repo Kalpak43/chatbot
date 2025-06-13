@@ -4,7 +4,7 @@ import { syncService, SyncStatus } from "@/services/sync-service";
 import { Middleware } from "@reduxjs/toolkit";
 
 export const deleteChatMiddleware: Middleware =
-  (store) => (next) => async (action) => {
+  (_) => (next) => async (action) => {
     const result = next(action);
 
     if (deleteChat.fulfilled.match(action)) {
@@ -43,7 +43,7 @@ export const deleteChatMiddleware: Middleware =
   };
 
 export const syncMiddleware: Middleware =
-  (store) => (next) => async (action: any) => {
+  (_) => (next) => async (action: any) => {
     const result = next(action);
 
     const allowedActions = [
