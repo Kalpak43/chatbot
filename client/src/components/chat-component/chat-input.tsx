@@ -35,6 +35,11 @@ import { useNavigate } from "react-router";
 import { sendPrompt } from "@/services/ai-service";
 import { cn, createHistory } from "@/lib/utils";
 import { syncService } from "@/services/sync-service";
+import {
+  clearStreamingMessage,
+  setStreamingStatus,
+  updateStreamingContent,
+} from "@/services/stream-manager-service";
 
 export function ChatInput({ chatId }: { chatId?: string }) {
   const navigate = useNavigate();
@@ -195,15 +200,13 @@ export function ChatInput({ chatId }: { chatId?: string }) {
       const controller = new AbortController();
       dispatch(setAbortController(controller));
 
+      let accumulatedContent = "";
+
       await sendPrompt({
         chatHistory,
         onMessage: async (msg) => {
-          await dispatch(
-            appendMessageContent({
-              messageId: responseId,
-              content: msg,
-            })
-          );
+          accumulatedContent += msg;
+          updateStreamingContent(responseId, accumulatedContent);
         },
         onStart: async () => {
           await dispatch(
@@ -223,12 +226,15 @@ export function ChatInput({ chatId }: { chatId?: string }) {
               },
             })
           );
+
+          setStreamingStatus(responseId, true);
         },
         onEnd: async () => {
           await dispatch(
             updateMessage({
               messageId: responseId,
               data: {
+                text: accumulatedContent,
                 status: "done",
               },
             })
@@ -244,6 +250,8 @@ export function ChatInput({ chatId }: { chatId?: string }) {
             })
           );
 
+          setStreamingStatus(responseId, false);
+          setTimeout(() => clearStreamingMessage(responseId), 100); // Small delay to allow final render
           dispatch(setAbortController(null));
         },
         onError: async (error) => {

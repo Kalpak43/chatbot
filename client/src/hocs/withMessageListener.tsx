@@ -3,6 +3,7 @@ import { ChatBubbleProps } from "@/components/ui/chat-bubble";
 import db from "@/dexie";
 import { liveQuery } from "dexie";
 import TypingIndicator from "@/components/ui/typing-indicator";
+import { useMessageStreaming } from "@/hooks/use-message-streaming";
 
 interface WithMessageListenerProps {
   chatId: string;
@@ -17,6 +18,7 @@ function withMessageListener(
   return React.forwardRef<HTMLDivElement, WithMessageListenerProps>(
     function WrapperComponent({ chatId, messageId }, ref) {
       const [message, setMessage] = useState<MessageType | null>(null);
+      const { streamingData } = useMessageStreaming(messageId);
 
       useEffect(() => {
         const subscription = liveQuery(async () =>
@@ -41,7 +43,9 @@ function withMessageListener(
 
       const injectedProps: ChatBubbleProps = {
         id: message.id,
-        content: message.text,
+        content: streamingData?.isStreaming
+          ? streamingData.content
+          : message.text,
         sender: message.role,
         attachments: message.attachments,
         onEdit: () => {

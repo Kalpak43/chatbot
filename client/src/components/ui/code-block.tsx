@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Highlight, themes } from "prism-react-renderer";
+import { useTheme } from "@/hooks/use-theme";
 
 interface CodeBlockProps {
   title?: string;
@@ -18,9 +19,9 @@ export function CodeBlock({
   language = "text",
   code,
   className,
-  theme = "dark",
 }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
+  const { theme } = useTheme();
 
   const copyToClipboard = async () => {
     try {

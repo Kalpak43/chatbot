@@ -64,7 +64,7 @@ function MarkdownRenderer({ content, className }: MarkdownProps) {
             />
           ),
           p: ({ node, ...props }) => (
-            <p className="leading-7 [&:not(:first-child)]:mt-6" {...props} />
+            <p className="leading-7 [&:not(:first-child)]:my-6" {...props} />
           ),
           strong: ({ node, ...props }) => (
             <strong className="font-bold" {...props} />
@@ -133,7 +133,7 @@ function MarkdownRenderer({ content, className }: MarkdownProps) {
             // Inline code (single word/phrase inside backticks)
             return (
               <code
-                className="relative rounded bg-muted px-[0.3rem] -mb-1 font-mono text-sm inline-block max-w-full  overflow-x-auto"
+                className="relative rounded bg-muted px-[0.3rem] -mb-1 font-mono text-sm inline-block max-w-full overflow-x-auto"
                 {...props}
               >
                 <pre className="m-0 p-0">{children}</pre>
