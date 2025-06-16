@@ -25,13 +25,29 @@ const streamResponse = asyncHandler(async (req, res) => {
   );
 
   let aiResponse = "";
+  let isThinking = false;
   for await (const chunk of aiResponseStream) {
+
+    if (aiResponse.includes("</think>\n")) {
+      isThinking = false;
+    }
+
     if (chunk) {
       const words = chunk.match(/.*?\s|.+$/g);
 
       for (const word of words) {
-        res.write(`msg: \"${escapeJsonString(word)}\"\n`);
+        if (word == "<think>\n") {
+          isThinking = true;
+          continue;
+        }
+
+        if (isThinking) {
+          res.write(`think: \"${escapeJsonString(word)}\"\n`)
+        } else {
+          res.write(`msg: \"${escapeJsonString(word)}\"\n`);
+        }
       }
+
       aiResponse += chunk;
     }
   }

@@ -17,5 +17,6 @@ export const llms = {
         maxOutputTokens: 2048,
         streaming: true,
     }),
-    "sarvam-ai": new SarvamAI({ apiKey: process.env.SARVAM_API_KEY, stream: true })
+    "sarvam-ai": new SarvamAI({ model: "sarvam-ai", maxOutputTokens: 8096, stream: true }),
+    "sarvam-ai-thinker": new SarvamAI({ model: "sarvam-ai-thinker", maxOutputTokens: 8096, stream: true }),
 }
