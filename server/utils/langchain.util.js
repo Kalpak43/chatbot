@@ -19,6 +19,7 @@ import { createStuffDocumentsChain } from "langchain/chains/combine_documents";
 // import { Chroma } from "@langchain/community/vectorstores/chroma";
 import { QdrantVectorStore } from "@langchain/qdrant";
 import { createRAGPromptTemplate, TITLE_PROMPT } from "./prompts.util.js";
+import { llms } from "./models.util.js";
 
 dotenv.config();
 
@@ -155,11 +156,7 @@ async function processImage(imageBlob, chatId, ext) {
 }
 
 export const setupLangChain = async (history, chatId, llmModel) => {
-  const model = new ChatGoogleGenerativeAI({
-    model: "gemini-2.5-flash-preview-05-20",
-    maxOutputTokens: 2048,
-    streaming: true,
-  });
+  const model = llms[llmModel] || llms["gemini-2.0-flash"]
 
   // Get chat-specific memory
   const memory = getMemoryForChat(chatId);

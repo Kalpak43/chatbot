@@ -3,6 +3,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export const sendPrompt = async ({
   chatHistory,
+  model,
   onMessage,
   onStart,
   onEnd,
@@ -12,6 +13,7 @@ export const sendPrompt = async ({
   signal,
 }: {
   chatHistory: ChatHistory[];
+  model: string;
   onMessage: (msg: string) => Promise<void>;
   onStart: () => Promise<void>;
   onEnd: () => Promise<void>;
@@ -29,6 +31,7 @@ export const sendPrompt = async ({
         history: chatHistory,
         id,
         uid,
+        model,
       }),
       signal,
     });
@@ -65,7 +68,7 @@ export const sendPrompt = async ({
               lock = 1;
             }
             const parsedData = JSON.parse(line.replace("msg: ", ""));
-            
+
             await onMessage(parsedData);
           } catch (parseError) {
             console.error("Error parsing JSON:", parseError);

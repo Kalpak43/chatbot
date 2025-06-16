@@ -1,6 +1,6 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 
-const models = {
+export const llms = {
     "gemini-2.0-flash": new ChatGoogleGenerativeAI({
         model: "gemini-2.0-flash",
         maxOutputTokens: 2048,

@@ -23,14 +23,11 @@ import VoiceToText from "../voice-to-text";
 import {
   setAbortController,
   setAttachments,
+  setModel,
   setPrompt,
 } from "@/features/prompt/promptSlice";
 import { createNewChat, updateChat } from "@/features/chats/chatThunk";
-import {
-  addNewMessage,
-  appendMessageContent,
-  updateMessage,
-} from "@/features/messages/messageThunk";
+import { addNewMessage, updateMessage } from "@/features/messages/messageThunk";
 import { useNavigate } from "react-router";
 import { sendPrompt } from "@/services/ai-service";
 import { cn, createHistory } from "@/lib/utils";
@@ -40,6 +37,13 @@ import {
   setStreamingStatus,
   updateStreamingContent,
 } from "@/services/stream-manager-service";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export function ChatInput({ chatId }: { chatId?: string }) {
   const navigate = useNavigate();
@@ -51,6 +55,7 @@ export function ChatInput({ chatId }: { chatId?: string }) {
 
   const prompt = useAppSelector((state) => state.prompt.prompt);
   const attachments = useAppSelector((state) => state.prompt.attachments);
+  const model = useAppSelector((state) => state.prompt.model);
   const abortController = useAppSelector(
     (state) => state.prompt.abortController
   );
@@ -204,6 +209,7 @@ export function ChatInput({ chatId }: { chatId?: string }) {
 
       await sendPrompt({
         chatHistory,
+        model,
         onMessage: async (msg) => {
           accumulatedContent += msg;
           updateStreamingContent(responseId, accumulatedContent);
@@ -301,7 +307,7 @@ export function ChatInput({ chatId }: { chatId?: string }) {
         id: id,
       });
     },
-    [chatId, messages]
+    [chatId, messages, model]
   );
 
   const handleAbort = () => {
@@ -387,7 +393,9 @@ export function ChatInput({ chatId }: { chatId?: string }) {
             className="resize-none max-h-[200px]"
           />
           <div className="flex items-center justify-between">
-            <div></div>
+            <div>
+              <ModelInput />
+            </div>
             <div className="space-x-2">
               <Button
                 type="button"
@@ -450,5 +458,51 @@ export function ChatInput({ chatId }: { chatId?: string }) {
         </form>
       </CardContent>
     </Card>
+  );
+}
+
+function ModelInput() {
+  const models = [
+    {
+      title: "Gemini 2.0 Flash",
+      value: "gemini-2.0-flash",
+    },
+    {
+      title: "Gemini 2.5 Flash",
+      value: "gemini-2.5-flash",
+    },
+    {
+      title: "Gemini 2.5 Pro",
+      value: "gemini-2.5-pro",
+    },
+  ];
+
+  const dispatch = useAppDispatch();
+  const model = useAppSelector((state) => state.prompt.model);
+
+  const handleModelSelect = (model: string) => {
+    dispatch(setModel(model));
+  };
+
+  const selectedModelTitle =
+    models.find((m) => m.value === model)?.title || "Select a model";
+
+  return (
+    <div className="w-full max-w-xs">
+      <Select value={model} onValueChange={handleModelSelect}>
+        <SelectTrigger className="w-full text-xs">
+          <SelectValue placeholder="Select a model">
+            {selectedModelTitle}
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          {models.map((modelOption) => (
+            <SelectItem key={modelOption.value} value={modelOption.value}>
+              {modelOption.title}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   );
 }

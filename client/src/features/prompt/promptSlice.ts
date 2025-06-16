@@ -4,12 +4,14 @@ interface PromptState {
   prompt: string;
   attachments: Attachment[];
   abortController: AbortController | null;
+  model: string;
 }
 
 const initialState: PromptState = {
   prompt: "",
   attachments: [],
   abortController: null,
+  model: "gemini-2.0-flash",
 };
 
 const promptSlice = createSlice({
@@ -25,10 +27,13 @@ const promptSlice = createSlice({
     setAbortController: (state, action) => {
       state.abortController = action.payload;
     },
+    setModel: (state, action) => {
+      state.model = action.payload;
+    },
   },
 });
 
-export const { setPrompt, setAttachments, setAbortController } =
+export const { setPrompt, setAttachments, setAbortController, setModel } =
   promptSlice.actions;
 
 export default promptSlice.reducer;
