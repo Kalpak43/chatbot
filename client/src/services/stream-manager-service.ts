@@ -10,10 +10,10 @@ class StreamingManager {
   > = new Map();
 
   updateContent(messageId: string, content: string) {
-    const current = this.streamingData.get(messageId) || {
-      content: "",
-      isStreaming: false,
-    };
+    // const current = this.streamingData.get(messageId) || {
+    //   content: "",
+    //   isStreaming: false,
+    // };
     const updated = { content, isStreaming: true };
     this.streamingData.set(messageId, updated);
 

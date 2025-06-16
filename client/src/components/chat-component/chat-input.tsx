@@ -475,6 +475,10 @@ function ModelInput() {
       title: "Gemini 2.5 Pro",
       value: "gemini-2.5-pro",
     },
+    {
+      title: "Sarvam AI",
+      value: "sarvam-ai",
+    },
   ];
 
   const dispatch = useAppDispatch();

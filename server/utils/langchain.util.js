@@ -19,7 +19,9 @@ import { createStuffDocumentsChain } from "langchain/chains/combine_documents";
 // import { Chroma } from "@langchain/community/vectorstores/chroma";
 import { QdrantVectorStore } from "@langchain/qdrant";
 import { createRAGPromptTemplate, TITLE_PROMPT } from "./prompts.util.js";
-import { llms } from "./models.util.js";
+import { llms } from "./llms.util.js";
+
+
 
 dotenv.config();
 

@@ -70,7 +70,7 @@
   --secondary-foreground: oklch(0.98 0 0);
   /* white text */
 
-  --muted: oklch(70.734% 0.12318 259.689);
+  --muted: oklch(70.494% 0.04417 259.648);
   /* muted gray-blue */
   --muted-foreground: oklch(39.826% 0.01044 271.157);
 
