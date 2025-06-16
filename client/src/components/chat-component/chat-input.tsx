@@ -33,7 +33,7 @@ import {
 } from "@/features/messages/messageThunk";
 import { useNavigate } from "react-router";
 import { sendPrompt } from "@/services/ai-service";
-import { cn } from "@/lib/utils";
+import { cn, createHistory } from "@/lib/utils";
 import { syncService } from "@/services/sync-service";
 
 export function ChatInput({ chatId }: { chatId?: string }) {
@@ -172,11 +172,16 @@ export function ChatInput({ chatId }: { chatId?: string }) {
           status: "done",
           attachments: attachments,
         })
-      ).then((action) => action.payload as string);
+      ).then((action) => (action.payload as MessageType).id as string);
 
       syncService.syncMessage(userMessageId);
 
       if (!chatId) navigate(`/chat/${id}`);
+
+      const chatHistory: ChatHistory[] = await createHistory({
+        chatId: id,
+        messageId: userMessageId,
+      });
 
       const responseId = await dispatch(
         addNewMessage({
@@ -185,12 +190,7 @@ export function ChatInput({ chatId }: { chatId?: string }) {
           text: "",
           status: "typing",
         })
-      ).then((action) => action.payload as string);
-
-      const chatHistory: ChatHistory[] = [
-        ...messages.filter((message) => message.status != "deleted"),
-        { role: "user", text: message, attachments: attachments },
-      ];
+      ).then((action) => (action.payload as MessageType).id as string);
 
       const controller = new AbortController();
       dispatch(setAbortController(controller));

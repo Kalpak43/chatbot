@@ -8,9 +8,10 @@ export const getMessages = createAsyncThunk(
     const messages = await db.messages
       .where("chatId")
       .equals(chatId)
-      // .filter((message) => message.status != "deleted")
+      .filter((message) => message.status != "deleted")
       .toArray();
-    return messages;
+
+    return messages.sort((a, b) => a.created_at - b.created_at);
   }
 );
 
@@ -30,7 +31,7 @@ export const addNewMessage = createAsyncThunk(
     attachments?: Attachment[];
   }) => {
     const id = crypto.randomUUID();
-    await db.messages.add({
+    const newMessage = {
       id: id,
       chatId: chatId,
       role: role,
@@ -40,10 +41,12 @@ export const addNewMessage = createAsyncThunk(
       updated_at: new Date().getTime(),
       syncStatus: SyncStatus.PENDING,
       attachments: attachments || [],
-    });
+    };
+
+    await db.messages.add(newMessage);
     await db.chats.update(chatId, { last_message_at: new Date().getTime() });
 
-    return id;
+    return newMessage;
   }
 );
 

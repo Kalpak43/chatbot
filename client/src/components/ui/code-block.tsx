@@ -62,7 +62,7 @@ export function CodeBlock({
           )}
         </Button>
       </CardHeader>
-      <CardContent className="p-0 bg-muted/10">
+      <CardContent className="max-md:p-4 p-0 bg-muted/10">
         <div className="overflow-x-auto">
           <Highlight
             theme={theme === "dark" ? themes.vsDark : themes.vsLight}

@@ -3,6 +3,8 @@ import { ChatArea } from "@/components/chat-component/chat-area";
 import { ChatInput } from "@/components/chat-component/chat-input";
 import { ChatIntro } from "@/components/chat-component/chat-intro";
 import { setActiveChatId } from "@/features/chats/chatSlice";
+import { setMessages } from "@/features/messages/messageSlice";
+import { getMessages } from "@/features/messages/messageThunk";
 import { useEffect } from "react";
 import { useParams } from "react-router";
 
@@ -13,6 +15,11 @@ function Chatpage() {
 
   useEffect(() => {
     dispatch(setActiveChatId(chatId));
+  }, [chatId]);
+
+  useEffect(() => {
+    if (chatId) dispatch(getMessages(chatId));
+    else dispatch(setMessages([]));
   }, [chatId]);
 
   return (

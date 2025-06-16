@@ -10,11 +10,11 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90  before:bg-linear-to-t before:from-black/60 before:to-transparent",
+          "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 before:bg-linear-to-t before:from-white/30 dark:before:from-black/60 before:to-transparent",
         destructive:
-          "border border-destructive dark:border-destructive/40 text-white shadow-xs hover:bg-destructive/50 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40  before:bg-linear-to-t before:from-black/60 before:to-transparent",
+          "border border-destructive dark:border-destructive/40 shadow-xs hover:bg-destructive/50 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40  before:bg-linear-to-t before:from-black/10 dark:before:from-black/60 before:to-transparent",
         outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50  before:bg-linear-to-t before:from-black/60 before:to-transparent",
+          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50  before:bg-linear-to-t before:from-black/20 dark:before:from-black/60 before:to-transparent",
         secondary:
           "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80  before:bg-linear-to-t before:from-black/60 before:to-transparent",
         ghost:

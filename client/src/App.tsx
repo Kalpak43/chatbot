@@ -18,11 +18,11 @@ function App() {
 
   useSync();
 
-  useEffect(() => {
-    const root = window.document.documentElement;
+  // useEffect(() => {
+  //   const root = window.document.documentElement;
 
-    root.classList.add("dark");
-  }, []);
+  //   root.classList.add("dark");
+  // }, []);
 
   useEffect(() => {
     dispatch(getChats());

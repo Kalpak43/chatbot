@@ -1,3 +1,5 @@
+type Theme = "light" | "dark" | "system";
+
 type Status = "done" | "pending" | "failed" | "typing" | "deleted";
 
 interface Attachment {

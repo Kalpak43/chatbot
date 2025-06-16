@@ -40,7 +40,7 @@ const Loginpage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[#0f0f0f]">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       {" "}
       {/* Added background color */}
       <Card className="w-96">

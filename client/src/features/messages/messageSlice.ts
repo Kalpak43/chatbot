@@ -1,8 +1,14 @@
 import { createSlice, isAnyOf } from "@reduxjs/toolkit";
-import { getMessages } from "./messageThunk";
+import { addNewMessage, getMessages } from "./messageThunk";
 
 interface MessageState {
-  messages: MessageType[];
+  messages: {
+    id: string;
+    chatId: string;
+    created_at: number;
+    status: Status;
+    role: "user" | "ai";
+  }[];
   loading: boolean;
   error: string | null;
 }
@@ -25,6 +31,12 @@ const messageSlice = createSlice({
     builder
       .addCase(getMessages.fulfilled, (state, action) => {
         state.messages = action.payload;
+      })
+      .addCase(addNewMessage.fulfilled, (state, action) => {
+        // Avoid duplicates by checking message id before adding
+        if (!state.messages.some((msg) => msg.id === action.payload.id)) {
+          state.messages.push(action.payload);
+        }
       })
       .addMatcher(isAnyOf(getMessages.pending), (state) => {
         state.loading = true;
