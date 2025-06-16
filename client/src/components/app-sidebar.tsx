@@ -58,7 +58,7 @@ function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link to="#">
-                <img src="/logo.svg" alt="" className="size-10" />
+                <img src="/logo.svg" alt="" className="size-9" />
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-semibold">J.A.C.A.</span>
                   <span className="text-xs">Just Another Chat Application</span>

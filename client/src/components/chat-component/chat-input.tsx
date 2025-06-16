@@ -472,12 +472,16 @@ function ModelInput() {
       value: "gemini-2.5-flash",
     },
     {
-      title: "Gemini 2.5 Pro",
+      title: "Gemini 2.5 Pro (Thinker)",
       value: "gemini-2.5-pro",
     },
     {
       title: "Sarvam AI",
       value: "sarvam-ai",
+    },
+    {
+      title: "Sarvam AI (Thinker)",
+      value: "sarvam-ai-thinker",
     },
   ];
 

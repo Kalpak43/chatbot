@@ -3,8 +3,8 @@ import { Check, Copy } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Highlight, themes } from "prism-react-renderer";
-import { useTheme } from "@/hooks/use-theme";
+// import { Highlight, themes } from "prism-react-renderer";
+// import { useTheme } from "@/hooks/use-theme";
 
 interface CodeBlockProps {
   title?: string;
@@ -16,12 +16,12 @@ interface CodeBlockProps {
 
 export function CodeBlock({
   title = "Code",
-  language = "text",
+  // language = "text",
   code,
   className,
 }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
-  const { theme } = useTheme();
+  // const { theme } = useTheme();
 
   const copyToClipboard = async () => {
     try {
@@ -64,8 +64,9 @@ export function CodeBlock({
         </Button>
       </CardHeader>
       <CardContent className="max-md:p-4 p-0 bg-muted/10">
-        <div className="overflow-x-auto">
-          <Highlight
+        <div className="overflow-x-auto py-4">
+          <pre>{code}</pre>
+          {/* <Highlight
             theme={theme === "dark" ? themes.vsDark : themes.vsLight}
             code={code}
             language={language as any}
@@ -98,7 +99,7 @@ export function CodeBlock({
                 ))}
               </pre>
             )}
-          </Highlight>
+          </Highlight> */}
         </div>
       </CardContent>
     </Card>
