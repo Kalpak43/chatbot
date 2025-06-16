@@ -154,9 +154,9 @@ async function processImage(imageBlob, chatId, ext) {
   console.log("Vector store updated for chat ID:", chatId);
 }
 
-export const setupLangChain = async (history, chatId) => {
+export const setupLangChain = async (history, chatId, llmModel) => {
   const model = new ChatGoogleGenerativeAI({
-    model: "gemini-2.0-flash",
+    model: "gemini-2.5-flash-preview-05-20",
     maxOutputTokens: 2048,
     streaming: true,
   });

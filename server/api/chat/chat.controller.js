@@ -4,9 +4,9 @@ import { Chat } from "../../models/chat.model.js";
 import { Message } from "../../models/messages.model.js";
 
 const streamResponse = asyncHandler(async (req, res) => {
-  const { history, id, uid } = req.body;
+  const { history, id, uid, model } = req.body;
 
-  console.log(history, id, uid);
+  console.log(history, id, uid, model);
 
   if (!history) {
     const err = new Error("Invalid Chat History");
@@ -20,7 +20,8 @@ const streamResponse = asyncHandler(async (req, res) => {
 
   const { memory, streamable: aiResponseStream } = await setupLangChain(
     history,
-    id
+    id,
+    model
   );
 
   let aiResponse = "";
