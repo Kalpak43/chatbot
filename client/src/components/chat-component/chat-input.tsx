@@ -12,6 +12,7 @@ import { Card, CardContent } from "../ui/card";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import {
+  Globe,
   Mic,
   MicOff,
   Paperclip,
@@ -25,6 +26,7 @@ import {
   setAttachments,
   setModel,
   setPrompt,
+  toggleWebSearch,
 } from "@/features/prompt/promptSlice";
 import { createNewChat, updateChat } from "@/features/chats/chatThunk";
 import { addNewMessage, updateMessage } from "@/features/messages/messageThunk";
@@ -56,6 +58,7 @@ export function ChatInput({ chatId }: { chatId?: string }) {
   const prompt = useAppSelector((state) => state.prompt.prompt);
   const attachments = useAppSelector((state) => state.prompt.attachments);
   const model = useAppSelector((state) => state.prompt.model);
+  const webSearch = useAppSelector((state) => state.prompt.webSearch);
   const abortController = useAppSelector(
     (state) => state.prompt.abortController
   );
@@ -210,6 +213,7 @@ export function ChatInput({ chatId }: { chatId?: string }) {
       await sendPrompt({
         chatHistory,
         model,
+        webSearch,
         onMessage: async (msg) => {
           accumulatedContent += msg;
           updateStreamingContent(responseId, accumulatedContent);
@@ -307,7 +311,7 @@ export function ChatInput({ chatId }: { chatId?: string }) {
         id: id,
       });
     },
-    [chatId, messages, model]
+    [chatId, messages, model, webSearch]
   );
 
   const handleAbort = () => {
@@ -401,6 +405,22 @@ export function ChatInput({ chatId }: { chatId?: string }) {
                 type="button"
                 variant={"outline"}
                 size={"icon"}
+                className={cn(
+                  "relative",
+                  webSearch && "bg-accent/80 dark:bg-accent/30"
+                )}
+                // disabled={!user}
+                onClick={() => {
+                  dispatch(toggleWebSearch());
+                }}
+              >
+                <Globe />
+              </Button>
+
+              <Button
+                type="button"
+                variant={"outline"}
+                size={"icon"}
                 className="relative"
                 disabled={!user}
               >
@@ -462,7 +482,7 @@ export function ChatInput({ chatId }: { chatId?: string }) {
 }
 
 function ModelInput() {
-  const models = [
+  const allModels = [
     {
       title: "Gemini 2.0 Flash",
       value: "gemini-2.0-flash",
@@ -487,6 +507,17 @@ function ModelInput() {
 
   const dispatch = useAppDispatch();
   const model = useAppSelector((state) => state.prompt.model);
+  const webSearch = useAppSelector((state) => state.prompt.webSearch);
+
+  useEffect(() => {
+    if (webSearch && model.startsWith("sarvam-ai")) {
+      dispatch(setModel("gemini-2.0-flash"));
+    }
+  }, [webSearch]);
+
+  const models = webSearch
+    ? allModels.filter((m) => !m.value.startsWith("sarvam-ai"))
+    : allModels;
 
   const handleModelSelect = (model: string) => {
     dispatch(setModel(model));

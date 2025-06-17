@@ -5,6 +5,7 @@ interface PromptState {
   attachments: Attachment[];
   abortController: AbortController | null;
   model: string;
+  webSearch: boolean;
 }
 
 const initialState: PromptState = {
@@ -12,6 +13,7 @@ const initialState: PromptState = {
   attachments: [],
   abortController: null,
   model: "gemini-2.0-flash",
+  webSearch: false,
 };
 
 const promptSlice = createSlice({
@@ -30,10 +32,18 @@ const promptSlice = createSlice({
     setModel: (state, action) => {
       state.model = action.payload;
     },
+    toggleWebSearch: (state) => {
+      state.webSearch = !state.webSearch;
+    },
   },
 });
 
-export const { setPrompt, setAttachments, setAbortController, setModel } =
-  promptSlice.actions;
+export const {
+  setPrompt,
+  setAttachments,
+  setAbortController,
+  setModel,
+  toggleWebSearch,
+} = promptSlice.actions;
 
 export default promptSlice.reducer;

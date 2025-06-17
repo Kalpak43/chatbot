@@ -6,7 +6,7 @@ import { generateTitle } from "../../utils/langchain/title-generator.js";
 import { escapeJsonString } from "../../utils/string-formatter.util.js";
 
 const streamResponse = asyncHandler(async (req, res) => {
-  const { history, id, uid, model } = req.body;
+  const { history, id, uid, model, web_search } = req.body;
 
   console.log(history, id, uid, model);
 
@@ -23,7 +23,8 @@ const streamResponse = asyncHandler(async (req, res) => {
   const { memory, streamable: aiResponseStream } = await setupLangChain(
     history,
     id,
-    model
+    model,
+    web_search
   );
 
   let aiResponse = "";

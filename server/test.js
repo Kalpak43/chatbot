@@ -5,22 +5,28 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import dotenv from "dotenv"
 dotenv.config()
 
-const model = new SarvamAI({ apiKey: process.env.SARVAM_API_KEY, stream: true });
 
-// const stream = await model.stream("What is capital of India?")
+const searchTool = {
+  googleSearch: {},
+};
 
-// for await (const chunk of stream) {
-//     console.log(chunk);
+const tools = [searchTool];
+
+const model = new ChatGoogleGenerativeAI({
+  model: "gemini-2.0-flash",
+  maxOutputTokens: 2048,
+  streaming: true,
+});
+
+const modelWithTools = model.bindTools(tools);
+
+
+const res = await modelWithTools.invoke("What is the weather today in nagpur?");
+
+console.log(res)
+
+// for await (const chunk of res) {
+//   console.log(chunk); // This will include "thinking" steps if prompted
 // }
 
-// const model = new ChatGoogleGenerativeAI({
-//   model: "gemini-2.5-pro-preview-06-05",
-//   maxOutputTokens: 2048,
-//   streaming: true,
-// });
 
-const res = await model.stream("What is AI");
-
-for await (const chunk of res) {
-  console.log(chunk); // This will include "thinking" steps if prompted
-}

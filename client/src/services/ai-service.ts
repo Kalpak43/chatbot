@@ -4,6 +4,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 export const sendPrompt = async ({
   chatHistory,
   model,
+  webSearch,
   onMessage,
   onStart,
   onEnd,
@@ -14,6 +15,7 @@ export const sendPrompt = async ({
 }: {
   chatHistory: ChatHistory[];
   model: string;
+  webSearch: boolean;
   onMessage: (msg: string) => Promise<void>;
   onStart: () => Promise<void>;
   onEnd: () => Promise<void>;
@@ -32,6 +34,7 @@ export const sendPrompt = async ({
         id,
         uid,
         model,
+        web_search: webSearch,
       }),
       signal,
     });

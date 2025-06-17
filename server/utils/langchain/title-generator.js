@@ -1,5 +1,7 @@
+import { AIMessage, HumanMessage } from "@langchain/core/messages";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import * as z from "zod"
+import { TITLE_PROMPT } from "../prompts.util.js";
 
 export const generateTitle = async (chatHistory) => {
     const model = new ChatGoogleGenerativeAI({
@@ -21,7 +23,6 @@ export const generateTitle = async (chatHistory) => {
             return new AIMessage(item.text);
         }
     });
-
 
     const prompt = await TITLE_PROMPT.formatMessages({
         chat_history: messages,

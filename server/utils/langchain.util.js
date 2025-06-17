@@ -4,8 +4,21 @@ import { getDocumentStoreForChat } from "./langchain/vector-store.js";
 import { createRAGChain } from "./langchain/runner.js";
 import { llms } from "./llms.util.js";
 
-export const setupLangChain = async (history, chatId, llmModel) => {
-  const model = llms[llmModel] || llms["gemini-2.0-flash"];
+import dotenv from "dotenv"
+dotenv.config()
+
+
+const searchTool = {
+  googleSearch: {},
+};
+
+const tools = [searchTool];
+
+export const setupLangChain = async (history, chatId, llmModel, useWeb = false) => {
+  let model = llms[llmModel] || llms["gemini-2.0-flash"];
+  if (useWeb)
+    model = model.bindTools(tools);
+  
   const memory = getMemoryForChat(chatId);
   const lastMessage = history[history.length - 1];
   const { attachments = [] } = lastMessage;
