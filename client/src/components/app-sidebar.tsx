@@ -1,16 +1,4 @@
-import {
-  Check,
-  Edit,
-  LogIn,
-  LogOut,
-  Monitor,
-  Moon,
-  MoreHorizontal,
-  Palette,
-  Plus,
-  Sun,
-  Trash,
-} from "lucide-react";
+import { Edit, MoreHorizontal, Plus, Trash } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -26,27 +14,19 @@ import {
   SidebarRail,
 } from "./ui/sidebar";
 import { Link, useLocation, useNavigate } from "react-router";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { Button } from "./ui/button";
-import { signout } from "@/features/auth/authThunk";
-import { toast } from "sonner";
 import { useEffect, useMemo, useState } from "react";
 import { deleteChat, updateChat } from "@/features/chats/chatThunk";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Input } from "./ui/input";
 import { cn } from "@/lib/utils";
-import { useTheme } from "@/hooks/use-theme";
+import UserOptions from "./user-options";
 
 function AppSidebar() {
   const navigate = useNavigate();
@@ -269,112 +249,5 @@ const ChatButton = ({ chat }: { chat: ChatType }) => {
         </>
       )}
     </SidebarMenuItem>
-  );
-};
-
-const UserOptions = () => {
-  const user = useAppSelector((state) => state.auth.user);
-  const loading = useAppSelector((state) => state.auth.loading);
-  const dispatch = useAppDispatch();
-
-  const { theme, setTheme } = useTheme();
-
-  const themes = [
-    { name: "Light", value: "light", icon: Sun },
-    { name: "Dark", value: "dark", icon: Moon },
-    { name: "System", value: "system", icon: Monitor },
-  ];
-
-  return (
-    <>
-      {user ? (
-        <>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative">
-                <Avatar className="h-7 w-7 rounded-full outline outline-primary/40">
-                  <AvatarImage
-                    src={user.photoURL! || "/placeholder.svg"}
-                    alt={user.displayName!}
-                  />
-                  <AvatarFallback className="rounded-lg">
-                    {user.displayName?.charAt(0) || "U"}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="flex-1 text-center">{user.displayName}</span>
-              </Button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">
-                    {user.displayName}
-                  </p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    {user.email}
-                  </p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>
-                  <Palette className="mr-2 h-4 w-4" />
-                  <span>Theme</span>
-                </DropdownMenuSubTrigger>
-                <DropdownMenuSubContent>
-                  {themes.map((themeOption) => {
-                    const Icon = themeOption.icon;
-                    return (
-                      <DropdownMenuItem
-                        key={themeOption.value}
-                        onClick={() => setTheme(themeOption.value as Theme)}
-                        className="cursor-pointer"
-                      >
-                        <Icon className="mr-2 h-4 w-4" />
-                        <span>{themeOption.name}</span>
-                        {theme === themeOption.value && (
-                          <Check className="ml-auto h-4 w-4" />
-                        )}
-                      </DropdownMenuItem>
-                    );
-                  })}
-                </DropdownMenuSubContent>
-              </DropdownMenuSub>
-
-              <DropdownMenuSeparator />
-
-              <DropdownMenuItem
-                onClick={async () => {
-                  await dispatch(signout());
-                  // showToast("Signed out successfully", "success");
-                  toast.success("Signed Out", {
-                    description: "Signed out successfully",
-                  });
-                }}
-                className="cursor-pointer text-red-600 hover:text-red-400 focus:text-red-600"
-                disabled={loading}
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Sign out</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </>
-      ) : (
-        <Button
-          variant="outline"
-          size={"sm"}
-          className="border-green-400"
-          asChild
-        >
-          <Link to="/login">
-            <LogIn />
-            Login
-          </Link>
-        </Button>
-      )}
-    </>
   );
 };
