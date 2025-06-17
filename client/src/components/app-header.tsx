@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import { SidebarTrigger, useSidebar } from "./ui/sidebar";
 import { Button } from "./ui/button";
-import { Check, Edit, LogIn, Monitor, Moon, Palette, Sun } from "lucide-react";
+import { Check, CirclePlus, LogIn, Monitor, Moon, Palette, Sun } from "lucide-react";
 import useMediaQuery from "@/hooks/use-media-query";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
@@ -132,7 +132,7 @@ function NewChatButton() {
       asChild
     >
       <Link to="/chat">
-        <Edit />
+        <CirclePlus />
         <span className="sr-only">Edit</span>
       </Link>
     </Button>

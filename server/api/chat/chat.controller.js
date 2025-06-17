@@ -1,7 +1,9 @@
 import { asyncHandler } from "../../utils/async-handler.util.js";
-import { generateTitle, setupLangChain } from "../../utils/langchain.util.js";
+import { setupLangChain } from "../../utils/langchain.util.js";
 import { Chat } from "../../models/chat.model.js";
 import { Message } from "../../models/messages.model.js";
+import { generateTitle } from "../../utils/langchain/title-generator.js";
+import { escapeJsonString } from "../../utils/string-formatter.util.js";
 
 const streamResponse = asyncHandler(async (req, res) => {
   const { history, id, uid, model } = req.body;
@@ -59,15 +61,6 @@ const streamResponse = asyncHandler(async (req, res) => {
 
   return res.end();
 });
-
-function escapeJsonString(str) {
-  return str
-    .replace(/\\/g, "\\\\")
-    .replace(/"/g, '\\"')
-    .replace(/\n/g, "\\n")
-    .replace(/\r/g, "\\r")
-    .replace(/\t/g, "\\t");
-}
 
 const getTitle = asyncHandler(async (req, res, next) => {
   const { chatHistory } = req.body;

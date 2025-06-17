@@ -14,9 +14,9 @@ export const llms = {
     }),
     "gemini-2.5-pro": new ChatGoogleGenerativeAI({
         model: "gemini-2.5-pro-preview-06-05",
-        maxOutputTokens: 2048,
+        maxOutputTokens: 4096,
         streaming: true,
     }),
-    "sarvam-ai": new SarvamAI({ model: "sarvam-ai", maxOutputTokens: 8096, stream: true }),
-    "sarvam-ai-thinker": new SarvamAI({ model: "sarvam-ai-thinker", maxOutputTokens: 8096, stream: true }),
+    "sarvam-ai": new SarvamAI({ model: "sarvam-ai", maxOutputTokens: 2048, stream: true }),
+    "sarvam-ai-thinker": new SarvamAI({ model: "sarvam-ai-thinker", maxOutputTokens: 8192, stream: true }),
 }

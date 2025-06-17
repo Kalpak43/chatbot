@@ -97,7 +97,7 @@ const ChatBubble = React.forwardRef<HTMLDivElement, ChatBubbleProps>(
                         className="resize-none"
                       />
                     ) : (
-                      <pre className="font-newsreader whitespace-pre-line">
+                      <pre className="font-newsreader whitespace-pre-line font-[500]">
                         {prompt}
                       </pre>
                     )}
