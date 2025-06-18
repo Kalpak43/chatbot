@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { SidebarTrigger, useSidebar } from "./ui/sidebar";
+import { SidebarProvider, SidebarTrigger, useSidebar } from "./ui/sidebar";
 import { Button } from "./ui/button";
 import { CirclePlus, PanelLeftIcon } from "lucide-react";
 import useMediaQuery from "@/hooks/use-media-query";
@@ -27,10 +27,12 @@ function AppHeader() {
       </div>
 
       <div className="max-md:hidden flex items-center justify-between gap-2 sticky md:absolute top-0 max-md:inset-x-0 right-0 py-1 max-md:px-2 md:mr-3 md:mt-1 z-50 max-md:bg-card max-md:border-b">
-        <div className="flex gap-2">
-          <ExportOptions />
-          <ConversationTree />
-        </div>
+        <SidebarProvider className="min-h-0 max-h-full" defaultOpen={false}>
+          <div className="flex gap-2">
+            <ExportOptions />
+            <ConversationTree />
+          </div>
+        </SidebarProvider>
       </div>
     </>
   );

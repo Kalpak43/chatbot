@@ -5,8 +5,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarHeader,
-  SidebarProvider,
-  SidebarSeparator,
   SidebarTrigger,
   useSidebar,
 } from "./ui/sidebar";
@@ -17,10 +15,10 @@ function ConversationTree() {
   const messages = useAppSelector((state) => state.messages.messages);
 
   return (
-    <SidebarProvider className="min-h-0 max-h-full" defaultOpen={false}>
+    <>
       {messages.length > 0 && <ConversationTreeTrigger />}
 
-      <Sidebar variant="floating" side="right" className="">
+      <Sidebar variant="floating" side="right">
         <SidebarHeader className="font-newsreader font-[600] text-secondary text-lg">
           Conversation Tree
         </SidebarHeader>
@@ -30,7 +28,7 @@ function ConversationTree() {
         >
           <X />
         </SidebarTrigger>
-        <SidebarSeparator />
+        {/* <SidebarSeparator /> */}
         <SidebarContent className="px-2">
           <SidebarGroup>
             <div>
@@ -45,7 +43,7 @@ function ConversationTree() {
           </SidebarGroup>
         </SidebarContent>
       </Sidebar>
-    </SidebarProvider>
+    </>
   );
 }
 
