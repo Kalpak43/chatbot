@@ -26,11 +26,14 @@ import {
 } from "./ui/dropdown-menu";
 import { useTheme } from "@/hooks/use-theme";
 import useMediaQuery from "@/hooks/use-media-query";
+import { useEffect } from "react";
+import { checkLimit } from "@/services/ai-service";
 
 const UserOptions = () => {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const user = useAppSelector((state) => state.auth.user);
   const loading = useAppSelector((state) => state.auth.loading);
+  const rateLimit = useAppSelector((state) => state.prompt.rateLimit);
   const dispatch = useAppDispatch();
 
   const { theme, setTheme } = useTheme();
@@ -40,6 +43,10 @@ const UserOptions = () => {
     { name: "Dark", value: "dark", icon: Moon },
     { name: "System", value: "system", icon: Monitor },
   ];
+
+  useEffect(() => {
+    checkLimit();
+  }, [user]);
 
   return (
     <>
@@ -75,6 +82,14 @@ const UserOptions = () => {
                   <p className="text-xs leading-none text-muted-foreground">
                     {user.email}
                   </p>
+                  {rateLimit && (
+                    <p className="text-xs leading-none text-muted-foreground">
+                      Remaining Chats:{" "}
+                      <span>
+                        {rateLimit?.remaining} / {rateLimit?.limit}
+                      </span>
+                    </p>
+                  )}
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />

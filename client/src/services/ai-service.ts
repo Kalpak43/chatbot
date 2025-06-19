@@ -1,3 +1,4 @@
+import { auth } from "@/firebase";
 import axios from "axios";
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -12,6 +13,7 @@ export const sendPrompt = async ({
   uid,
   id,
   signal,
+  onRateLimitUpdate,
 }: {
   chatHistory: ChatHistory[];
   model: string;
@@ -20,15 +22,24 @@ export const sendPrompt = async ({
   onStart: () => Promise<void>;
   onEnd: () => Promise<void>;
   onError: (error: unknown) => void;
+  onRateLimitUpdate?: (info: {
+    limit: string | null;
+    remaining: string | null;
+    reset: string | null;
+  }) => void;
   uid?: string;
   id?: string;
   signal?: AbortSignal;
 }) => {
   try {
     let lock = 0;
+    const idToken = await auth.currentUser?.getIdToken();
     const response = await fetch(`${API_URL}/api/chat`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${idToken}`,
+      },
       body: JSON.stringify({
         history: chatHistory,
         id,
@@ -44,6 +55,14 @@ export const sendPrompt = async ({
       onError(response.statusText);
       return;
     }
+
+    const limit = response.headers.get("Ratelimit-Limit");
+    const remaining = response.headers.get("Ratelimit-Remaining");
+    const reset = response.headers.get("Ratelimit-Reset");
+
+    console.log(response.headers);
+
+    onRateLimitUpdate?.({ limit, remaining, reset });
 
     const reader = response.body?.getReader();
     const decoder = new TextDecoder();
@@ -96,4 +115,16 @@ export async function getTitle(chatHistory: MessageType[]) {
   if (res.data.title) return res.data.title;
 
   return "";
+}
+
+export async function checkLimit() {
+  const idToken = await auth.currentUser?.getIdToken();
+  const response = await axios.get(`${API_URL}/api/check-limit`, {
+    withCredentials: true,
+    headers: {
+      Authorization: `Bearer ${idToken}`,
+    },
+  });
+
+  console.log(response.data);
 }

@@ -6,14 +6,20 @@ interface PromptState {
   abortController: AbortController | null;
   model: string;
   webSearch: boolean;
+  rateLimit: {
+    limit: string | null;
+    remaining: string | null;
+    reset: string | null;
+  } | null;
 }
 
 const initialState: PromptState = {
   prompt: "",
   attachments: [],
   abortController: null,
-  model: "gemini-2.0-flash",
+  model: "sarvam-ai",
   webSearch: false,
+  rateLimit: null,
 };
 
 const promptSlice = createSlice({
@@ -35,6 +41,9 @@ const promptSlice = createSlice({
     toggleWebSearch: (state) => {
       state.webSearch = !state.webSearch;
     },
+    updateLimit: (state, action) => {
+      state.rateLimit = action.payload;
+    },
   },
 });
 
@@ -44,6 +53,7 @@ export const {
   setAbortController,
   setModel,
   toggleWebSearch,
+  updateLimit,
 } = promptSlice.actions;
 
 export default promptSlice.reducer;

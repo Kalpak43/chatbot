@@ -27,6 +27,7 @@ import {
   setModel,
   setPrompt,
   toggleWebSearch,
+  updateLimit,
 } from "@/features/prompt/promptSlice";
 import { createNewChat, updateChat } from "@/features/chats/chatThunk";
 import { addNewMessage, updateMessage } from "@/features/messages/messageThunk";
@@ -306,6 +307,9 @@ export function ChatInput({ chatId }: { chatId?: string }) {
           // } else {
           //   dispatch(setError("Some Error occured"));
           // }
+        },
+        onRateLimitUpdate: (limitInfo) => {
+          dispatch(updateLimit({ ...limitInfo }));
         },
         signal: controller.signal,
         id: id,

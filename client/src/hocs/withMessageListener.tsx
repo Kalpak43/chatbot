@@ -21,8 +21,6 @@ function withMessageListener(
       const [message, setMessage] = useState<MessageType | null>(null);
       const { streamingData } = useMessageStreaming(messageId);
 
-      console.log("LISTENER: ", streamingData?.content);
-
       useEffect(() => {
         const subscription = liveQuery(async () =>
           db.messages.where({ chatId, id: messageId }).toArray()
