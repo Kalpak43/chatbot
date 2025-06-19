@@ -12,20 +12,24 @@ admin.initializeApp({
 async function checkLoggedin(req, res, next) {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "Unauthorized: No token provided" });
+  let idToken = null;
+  if (authHeader?.startsWith("Bearer ")) {
+    idToken = authHeader.split("Bearer ")[1]?.trim();
   }
 
-  const idToken = authHeader.split("Bearer ")[1];
-
-  try {
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    req.user = decodedToken; // you can now access req.user.uid etc
-    next();
-  } catch (error) {
-    console.error("Token verification failed:", error);
-    return res.status(401).json({ message: "Unauthorized: Invalid token" });
+  if (idToken) {
+    try {
+      const decodedToken = await admin.auth().verifyIdToken(idToken);
+      req.user = decodedToken; 
+    } catch (error) {
+      console.warn("Token verification failed, proceeding without user:", error.message);
+    }
+  } else {
+    console.log("No Authorization header, proceeding without user.");
   }
+
+  next(); 
+
 }
 
 export { checkLoggedin };

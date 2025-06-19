@@ -13,7 +13,8 @@ import cors from "cors";
 
 import { connectToDB } from "./db/mongo.db.js";
 
-import { router as chatRotues } from "./api/chat/chat.router.js";
+import { router as chatRoutes } from "./api/chat/chat.router.js";
+import rateLimit from 'express-rate-limit';
 
 dotenv.config();
 
@@ -28,6 +29,14 @@ app.use(
 
 app.use(express.json());
 app.use(morgan("short"));
+
+const globalLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 100,
+});
+
+app.use(globalLimiter)
+
 
 // app.get("/secret", checkLoggedin, (req, res) => {
 //   res.status(200).send("43");
@@ -48,7 +57,7 @@ app.get("/success", (req, res) => {
   res.send("Auth succeeded");
 });
 
-app.use("/api/chat", chatRotues);
+app.use("/api/chat", chatRoutes);
 
 app.use(express.static(path.join(__dirname, "public")));
 
