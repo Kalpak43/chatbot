@@ -1,15 +1,33 @@
-import { useAppSelector } from "@/app/hooks";
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { useEffect, useMemo, useRef } from "react";
 import ChatBubble from "../ui/chat-bubble";
 import withMessageListener from "@/hocs/withMessageListener";
 import useTitleGetter from "@/hooks/use-title-getter";
+import {
+  addNewMessage,
+  deleteMessagesAfter,
+  updateMessage,
+} from "@/features/messages/messageThunk";
+import { createHistory } from "@/lib/utils";
+import { setAbortController } from "@/features/prompt/promptSlice";
+import { sendPrompt } from "@/services/ai-service";
+import {
+  clearStreamingMessage,
+  setStreamingStatus,
+  updateStreamingContent,
+} from "@/services/stream-manager-service";
+import { updateChat } from "@/features/chats/chatThunk";
 
 const ChatBubbleWithListener = withMessageListener(ChatBubble);
 
 export function ChatArea({ chatId }: { chatId?: string }) {
   useTitleGetter(chatId);
 
+  const dispatch = useAppDispatch();
+
   const messages = useAppSelector((state) => state.messages.messages);
+  const model = useAppSelector((state) => state.prompt.model);
+  const webSearch = useAppSelector((state) => state.prompt.webSearch);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const chatContainerRef = useRef<HTMLDivElement | null>(null); // Ref for the chat container
@@ -45,6 +63,141 @@ export function ChatArea({ chatId }: { chatId?: string }) {
     }
   }, [latestUserMessage?.id, messages]);
 
+  const handleEditMessage = async (messageId: string, content: string) => {
+    if (!chatId) return;
+
+    await dispatch(
+      updateMessage({
+        messageId: messageId,
+        data: {
+          text: content,
+          status: "done",
+        },
+      })
+    );
+
+    await dispatch(
+      deleteMessagesAfter({
+        chatId,
+        messageId,
+      })
+    );
+
+    const responseId = await dispatch(
+      addNewMessage({
+        chatId: chatId,
+        role: "ai",
+        text: "",
+        status: "typing",
+      })
+    ).then((action) => action.payload as string);
+
+    const chatHistory: ChatHistory[] = await createHistory({
+      chatId: chatId,
+      messageId: messageId,
+    });
+
+    const controller = new AbortController();
+    dispatch(setAbortController(controller));
+
+    let accumulatedContent = "";
+
+    await sendPrompt({
+      chatHistory,
+      model,
+      webSearch,
+      onMessage: async (msg) => {
+        accumulatedContent += msg;
+        updateStreamingContent(responseId, accumulatedContent);
+      },
+      onStart: async () => {
+        await dispatch(
+          updateMessage({
+            messageId: responseId,
+            data: {
+              status: "pending",
+            },
+          })
+        );
+
+        await dispatch(
+          updateChat({
+            chatId: chatId,
+            data: {
+              status: "pending",
+            },
+          })
+        );
+
+        setStreamingStatus(responseId, true);
+      },
+      onEnd: async () => {
+        await dispatch(
+          updateMessage({
+            messageId: responseId,
+            data: {
+              text: accumulatedContent,
+              status: "done",
+            },
+          })
+        );
+
+        await dispatch(
+          updateChat({
+            chatId: chatId,
+            data: {
+              last_message_at: new Date().getTime(),
+              status: "done",
+            },
+          })
+        );
+
+        setStreamingStatus(responseId, false);
+        setTimeout(() => clearStreamingMessage(responseId), 100); // Small delay to allow final render
+        dispatch(setAbortController(null));
+      },
+      onError: async (error) => {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          console.log("ABORTED");
+          console.log(error);
+
+          await dispatch(
+            updateChat({
+              chatId: chatId,
+              data: {
+                last_message_at: new Date().getTime(),
+                status: "done",
+              },
+            })
+          );
+        } else {
+          await dispatch(
+            updateMessage({
+              messageId: responseId,
+              data: {
+                status: "failed",
+              },
+            })
+          );
+
+          await dispatch(
+            updateChat({
+              chatId: chatId,
+              data: {
+                last_message_at: new Date().getTime(),
+                status: "failed",
+              },
+            })
+          );
+        }
+
+        dispatch(setAbortController(null));
+      },
+      signal: controller.signal,
+      id: chatId,
+    });
+  };
+
   return (
     <div className="h-full overflow-y-auto relative" ref={chatContainerRef}>
       <div className="max-w-3xl mx-auto px-4">
@@ -56,6 +209,7 @@ export function ChatArea({ chatId }: { chatId?: string }) {
                 key={message.id}
                 messageId={message.id}
                 chatId={message.chatId}
+                onEdit={handleEditMessage}
               />
             );
           })}

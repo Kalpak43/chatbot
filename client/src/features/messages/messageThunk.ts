@@ -1,5 +1,5 @@
 import db from "@/dexie";
-import { SyncStatus } from "@/services/sync-service";
+import { syncService, SyncStatus } from "@/services/sync-service";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 export const getMessages = createAsyncThunk(
@@ -67,6 +67,48 @@ export const updateMessage = createAsyncThunk(
     // syncService.syncMessage(messageId);
 
     return { messageId, data };
+  }
+);
+
+export const deleteMessagesAfter = createAsyncThunk(
+  "messages/delete",
+  async ({ chatId, messageId }: { chatId: string; messageId: string }) => {
+    const chatMessages = await db.messages
+      .where("chatId")
+      .equals(chatId)
+      .toArray();
+
+    const deletedMessage = await db.messages.get(messageId);
+
+    if (deletedMessage) {
+      const messagesToDelete = chatMessages.filter(
+        (msg) =>
+          msg.created_at > deletedMessage.created_at && msg.status != "deleted"
+      );
+
+      const messageIdsToDelete = messagesToDelete.map((msg) => msg.id);
+
+      await db.messages.bulkUpdate(
+        messageIdsToDelete.map((id) => ({
+          key: id,
+          changes: {
+            status: "deleted",
+            updated_at: Date.now(),
+            syncStatus: SyncStatus.PENDING,
+          },
+        }))
+      );
+
+      messageIdsToDelete.forEach((msgId) => {
+        syncService.syncMessage(msgId);
+      });
+
+      console.log(
+        `Deleted ${messagesToDelete.length} messages for chat ${chatId}`
+      );
+    }
+
+    return { chatId, messageId };
   }
 );
 

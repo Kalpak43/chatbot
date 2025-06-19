@@ -8,6 +8,7 @@ import { useMessageStreaming } from "@/hooks/use-message-streaming";
 interface WithMessageListenerProps {
   chatId: string;
   messageId: string;
+  onEdit?: (messageId: string, chatId: string) => void;
 }
 
 function withMessageListener(
@@ -16,9 +17,11 @@ function withMessageListener(
   >
 ) {
   return React.forwardRef<HTMLDivElement, WithMessageListenerProps>(
-    function WrapperComponent({ chatId, messageId }, ref) {
+    function WrapperComponent({ chatId, messageId, onEdit }, ref) {
       const [message, setMessage] = useState<MessageType | null>(null);
       const { streamingData } = useMessageStreaming(messageId);
+
+      console.log("LISTENER: ", streamingData?.content);
 
       useEffect(() => {
         const subscription = liveQuery(async () =>
@@ -48,8 +51,8 @@ function withMessageListener(
           : message.text,
         sender: message.role,
         attachments: message.attachments,
-        onEdit: () => {
-          console.log("EDIT:", message.id);
+        onEdit: (messageId: string, content: string) => {
+          if (onEdit) onEdit(messageId, content);
         },
       };
 
