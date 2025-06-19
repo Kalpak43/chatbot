@@ -1,6 +1,5 @@
 import db from "@/dexie";
 import { deleteChat } from "@/features/chats/chatThunk";
-import { deleteMessagesAfter } from "@/features/messages/messageThunk";
 import { syncService, SyncStatus } from "@/services/sync-service";
 import { Middleware } from "@reduxjs/toolkit";
 
