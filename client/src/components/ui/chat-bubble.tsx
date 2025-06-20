@@ -13,10 +13,23 @@ export interface ChatBubbleProps {
   className?: string;
   editing: boolean;
   onChange: (x: string) => void;
+  highlightCode: boolean;
 }
 
 const ChatBubble = React.forwardRef<HTMLDivElement, ChatBubbleProps>(
-  ({ id, content, sender, className, attachments, editing, onChange }, ref) => {
+  (
+    {
+      id,
+      content,
+      sender,
+      className,
+      attachments,
+      editing,
+      onChange,
+      highlightCode,
+    },
+    ref
+  ) => {
     return (
       <div
         id={`message-${id}`}
@@ -91,7 +104,10 @@ const ChatBubble = React.forwardRef<HTMLDivElement, ChatBubbleProps>(
               ),
               ai: (
                 <div>
-                  <MarkdownRenderer content={content} />
+                  <MarkdownRenderer
+                    content={content}
+                    highlightCode={highlightCode}
+                  />
                 </div>
               ),
             }[sender]

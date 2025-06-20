@@ -1,4 +1,20 @@
-import { useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+
+type Theme = "light" | "dark" | "system";
+
+interface ThemeContextValue {
+  theme: Theme;
+  resolvedTheme: "light" | "dark";
+  setTheme: (theme: Theme) => void;
+}
+
+const ThemeContext = createContext<ThemeContextValue>({} as ThemeContextValue);
 
 function getSystemTheme(): "light" | "dark" {
   return window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -6,7 +22,7 @@ function getSystemTheme(): "light" | "dark" {
     : "light";
 }
 
-export function useTheme() {
+export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window === "undefined") return "light";
     return (localStorage.getItem("theme") as Theme) || "system";
@@ -19,7 +35,6 @@ export function useTheme() {
     return theme === "dark" ? "dark" : "light";
   });
 
-  // Update DOM and state
   useEffect(() => {
     const root = window.document.documentElement;
     const appliedTheme = theme === "system" ? getSystemTheme() : theme;
@@ -32,7 +47,6 @@ export function useTheme() {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  // Listen to system theme changes
   useEffect(() => {
     if (theme !== "system") return;
 
@@ -48,9 +62,23 @@ export function useTheme() {
     return () => media.removeEventListener("change", handler);
   }, [theme]);
 
-  return {
-    theme, // current setting (light | dark | system)
-    resolvedTheme, // actual theme being applied (light | dark)
-    setTheme, // (theme: Theme) => void
-  };
+  return (
+    <ThemeContext.Provider
+      value={{
+        theme,
+        resolvedTheme,
+        setTheme,
+      }}
+    >
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
+export function useTheme() {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error("useTheme must be used within a ThemeProvider");
+  }
+  return context;
 }

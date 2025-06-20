@@ -6,14 +6,17 @@ import { BrowserRouter } from "react-router";
 import { Provider } from "react-redux";
 import { store } from "./app/store.ts";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "./hooks/use-theme.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <Provider store={store}>
-      <BrowserRouter>
-        <App />
-        <Toaster richColors position="top-right" />
-      </BrowserRouter>
-    </Provider>
+    <ThemeProvider>
+      <Provider store={store}>
+        <BrowserRouter>
+          <App />
+          <Toaster richColors position="top-right" />
+        </BrowserRouter>
+      </Provider>
+    </ThemeProvider>
   </StrictMode>
 );

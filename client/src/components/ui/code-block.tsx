@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, Copy } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-// import { Highlight, themes } from "prism-react-renderer";
-// import { useTheme } from "@/hooks/use-theme";
+import { Highlight, themes } from "prism-react-renderer";
+import { useTheme } from "@/hooks/use-theme";
 
 interface CodeBlockProps {
   title?: string;
@@ -12,16 +12,18 @@ interface CodeBlockProps {
   code: string;
   className?: string;
   theme?: "light" | "dark";
+  highlightCode: boolean;
 }
 
 export function CodeBlock({
   title = "Code",
-  // language = "text",
+  language = "text",
   code,
   className,
+  highlightCode,
 }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
-  // const { theme } = useTheme();
+  const { theme, resolvedTheme } = useTheme();
 
   const copyToClipboard = async () => {
     try {
@@ -32,6 +34,10 @@ export function CodeBlock({
       console.error("Failed to copy to clipboard:", error);
     }
   };
+
+  useEffect(() => {
+    console.log(theme, resolvedTheme);
+  }, [theme, resolvedTheme]);
 
   return (
     <Card
@@ -65,41 +71,49 @@ export function CodeBlock({
       </CardHeader>
       <CardContent className="max-md:p-4 p-0 bg-muted/10">
         <div className="overflow-x-auto py-4">
-          <pre>{code}</pre>
-          {/* <Highlight
-            theme={theme === "dark" ? themes.vsDark : themes.vsLight}
-            code={code}
-            language={language as any}
-          >
-            {({
-              className: prismClassName,
-              style,
-              tokens,
-              getLineProps,
-              getTokenProps,
-            }) => (
-              <pre
-                className={cn(
-                  "overflow-x-auto py-4 font-mono text-sm",
-                  // Override Prism's background with your card background
-                  "", // Your original background
-                  prismClassName
-                )}
-                style={{
-                  ...style,
-                  background: "transparent", // Remove Prism's background
-                }}
-              >
-                {tokens.map((line, i) => (
-                  <div key={i} {...getLineProps({ line })}>
-                    {line.map((token, key) => (
-                      <span key={key} {...getTokenProps({ token })} />
-                    ))}
-                  </div>
-                ))}
-              </pre>
-            )}
-          </Highlight> */}
+          {highlightCode ? (
+            <Highlight
+              theme={
+                {
+                  dark: themes.vsDark,
+                  light: themes.vsLight,
+                }[theme == "system" ? resolvedTheme : theme]
+              }
+              code={code}
+              language={language as any}
+            >
+              {({
+                className: prismClassName,
+                style,
+                tokens,
+                getLineProps,
+                getTokenProps,
+              }) => (
+                <pre
+                  className={cn(
+                    "overflow-x-auto py-4 font-mono text-sm",
+                    // Override Prism's background with your card background
+                    "", // Your original background
+                    prismClassName
+                  )}
+                  style={{
+                    ...style,
+                    background: "transparent", // Remove Prism's background
+                  }}
+                >
+                  {tokens.map((line, i) => (
+                    <div key={i} {...getLineProps({ line })}>
+                      {line.map((token, key) => (
+                        <span key={key} {...getTokenProps({ token })} />
+                      ))}
+                    </div>
+                  ))}
+                </pre>
+              )}
+            </Highlight>
+          ) : (
+            <pre>{code}</pre>
+          )}
         </div>
       </CardContent>
     </Card>

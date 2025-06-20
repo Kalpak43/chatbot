@@ -35,3 +35,43 @@ export async function createHistory({
       attachments: message.attachments,
     }));
 }
+
+import { createHighlighter } from "shiki";
+
+export async function highlightCode(code: string, language: string) {
+  if (!code || !code.trim()) return;
+
+  const hl = await createHighlighter({
+    themes: ["github-dark", "github-light"],
+    langs: [
+      "javascript",
+      "typescript",
+      "python",
+      "java",
+      "cpp",
+      "html",
+      "css",
+      "json",
+      "markdown",
+      "bash",
+      "sql",
+      "go",
+      // Add more languages as needed
+    ],
+  });
+
+  if (!hl) return code;
+
+  let highlightedCode = "";
+
+  try {
+    highlightedCode = hl.codeToHtml(code, {
+      lang: language,
+      theme: "github-dark", // You can make this dynamic based on theme
+    });
+  } catch {
+    highlightedCode = `<pre><code>${code}</code></pre>`;
+  }
+
+  return highlightedCode;
+}

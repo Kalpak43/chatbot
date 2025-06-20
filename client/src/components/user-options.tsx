@@ -24,10 +24,10 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { useTheme } from "@/hooks/use-theme";
 import useMediaQuery from "@/hooks/use-media-query";
 import { useEffect } from "react";
 import { checkLimit } from "@/services/ai-service";
+import { useTheme } from "@/hooks/use-theme";
 
 const UserOptions = () => {
   const isMobile = useMediaQuery("(max-width: 768px)");

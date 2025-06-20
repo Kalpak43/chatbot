@@ -17,10 +17,15 @@ import { CodeBlock } from "./code-block";
 
 interface MarkdownProps {
   content: string;
+  highlightCode: boolean;
   className?: string;
 }
 
-function MarkdownRenderer({ content, className }: MarkdownProps) {
+function MarkdownRenderer({
+  content,
+  highlightCode,
+  className,
+}: MarkdownProps) {
   return (
     <div className={cn("markdown", className)}>
       <ReactMarkdown
@@ -126,6 +131,7 @@ function MarkdownRenderer({ content, className }: MarkdownProps) {
                   title={language}
                   language={language}
                   code={codeString}
+                  highlightCode={highlightCode}
                 />
               );
             }

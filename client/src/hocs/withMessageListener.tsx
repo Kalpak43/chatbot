@@ -73,6 +73,7 @@ function withMessageListener(
         attachments: message.attachments,
         editing: editing,
         onChange: (x: string) => setMessageContent(x),
+        highlightCode: !streamingData?.isStreaming,
       };
 
       if (message.status === "typing") {
