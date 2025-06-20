@@ -71,6 +71,48 @@ export const updateMessage = createAsyncThunk(
 );
 
 export const deleteMessagesAfter = createAsyncThunk(
+  "messages/deleteAfter",
+  async ({ chatId, messageId }: { chatId: string; messageId: string }) => {
+    const chatMessages = await db.messages
+      .where("chatId")
+      .equals(chatId)
+      .toArray();
+
+    const deletedMessage = await db.messages.get(messageId);
+
+    if (deletedMessage) {
+      const messagesToDelete = chatMessages.filter(
+        (msg) =>
+          msg.created_at > deletedMessage.created_at && msg.status != "deleted"
+      );
+
+      const messageIdsToDelete = messagesToDelete.map((msg) => msg.id);
+
+      await db.messages.bulkUpdate(
+        messageIdsToDelete.map((id) => ({
+          key: id,
+          changes: {
+            status: "deleted",
+            updated_at: Date.now(),
+            syncStatus: SyncStatus.PENDING,
+          },
+        }))
+      );
+
+      messageIdsToDelete.forEach((msgId) => {
+        syncService.syncMessage(msgId);
+      });
+
+      console.log(
+        `Deleted ${messagesToDelete.length} messages for chat ${chatId}`
+      );
+    }
+
+    return { chatId, messageId };
+  }
+);
+
+export const deleteMessage = createAsyncThunk(
   "messages/delete",
   async ({ chatId, messageId }: { chatId: string; messageId: string }) => {
     const chatMessages = await db.messages
@@ -79,6 +121,12 @@ export const deleteMessagesAfter = createAsyncThunk(
       .toArray();
 
     const deletedMessage = await db.messages.get(messageId);
+
+    await db.messages.update(messageId, {
+      status: "deleted",
+      updated_at: new Date().getTime(),
+      syncStatus: SyncStatus.PENDING,
+    });
 
     if (deletedMessage) {
       const messagesToDelete = chatMessages.filter(

@@ -79,10 +79,12 @@ class StreamingManager {
 export const streamingManager = new StreamingManager();
 
 export const updateStreamingContent = (messageId: string, content: string) => {
+  console.log("STREAM UPDATER: ", messageId);
   streamingManager.updateContent(messageId, content);
 };
 
 export const setStreamingStatus = (messageId: string, isStreaming: boolean) => {
+  console.log("STREAM BOOLEAN: ", messageId);
   streamingManager.setStreamingStatus(messageId, isStreaming);
 };
 

@@ -1,6 +1,7 @@
 import { createSlice, isAnyOf } from "@reduxjs/toolkit";
 import {
   addNewMessage,
+  deleteMessage,
   deleteMessagesAfter,
   getMessages,
 } from "./messageThunk";
@@ -49,6 +50,14 @@ const messageSlice = createSlice({
         );
 
         state.messages = state.messages.slice(0, index - 1);
+      })
+      .addCase(deleteMessage.fulfilled, (state, action) => {
+        // Avoid duplicates by checking message id before adding
+        const index = state.messages.findIndex(
+          (msg) => msg.id == action.payload.messageId
+        );
+
+        state.messages = state.messages.slice(0, index);
       })
       .addMatcher(isAnyOf(getMessages.pending), (state) => {
         state.loading = true;

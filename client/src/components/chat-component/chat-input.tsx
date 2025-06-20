@@ -47,6 +47,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { modelList } from "@/static/models";
 
 export function ChatInput({ chatId }: { chatId?: string }) {
   const navigate = useNavigate();
@@ -486,29 +487,6 @@ export function ChatInput({ chatId }: { chatId?: string }) {
 }
 
 function ModelInput() {
-  const allModels = [
-    {
-      title: "Gemini 2.0 Flash",
-      value: "gemini-2.0-flash",
-    },
-    {
-      title: "Gemini 2.5 Flash",
-      value: "gemini-2.5-flash",
-    },
-    {
-      title: "Gemini 2.5 Pro (Thinker)",
-      value: "gemini-2.5-pro",
-    },
-    {
-      title: "Sarvam-M",
-      value: "sarvam-ai",
-    },
-    {
-      title: "Sarvam-M (Thinker)",
-      value: "sarvam-ai-thinker",
-    },
-  ];
-
   const dispatch = useAppDispatch();
   const model = useAppSelector((state) => state.prompt.model);
   const webSearch = useAppSelector((state) => state.prompt.webSearch);
@@ -520,8 +498,8 @@ function ModelInput() {
   }, [webSearch]);
 
   const models = webSearch
-    ? allModels.filter((m) => !m.value.startsWith("sarvam-ai"))
-    : allModels;
+    ? modelList.filter((m) => !m.value.startsWith("sarvam-ai"))
+    : modelList;
 
   const handleModelSelect = (model: string) => {
     dispatch(setModel(model));

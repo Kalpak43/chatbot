@@ -1,9 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Card } from "./card";
 import MarkdownRenderer from "./markdown-renderer";
-import { Button } from "./button";
-import { Check, Copy, Pen, SendHorizonal, X } from "lucide-react";
-import React, { useState } from "react";
+import React from "react";
 import { Textarea } from "./textarea";
 
 export interface ChatBubbleProps {
@@ -13,25 +11,12 @@ export interface ChatBubbleProps {
   sender: "user" | "ai";
   avatarSrc?: string;
   className?: string;
-  onEdit: (messageId: string, content: string) => void;
+  editing: boolean;
+  onChange: (x: string) => void;
 }
 
 const ChatBubble = React.forwardRef<HTMLDivElement, ChatBubbleProps>(
-  ({ id, content, sender, className, attachments, onEdit }, ref) => {
-    const [copied, setCopied] = useState(false);
-    const [editing, setEditing] = useState(false);
-    const [prompt, setPrompt] = useState(content);
-
-    const handleCopy = async () => {
-      try {
-        await navigator.clipboard.writeText(content);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 1500);
-      } catch (err) {
-        // Optionally handle error
-      }
-    };
-
+  ({ id, content, sender, className, attachments, editing, onChange }, ref) => {
     return (
       <div
         id={`message-${id}`}
@@ -90,15 +75,15 @@ const ChatBubble = React.forwardRef<HTMLDivElement, ChatBubbleProps>(
                   >
                     {editing ? (
                       <Textarea
-                        value={prompt}
-                        onChange={(e) => setPrompt(e.target.value)}
+                        value={content}
+                        onChange={(e) => onChange(e.target.value)}
                         rows={5}
                         placeholder="Type your message..."
                         className="resize-none"
                       />
                     ) : (
                       <pre className="font-newsreader whitespace-pre-line font-[500]">
-                        {prompt}
+                        {content}
                       </pre>
                     )}
                   </Card>
@@ -111,37 +96,6 @@ const ChatBubble = React.forwardRef<HTMLDivElement, ChatBubbleProps>(
               ),
             }[sender]
           }
-        </div>
-
-        <div className="absolute top-full hidden group-hover:block">
-          <div className="mt-2 flex ">
-            <Button variant={"ghost"} size={"sm"} onClick={handleCopy}>
-              {copied ? <Check className="text-green-400" /> : <Copy />}
-            </Button>
-            {sender == "user" && (
-              <Button
-                variant={"ghost"}
-                size={"sm"}
-                onClick={() => {
-                  setEditing((x) => !x);
-                }}
-              >
-                {editing ? <X /> : <Pen />}
-              </Button>
-            )}
-            {editing && (
-              <Button
-                variant={"ghost"}
-                size={"sm"}
-                onClick={() => {
-                  onEdit(id, prompt);
-                  setEditing((x) => !x);
-                }}
-              >
-                <SendHorizonal />
-              </Button>
-            )}
-          </div>
         </div>
       </div>
     );

@@ -1,11 +1,17 @@
-import { useAppDispatch, useAppSelector } from "@/app/hooks";
-import { useEffect, useMemo, useRef } from "react";
-import ChatBubble from "../ui/chat-bubble";
-import withMessageListener from "@/hocs/withMessageListener";
-import useTitleGetter from "@/hooks/use-title-getter";
+import { Button } from "./ui/button";
+import { RefreshCcw } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuItem,
+} from "./ui/dropdown-menu";
+import { modelList } from "@/static/models";
+import { useAppDispatch } from "@/app/hooks";
 import {
   addNewMessage,
-  deleteMessagesAfter,
+  deleteMessage,
   updateMessage,
 } from "@/features/messages/messageThunk";
 import { createHistory } from "@/lib/utils";
@@ -18,66 +24,22 @@ import {
 } from "@/services/stream-manager-service";
 import { updateChat } from "@/features/chats/chatThunk";
 
-const ChatBubbleWithListener = withMessageListener(ChatBubble);
-
-export function ChatArea({ chatId }: { chatId?: string }) {
-  useTitleGetter(chatId);
-
+function RegenOptions({
+  messageId,
+  chatId,
+}: {
+  messageId: string;
+  chatId: string;
+}) {
   const dispatch = useAppDispatch();
 
-  const messages = useAppSelector((state) => state.messages.messages);
-  const model = useAppSelector((state) => state.prompt.model);
-  const webSearch = useAppSelector((state) => state.prompt.webSearch);
-
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const chatContainerRef = useRef<HTMLDivElement | null>(null); // Ref for the chat container
-
-  const latestUserMessage = useMemo(
-    () =>
-      messages
-        .slice()
-        .reverse()
-        .find((msg) => msg.role === "user"),
-    [messages]
-  );
-
-  useEffect(() => {
-    if (
-      latestUserMessage &&
-      chatContainerRef.current &&
-      messagesEndRef.current
-    ) {
-      messagesEndRef.current.style.height = "200px";
-      const userMessageElement = document.getElementById(
-        `message-${latestUserMessage.id}`
-      );
-
-      if (userMessageElement) {
-        const container = chatContainerRef.current;
-        const elementTop = userMessageElement.offsetTop;
-        container.scrollTo({
-          top: elementTop,
-          behavior: "smooth",
-        });
-      }
-    }
-  }, [latestUserMessage?.id, messages]);
-
-  const handleEditMessage = async (messageId: string, content: string) => {
+  const regenerateResponse = async (model: string) => {
     if (!chatId) return;
 
-    await dispatch(
-      updateMessage({
-        messageId: messageId,
-        data: {
-          text: content,
-          status: "done",
-        },
-      })
-    );
+    console.log(model);
 
     await dispatch(
-      deleteMessagesAfter({
+      deleteMessage({
         chatId,
         messageId,
       })
@@ -105,7 +67,7 @@ export function ChatArea({ chatId }: { chatId?: string }) {
     await sendPrompt({
       chatHistory,
       model,
-      webSearch,
+      webSearch: false,
       onMessage: async (msg) => {
         accumulatedContent += msg;
         updateStreamingContent(responseId, accumulatedContent);
@@ -199,22 +161,28 @@ export function ChatArea({ chatId }: { chatId?: string }) {
   };
 
   return (
-    <div className="h-full overflow-y-auto relative" ref={chatContainerRef}>
-      <div className="max-w-3xl mx-auto px-4">
-        {messages
-          // .filter((msg) => msg.status != "deleted")
-          .map((message) => {
-            return (
-              <ChatBubbleWithListener
-                key={message.id}
-                messageId={message.id}
-                chatId={message.chatId}
-                onEdit={handleEditMessage}
-              />
-            );
-          })}
-      </div>
-      <div ref={messagesEndRef} />
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant={"ghost"} size={"icon"} className="&_svg:size-6">
+          <RefreshCcw />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56" align="end" forceMount>
+        <DropdownMenuLabel className="font-normal">
+          Try again with:{" "}
+        </DropdownMenuLabel>
+        {modelList.map((model) => (
+          <DropdownMenuItem
+            key={model.value}
+            className="text-gray-800 dark:text-gray-400 dark:hover:text-accent-foreground text-xs"
+            onClick={() => regenerateResponse(model.value)}
+          >
+            {model.title}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
+
+export default RegenOptions;
