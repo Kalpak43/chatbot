@@ -116,7 +116,7 @@
   /* unchanged */
   --foreground: oklch(0.83 0.0057 274.95);
   /* light bluish text */
-  --card: oklch(0.21 0 none);
+  --card: oklch(19.95% 0.00256 248.161);
   /* unchanged */
   --card-foreground: oklch(0.95 0.02 270);
   /* same as foreground */
@@ -135,7 +135,7 @@
   --secondary-foreground: oklch(0.98 0 0);
   /* white text */
 
-  --muted: oklch(0.35 0.05 240);
+  --muted: oklch(24.581% 0.01125 254.096);
   /* muted gray-blue */
   --muted-foreground: oklch(0.75 0.02 270);
 

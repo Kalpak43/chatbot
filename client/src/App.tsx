@@ -1,7 +1,7 @@
 import { Suspense, useEffect } from "react";
 import "./App.css";
 import { Route, Routes } from "react-router";
-import Layout from "./Layout";
+import Layout from "./layouts/chat-layout";
 import Chatpage from "./pages/Chatpage";
 import Loginpage from "./pages/Loginpage";
 import { useAppDispatch, useAppSelector } from "./app/hooks";
@@ -10,6 +10,10 @@ import { checkLogin } from "./features/auth/authThunk";
 import Signuppage from "./pages/Signuppage";
 import { getChats } from "./features/chats/chatThunk";
 import { useSync } from "./hooks/use-sync";
+import PersonalizationPage from "./pages/personalization-page";
+import SettingsLayout from "./layouts/settings-layout";
+import ProctectedRoute from "./components/auth/protected-route";
+import ContactUsPage from "./pages/contact-us-page";
 
 function App() {
   const dispatch = useAppDispatch();
@@ -18,12 +22,6 @@ function App() {
 
   useSync();
 
-  // useEffect(() => {
-  //   const root = window.document.documentElement;
-
-  //   root.classList.add("dark");
-  // }, []);
-
   useEffect(() => {
     dispatch(getChats());
   }, [dispatch]);
@@ -31,10 +29,6 @@ function App() {
   useEffect(() => {
     dispatch(checkLogin());
   }, [dispatch]);
-
-  // useEffect(() => {
-  //   if (user) toast.success("Signed in successfully");
-  // }, [user]);
 
   useEffect(() => {
     if (error) toast.error(error);
@@ -46,6 +40,12 @@ function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<Chatpage />} />
           <Route path="/chat/:chatId?" element={<Chatpage />} />
+        </Route>
+        <Route element={<ProctectedRoute />}>
+          <Route path="/settings" element={<SettingsLayout />}>
+            <Route path="personalization" element={<PersonalizationPage />} />
+            <Route path="contact-us" element={<ContactUsPage />} />
+          </Route>
         </Route>
         <Route path="/login" element={<Loginpage />} />
         <Route path="/signup" element={<Signuppage />} />

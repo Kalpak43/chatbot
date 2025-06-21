@@ -1,12 +1,4 @@
-import {
-  Check,
-  LogIn,
-  LogOut,
-  Monitor,
-  Moon,
-  Palette,
-  Sun,
-} from "lucide-react";
+import { Check, LogIn, LogOut, Palette, Settings2 } from "lucide-react";
 import { Link } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
@@ -28,6 +20,7 @@ import useMediaQuery from "@/hooks/use-media-query";
 import { useEffect } from "react";
 import { checkLimit } from "@/services/ai-service";
 import { useTheme } from "@/hooks/use-theme";
+import { themes } from "@/static/themes";
 
 const UserOptions = () => {
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -37,12 +30,6 @@ const UserOptions = () => {
   const dispatch = useAppDispatch();
 
   const { theme, setTheme } = useTheme();
-
-  const themes = [
-    { name: "Light", value: "light", icon: Sun },
-    { name: "Dark", value: "dark", icon: Moon },
-    { name: "System", value: "system", icon: Monitor },
-  ];
 
   useEffect(() => {
     checkLimit();
@@ -118,6 +105,15 @@ const UserOptions = () => {
                   })}
                 </DropdownMenuSubContent>
               </DropdownMenuSub>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem asChild>
+                <Link to={"/settings/personalization"}>
+                  <Settings2 className="mr-2 h-4 w-4 hover:text-accent-foreground" />
+                  <span>Personalization</span>
+                </Link>
+              </DropdownMenuItem>
 
               <DropdownMenuSeparator />
 
