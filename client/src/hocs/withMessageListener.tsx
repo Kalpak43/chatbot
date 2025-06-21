@@ -80,7 +80,7 @@ function withMessageListener(
         return <TypingIndicator key={message.id} id={message.id} />;
       } else if (message.status === "pending" || message.status === "done")
         return (
-          <div className="relative ">
+          <div id={`message-${message.id}`} className="relative ">
             <WrappedComponent {...injectedProps} ref={ref} />
             {!streamingData?.isStreaming && (
               <div
@@ -132,7 +132,25 @@ function withMessageListener(
           </div>
         );
       else if (message.status === "failed") {
-        return <p key={message.id}>Some error occurred</p>;
+        return (
+          <div id={`message-${message.id}`} className="relative ">
+            <p>Some error occurred</p>
+            {!streamingData?.isStreaming && (
+              <div
+                className={cn(
+                  "absolute top-full block",
+                  message.role == "user" && "right-0"
+                )}
+              >
+                <div className="mt-2 flex ">
+                  {message.role == "ai" && (
+                    <RegenOptions messageId={messageId} chatId={chatId} />
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        );
       }
       return null; // Handle any other status
     }

@@ -12,7 +12,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: admin123
     networks:
       - net
-
+ 
   chroma:
     image: chromadb/chroma
     volumes:
@@ -21,7 +21,6 @@ services:
       - "8000:8000"
     networks:
       - net
-
 
   server:
     build:

@@ -34,7 +34,7 @@ function MarkdownRenderer({
         components={{
           h1: ({ node, ...props }) => (
             <h1
-              className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl mb-4"
+              className="scroll-m-20 text-4xl font-bold tracking-tight lg:text-5xl mb-4"
               {...props}
             />
           ),
@@ -69,10 +69,10 @@ function MarkdownRenderer({
             />
           ),
           p: ({ node, ...props }) => (
-            <p className="leading-7 [&:not(:first-child)]:my-6" {...props} />
+            <p className="leading-7 my-6" {...props} />
           ),
           strong: ({ node, ...props }) => (
-            <strong className="font-bold" {...props} />
+            <strong className="font-semibold" {...props} />
           ),
           em: ({ node, ...props }) => <em className="italic" {...props} />,
           blockquote: ({ node, ...props }) => (

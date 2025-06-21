@@ -27,7 +27,7 @@ const unauthenticatedLimiter = rateLimit({
   max: 10,
   keyGenerator: (req) => req.ip,
   message: { error: 'Daily request limit reached. Try again tomorrow.' },
-  standardHeaders: true, 
+  standardHeaders: true,
   legacyHeaders: false,
 });
 

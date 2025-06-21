@@ -18,8 +18,9 @@ function Chatpage() {
   }, [chatId]);
 
   useEffect(() => {
-    if (chatId) dispatch(getMessages(chatId));
-    else dispatch(setMessages([]));
+    if (chatId) {
+      dispatch(getMessages(chatId));
+    } else dispatch(setMessages([]));
   }, [chatId]);
 
   return (

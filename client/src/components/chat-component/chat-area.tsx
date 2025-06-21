@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
-import { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import ChatBubble from "../ui/chat-bubble";
 import withMessageListener from "@/hocs/withMessageListener";
 import useTitleGetter from "@/hooks/use-title-getter";
@@ -18,10 +18,10 @@ import {
 } from "@/services/stream-manager-service";
 import { updateChat } from "@/features/chats/chatThunk";
 
-const ChatBubbleWithListener = withMessageListener(ChatBubble);
+const ChatBubbleWithListener = React.memo(withMessageListener(ChatBubble));
 
 export function ChatArea({ chatId }: { chatId?: string }) {
-  useTitleGetter(chatId);
+  useTitleGetter(chatId!);
 
   const dispatch = useAppDispatch();
 
@@ -62,6 +62,19 @@ export function ChatArea({ chatId }: { chatId?: string }) {
       }
     }
   }, [latestUserMessage?.id, messages]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (chatContainerRef.current && messagesEndRef.current) {
+        chatContainerRef.current.scrollTo({
+          top: messagesEndRef.current.offsetTop,
+          behavior: "smooth",
+        });
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [chatId]);
 
   const handleEditMessage = async (messageId: string, content: string) => {
     if (!chatId) return;
@@ -214,7 +227,7 @@ export function ChatArea({ chatId }: { chatId?: string }) {
             );
           })}
       </div>
-      <div ref={messagesEndRef} />
+      <div id="chat-bottom" ref={messagesEndRef} />
     </div>
   );
 }

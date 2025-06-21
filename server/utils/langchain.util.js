@@ -15,11 +15,11 @@ const searchTool = {
 const tools = [searchTool];
 
 export const setupLangChain = async (history, chatId, llmModel, useWeb = false) => {
-  let model = llms[llmModel] || llms["gemini-2.0-flash"];
+  let model = llms[llmModel] || llms["sarvam-ai"];
   if (useWeb)
     model = model.bindTools(tools);
-  
-  const memory = getMemoryForChat(chatId);
+
+  const memory = await getMemoryForChat(chatId, history);
   const lastMessage = history[history.length - 1];
   const { attachments = [] } = lastMessage;
 
@@ -40,7 +40,7 @@ export const setupLangChain = async (history, chatId, llmModel, useWeb = false) 
     }
   }
 
-  const retriever = (await getDocumentStoreForChat(chatId)).asRetriever({ k: 5 });
+  const retriever = (await getDocumentStoreForChat(chatId)).asRetriever({ k: 20 });
   const chatHistory = (await memory.loadMemoryVariables({})).history || [];
 
   const formattedHistory = chatHistory.map((msg) =>

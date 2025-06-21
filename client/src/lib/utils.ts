@@ -38,8 +38,12 @@ export async function createHistory({
 
 import { createHighlighter } from "shiki";
 
-export async function highlightCode(code: string, language: string) {
-  if (!code || !code.trim()) return;
+export async function codeHighlighter(
+  code: string,
+  language: string,
+  theme: "light" | "dark"
+) {
+  if (!code || !code.trim()) return "";
 
   const hl = await createHighlighter({
     themes: ["github-dark", "github-light"],
@@ -67,7 +71,7 @@ export async function highlightCode(code: string, language: string) {
   try {
     highlightedCode = hl.codeToHtml(code, {
       lang: language,
-      theme: "github-dark", // You can make this dynamic based on theme
+      theme: theme == "dark" ? "github-dark" : "github-light", // You can make this dynamic based on theme
     });
   } catch {
     highlightedCode = `<pre><code>${code}</code></pre>`;

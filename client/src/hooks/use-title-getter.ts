@@ -4,7 +4,7 @@ import { updateChat } from "@/features/chats/chatThunk";
 import { getTitle } from "@/services/ai-service";
 import { useEffect, useMemo } from "react";
 
-function useTitleGetter(chatId?: string) {
+function useTitleGetter(chatId: string) {
   const dispatch = useAppDispatch();
   const chats = useAppSelector((state) => state.chat.chats);
 
@@ -28,7 +28,7 @@ function useTitleGetter(chatId?: string) {
           messages.length > 1 &&
           messages[messages.length - 1].status == "done"
         )
-          getTitle(messages).then((res) =>
+          getTitle(messages).then((res) => {
             dispatch(
               updateChat({
                 chatId,
@@ -36,13 +36,17 @@ function useTitleGetter(chatId?: string) {
                   title: res,
                 },
               })
-            )
-          );
+            );
+          });
       }
     }
 
     title();
   }, [chatId, currentChat]);
+
+  useEffect(() => {
+    if (currentChat) document.title = currentChat.title;
+  }, [currentChat]);
 
   return {};
 }

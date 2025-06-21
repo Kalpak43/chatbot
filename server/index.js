@@ -15,6 +15,7 @@ import { connectToDB } from "./db/mongo.db.js";
 
 import { router as chatRoutes } from "./api/chat/chat.router.js";
 import rateLimit from 'express-rate-limit';
+import { checkLoggedin } from "./middlewares/auth.middleware.js";
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.use(
   cors({
     origin: process.env.ALLOWED_URL,
     credentials: true,
+    exposedHeaders: ['RateLimit-Limit', 'RateLimit-Remaining', 'RateLimit-Reset'],
   })
 );
 
@@ -49,13 +51,6 @@ app.get("/", (req, res) => {
 app.get("/health", (req, res) => {
   res.status(200).send("Healthy!!!")
 })
-
-app.get("/failure", (req, res) => {
-  res.send("Auth failed");
-});
-app.get("/success", (req, res) => {
-  res.send("Auth succeeded");
-});
 
 app.use("/api/chat", chatRoutes);
 
