@@ -22,16 +22,22 @@ function UserInfo() {
       </div>
 
       <div className="bg-card rounded-md border border-secondary/10 shadow px-4 py-8 space-y-4">
-        <p className="text-sm leading-none text-muted-foreground">
+        <p className="text-xs leading-none text-muted-foreground">
           <span className="font-semibold">Messages Used:</span>
           <span> 3 / 10</span>
         </p>
         <Progress value={30} />
+        <div className="space-y-2">
+          <p className="text-sm leading-none text-muted-foreground">
+            <span className="font-semibold">Messages Remaining:</span>
+            <span> 7</span>
+          </p>
 
-        <p className="text-xs leading-none text-muted-foreground">
-          <span className="font-semibold">Limit Resets on:</span>
-          <span> 5:31 AM</span>
-        </p>
+          <p className="text-xs leading-none text-muted-foreground">
+            <span className="font-semibold">Limit Resets on:</span>
+            <span> 5:31 AM</span>
+          </p>
+        </div>
       </div>
     </section>
   );
