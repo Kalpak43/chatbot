@@ -14,8 +14,8 @@ import cors from "cors";
 import { connectToDB } from "./db/mongo.db.js";
 
 import { router as chatRoutes } from "./api/chat/chat.router.js";
+import userRoutes from "./api/user/user.router.js"
 import rateLimit from 'express-rate-limit';
-import { checkLoggedin } from "./middlewares/auth.middleware.js";
 
 dotenv.config();
 
@@ -40,10 +40,6 @@ const globalLimiter = rateLimit({
 app.use(globalLimiter)
 
 
-// app.get("/secret", checkLoggedin, (req, res) => {
-//   res.status(200).send("43");
-// });
-
 app.get("/", (req, res) => {
   res.send("HELLO WORLD");
 });
@@ -53,6 +49,7 @@ app.get("/health", (req, res) => {
 })
 
 app.use("/api/chat", chatRoutes);
+app.use("/api/user", userRoutes);
 
 app.use(express.static(path.join(__dirname, "public")));
 

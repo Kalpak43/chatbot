@@ -7,7 +7,7 @@ import {
   syncChat,
   syncMessage,
 } from "./chat.controller.js";
-import { checkLoggedin } from "../../middlewares/auth.middleware.js";
+import { checkLoggedin, rejectUnauthenticated } from "../../middlewares/auth.middleware.js";
 import rateLimit from 'express-rate-limit';
 
 
@@ -39,14 +39,6 @@ const conditionalLimiter = (req, res, next) => {
   }
 };
 
-const rejectUnauthenticated = (req, res, next) => {
-  if (!req.user) {
-    console.error("Token verification failed:", error);
-    return res.status(401).json({ message: "Unauthorized: Invalid token" });
-  }
-
-  next()
-}
 
 
 const router = express.Router();

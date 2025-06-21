@@ -177,6 +177,7 @@ const getMessages = asyncHandler(async (req, res) => {
   return res.status(200).json({ messages: formattedMessages });
 });
 
+
 export {
   streamResponse,
   syncChat,

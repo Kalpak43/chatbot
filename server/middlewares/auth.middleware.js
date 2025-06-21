@@ -20,7 +20,7 @@ async function checkLoggedin(req, res, next) {
   if (idToken) {
     try {
       const decodedToken = await admin.auth().verifyIdToken(idToken);
-      req.user = decodedToken; 
+      req.user = decodedToken;
     } catch (error) {
       console.warn("Token verification failed, proceeding without user:", error.message);
     }
@@ -28,8 +28,17 @@ async function checkLoggedin(req, res, next) {
     console.log("No Authorization header, proceeding without user.");
   }
 
-  next(); 
-
+  next();
 }
 
-export { checkLoggedin };
+const rejectUnauthenticated = (req, res, next) => {
+  if (!req.user) {
+    console.error("Token verification failed:", error);
+    return res.status(401).json({ message: "Unauthorized: Invalid token" });
+  }
+
+  next()
+}
+
+
+export { checkLoggedin, rejectUnauthenticated };
