@@ -9,7 +9,6 @@ import { toast } from "sonner";
 import { checkLogin } from "./features/auth/authThunk";
 import Signuppage from "./pages/Signuppage";
 import { getChats } from "./features/chats/chatThunk";
-import { useSync } from "./hooks/use-sync";
 import PersonalizationPage from "./pages/personalization-page";
 import SettingsLayout from "./layouts/settings-layout";
 import ProctectedRoute from "./components/auth/protected-route";
@@ -19,8 +18,6 @@ function App() {
   const dispatch = useAppDispatch();
 
   const error = useAppSelector((state) => state.auth.error);
-
-  useSync();
 
   useEffect(() => {
     dispatch(getChats());
@@ -43,7 +40,14 @@ function App() {
         </Route>
         <Route element={<ProctectedRoute />}>
           <Route path="/settings" element={<SettingsLayout />}>
-            <Route path="personalization" element={<PersonalizationPage />} />
+            <Route
+              path="personalization"
+              element={
+                <Suspense fallback={<>Loading...</>}>
+                  <PersonalizationPage />
+                </Suspense>
+              }
+            />
             <Route path="contact-us" element={<ContactUsPage />} />
           </Route>
         </Route>

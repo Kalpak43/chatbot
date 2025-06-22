@@ -1,6 +1,10 @@
 import db from "@/dexie";
+import { auth } from "@/firebase";
+import axios from "axios";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -36,46 +40,64 @@ export async function createHistory({
     }));
 }
 
-import { createHighlighter } from "shiki";
-
-export async function codeHighlighter(
-  code: string,
-  language: string,
-  theme: "light" | "dark"
-) {
-  if (!code || !code.trim()) return "";
-
-  const hl = await createHighlighter({
-    themes: ["github-dark", "github-light"],
-    langs: [
-      "javascript",
-      "typescript",
-      "python",
-      "java",
-      "cpp",
-      "html",
-      "css",
-      "json",
-      "markdown",
-      "bash",
-      "sql",
-      "go",
-      // Add more languages as needed
-    ],
-  });
-
-  if (!hl) return code;
-
-  let highlightedCode = "";
-
+export async function getUserDetails() {
+  let data = null,
+    success = false;
   try {
-    highlightedCode = hl.codeToHtml(code, {
-      lang: language,
-      theme: theme == "dark" ? "github-dark" : "github-light", // You can make this dynamic based on theme
+    const idToken = await auth.currentUser?.getIdToken();
+
+    const response = await axios.get(`${API_URL}/api/user/details`, {
+      withCredentials: true,
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+      },
     });
-  } catch {
-    highlightedCode = `<pre><code>${code}</code></pre>`;
+
+    if (response.status != 200) throw new Error("No details available");
+
+    data = response.data;
+    success = true;
+  } catch (e) {
+    success = false;
   }
 
-  return highlightedCode;
+  return { data, success };
+}
+
+export async function saveUserDetails({
+  name,
+  role,
+  extra,
+}: {
+  name: string;
+  role: string;
+  extra: string;
+}) {
+  let success = false;
+  const idToken = await auth.currentUser?.getIdToken();
+
+  try {
+    const response = await axios.post(
+      `${API_URL}/api/user/save-details`,
+      {
+        name,
+        role,
+        extra,
+      },
+      {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        },
+      }
+    );
+
+    if (response.status != 200) throw new Error("Not able to save");
+
+    success = true;
+  } catch (error) {
+    success = false;
+  }
+
+  return { success };
 }

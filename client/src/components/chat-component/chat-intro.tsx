@@ -2,6 +2,7 @@ import { useAppDispatch } from "@/app/hooks";
 import { setPrompt } from "@/features/prompt/promptSlice";
 import { Button } from "../ui/button";
 import { useEffect } from "react";
+import { motion } from "motion/react";
 
 export function ChatIntro() {
   const dispatch = useAppDispatch();
@@ -23,7 +24,13 @@ export function ChatIntro() {
   };
 
   return (
-    <div className="h-full overflow-y-auto">
+    <motion.div
+      
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="h-full overflow-y-auto"
+    >
       <div className="max-w-3xl mx-auto px-4 md:px-8 flex flex-col justify-center h-full space-y-4">
         <h1 className="text-3xl font-[500] font-newsreader">
           Hello, What can I help you with?
@@ -42,6 +49,6 @@ export function ChatIntro() {
           ))}
         </ul>
       </div>
-    </div>
+    </motion.div>
   );
 }

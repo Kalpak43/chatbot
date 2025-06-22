@@ -90,7 +90,7 @@ export const sendPrompt = async ({
               lock = 1;
             }
             const parsedData = JSON.parse(line.replace("msg: ", ""));
-            await new Promise((resolve) => setTimeout(resolve, 1));
+            // await new Promise((resolve) => setTimeout(resolve, 1));
             await onMessage(parsedData);
           } catch (parseError) {
             console.error("Error parsing JSON:", parseError);

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Check, Copy, Pen, SendHorizonal, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import RegenOptions from "@/components/regen-options";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface WithMessageListenerProps {
   chatId: string;
@@ -82,53 +83,59 @@ function withMessageListener(
         return (
           <div id={`message-${message.id}`} className="relative ">
             <WrappedComponent {...injectedProps} ref={ref} />
-            {!streamingData?.isStreaming && (
-              <div
-                className={cn(
-                  "absolute top-full block",
-                  message.role == "user" && "right-0"
-                )}
-              >
-                <div className="mt-2 flex ">
-                  <Button
-                    variant={"ghost"}
-                    size={"icon"}
-                    className="[&>svg]:size-4!"
-                    onClick={handleCopy}
-                  >
-                    {copied ? <Check className="text-green-400" /> : <Copy />}
-                  </Button>
-                  {message.role == "ai" && (
-                    <RegenOptions messageId={messageId} chatId={chatId} />
+            <AnimatePresence>
+              {!streamingData?.isStreaming && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  // exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className={cn(
+                    "absolute top-full block",
+                    message.role == "user" && "right-0"
                   )}
-                  {message.role == "user" && (
+                >
+                  <div className="mt-2 flex ">
                     <Button
                       variant={"ghost"}
                       size={"icon"}
                       className="[&>svg]:size-4!"
-                      onClick={() => {
-                        setEditing((x) => !x);
-                      }}
+                      onClick={handleCopy}
                     >
-                      {editing ? <X /> : <Pen />}
+                      {copied ? <Check className="text-green-400" /> : <Copy />}
                     </Button>
-                  )}
-                  {editing && (
-                    <Button
-                      variant={"ghost"}
-                      size={"icon"}
-                      className="[&>svg]:size-4!"
-                      onClick={() => {
-                        onEdit && onEdit(messageId, messsageContent);
-                        setEditing((x) => !x);
-                      }}
-                    >
-                      <SendHorizonal />
-                    </Button>
-                  )}
-                </div>
-              </div>
-            )}
+                    {message.role == "ai" && (
+                      <RegenOptions messageId={messageId} chatId={chatId} />
+                    )}
+                    {message.role == "user" && (
+                      <Button
+                        variant={"ghost"}
+                        size={"icon"}
+                        className="[&>svg]:size-4!"
+                        onClick={() => {
+                          setEditing((x) => !x);
+                        }}
+                      >
+                        {editing ? <X /> : <Pen />}
+                      </Button>
+                    )}
+                    {editing && (
+                      <Button
+                        variant={"ghost"}
+                        size={"icon"}
+                        className="[&>svg]:size-4!"
+                        onClick={() => {
+                          onEdit && onEdit(messageId, messsageContent);
+                          setEditing((x) => !x);
+                        }}
+                      >
+                        <SendHorizonal />
+                      </Button>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         );
       else if (message.status === "failed") {

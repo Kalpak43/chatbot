@@ -5,6 +5,7 @@ import { ChatIntro } from "@/components/chat-component/chat-intro";
 import { setActiveChatId } from "@/features/chats/chatSlice";
 import { setMessages } from "@/features/messages/messageSlice";
 import { getMessages } from "@/features/messages/messageThunk";
+import { AnimatePresence } from "motion/react";
 import { useEffect } from "react";
 import { useParams } from "react-router";
 
@@ -26,7 +27,13 @@ function Chatpage() {
   return (
     <div className="w-full flex-1 overflow-y-auto flex flex-col">
       <div className="h-full overflow-y-hidden relative">
-        {chatId ? <ChatArea chatId={chatId} /> : <ChatIntro />}
+        <AnimatePresence initial>
+          {chatId ? (
+            <ChatArea key={chatId} chatId={chatId} />
+          ) : (
+            <ChatIntro key="intro" />
+          )}
+        </AnimatePresence>
         <div className="absolute top-0 bg-gradient-to-b from-background to-transparent w-full h-4"></div>
         <div className="absolute bottom-0 bg-gradient-to-t from-background to-transparent w-full h-4"></div>
       </div>

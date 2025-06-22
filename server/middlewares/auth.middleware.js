@@ -33,7 +33,6 @@ async function checkLoggedin(req, res, next) {
 
 const rejectUnauthenticated = (req, res, next) => {
   if (!req.user) {
-    console.error("Token verification failed:", error);
     return res.status(401).json({ message: "Unauthorized: Invalid token" });
   }
 

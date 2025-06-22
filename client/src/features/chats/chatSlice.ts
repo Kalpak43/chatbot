@@ -1,5 +1,11 @@
 import { createSlice, isAnyOf } from "@reduxjs/toolkit";
-import { createNewChat, deleteChat, getChats, updateChat } from "./chatThunk";
+import {
+  createNewChat,
+  deleteChat,
+  getChats,
+  pullRemoteChanges,
+  updateChat,
+} from "./chatThunk";
 
 interface ChatState {
   chats: ChatType[];
@@ -49,6 +55,24 @@ const chatSlice = createSlice({
         const { chatId } = action.payload;
 
         state.chats = state.chats.filter((chat) => chat.id != chatId);
+      })
+      .addCase(pullRemoteChanges.fulfilled, (state, action) => {
+        const { chats } = action.payload;
+
+        // Merge and remove duplicates by chat id, keeping the latest by last_message_at
+        const mergedChats = [...state.chats, ...chats];
+        const chatMap = new Map<string, ChatType>();
+
+        mergedChats.forEach((chat) => {
+          const existing = chatMap.get(chat.id);
+          if (!existing || chat.last_message_at > existing.last_message_at) {
+            chatMap.set(chat.id, chat);
+          }
+        });
+
+        state.chats = Array.from(chatMap.values()).sort(
+          (a, b) => b.last_message_at - a.last_message_at
+        );
       })
       .addMatcher(
         isAnyOf(

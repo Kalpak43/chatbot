@@ -2,9 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { getUserDetails, saveUserDetails } from "@/lib/utils";
+import { useAppSelector } from "@/app/hooks";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 const validationSchema = Yup.object({
   name: Yup.string().max(50, "Name must be 50 characters or less"),
@@ -13,21 +17,28 @@ const validationSchema = Yup.object({
 });
 
 function PersonalizationPage() {
+  const user = useAppSelector((state) => state.auth.user);
+  const loading = useAppSelector((state) => state.auth.loading);
+  const [userDetailsLoading, setUserDetailsLoading] = useState(true);
+
+  const [userDetails, setUserDetails] = useState<any>(null);
+
   useEffect(() => {
     document.title = "Personalization - J.A.C.A.";
   }, []);
 
-  const formik = useFormik({
-    initialValues: {
-      name: "",
-      profession: "",
-      extra: "",
-    },
-    validationSchema,
-    onSubmit: (values) => {
-      console.log("Submitted Values:", values);
-    },
-  });
+  useEffect(() => {
+    async function fetchDetails() {
+      setUserDetailsLoading(true);
+      const data = await getUserDetails();
+
+      setUserDetails(data.data.details);
+      console.log(data.data.details);
+      setUserDetailsLoading(false);
+    }
+
+    if (user) fetchDetails();
+  }, [user]);
 
   return (
     <section id="personalization" className="space-y-8">
@@ -37,6 +48,49 @@ function PersonalizationPage() {
         </h2>
       </div>
 
+      {loading || userDetailsLoading ? (
+        <p>Loading...</p>
+      ) : userDetails ? (
+        <PersonalizationForm userDetails={userDetails} />
+      ) : (
+        <p>Loading...</p>
+      )}
+    </section>
+  );
+}
+
+export default PersonalizationPage;
+
+function PersonalizationForm({
+  userDetails,
+}: {
+  userDetails: { name: string; role: string; extra: string };
+}) {
+  const formik = useFormik({
+    enableReinitialize: true,
+    initialValues: {
+      name: userDetails.name ?? "",
+      profession: userDetails.role ?? "",
+      extra: userDetails.extra ?? "",
+    },
+    validationSchema,
+    onSubmit: async (values) => {
+      const { success } = await saveUserDetails({
+        name: values.name,
+        role: values.profession,
+        extra: values.extra,
+      });
+
+      if (success) {
+        toast.success("Saved user preference");
+      } else {
+        toast.error("Failed to save user preference");
+      }
+    },
+  });
+
+  return (
+    <>
       <form onSubmit={formik.handleSubmit} className="space-y-6">
         <div className="space-y-2">
           <Label htmlFor="name">What should J.A.C.A. call you?</Label>
@@ -85,11 +139,15 @@ function PersonalizationPage() {
         </div>
 
         <div className="text-right">
-          <Button type="submit">Save Preference</Button>
+          <Button type="submit" disabled={!formik.dirty || formik.isSubmitting}>
+            {formik.isSubmitting ? (
+              <Loader2 className="animate-spin" />
+            ) : (
+              "Save Preference"
+            )}
+          </Button>
         </div>
       </form>
-    </section>
+    </>
   );
 }
-
-export default PersonalizationPage;

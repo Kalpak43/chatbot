@@ -17,6 +17,7 @@ import {
   updateStreamingContent,
 } from "@/services/stream-manager-service";
 import { updateChat } from "@/features/chats/chatThunk";
+import { AnimatePresence, motion } from "motion/react";
 
 const ChatBubbleWithListener = React.memo(withMessageListener(ChatBubble));
 
@@ -73,7 +74,9 @@ export function ChatArea({ chatId }: { chatId?: string }) {
       }
     }, 300);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+    };
   }, [chatId]);
 
   const handleEditMessage = async (messageId: string, content: string) => {
@@ -212,22 +215,31 @@ export function ChatArea({ chatId }: { chatId?: string }) {
   };
 
   return (
-    <div className="h-full overflow-y-auto relative" ref={chatContainerRef}>
+    <motion.div
+      ref={chatContainerRef}
+      layout
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="h-full overflow-y-auto relative"
+    >
       <div className="max-w-3xl mx-auto px-4">
-        {messages
-          // .filter((msg) => msg.status != "deleted")
-          .map((message) => {
-            return (
-              <ChatBubbleWithListener
-                key={message.id}
-                messageId={message.id}
-                chatId={message.chatId}
-                onEdit={handleEditMessage}
-              />
-            );
-          })}
+        <AnimatePresence initial={false}>
+          {messages
+            // .filter((msg) => msg.status != "deleted")
+            .map((message) => {
+              return (
+                <ChatBubbleWithListener
+                  key={message.id}
+                  messageId={message.id}
+                  chatId={message.chatId}
+                  onEdit={handleEditMessage}
+                />
+              );
+            })}
+        </AnimatePresence>
       </div>
       <div id="chat-bottom" ref={messagesEndRef} />
-    </div>
+    </motion.div>
   );
 }

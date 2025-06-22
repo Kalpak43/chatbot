@@ -1,4 +1,11 @@
-import { Edit, MoreHorizontal, Plus, Trash } from "lucide-react";
+import {
+  Edit,
+  Loader2,
+  MoreHorizontal,
+  Plus,
+  RotateCw,
+  Trash,
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -27,9 +34,13 @@ import {
 import { Input } from "./ui/input";
 import { cn } from "@/lib/utils";
 import UserOptions from "./user-options";
+import { useSync } from "@/hooks/use-sync";
+import { AnimatePresence, motion } from "motion/react";
 
 function AppSidebar() {
   const navigate = useNavigate();
+
+  useSync();
 
   return (
     <Sidebar>
@@ -61,7 +72,9 @@ function AppSidebar() {
 
       <div className="h-full overflow-y-hidden relative">
         <SidebarContent className="h-full overflow-y-auto">
-          <RecentList />
+          <AnimatePresence>
+            <RecentList />
+          </AnimatePresence>
         </SidebarContent>
         <div className="absolute bottom-0 w-full h-8 bg-gradient-to-t from-sidebar to-transparent"></div>
       </div>
@@ -77,6 +90,7 @@ export default AppSidebar;
 
 const RecentList = () => {
   const chats = useAppSelector((state) => state.chat.chats);
+  const loading = useAppSelector((state) => state.chat.loading);
 
   const startOfToday = useMemo(() => {
     const now = new Date();
@@ -108,6 +122,22 @@ const RecentList = () => {
     },
   ];
 
+  if (loading) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{
+          duration: 0.5,
+        }}
+        className="h-full w-full flex items-center justify-center"
+      >
+        <Loader2 className="animate-spin" />
+      </motion.div>
+    );
+  }
+
   if (chats.length === 0) {
     return (
       <div className="flex items-center justify-center w-full h-full">
@@ -117,7 +147,15 @@ const RecentList = () => {
   }
 
   return (
-    <>
+    <motion.div
+      layout
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{
+        duration: 0.5,
+      }}
+    >
       {groups.map(({ label, filter }) => {
         const filtered = chats
           .filter(filter)
@@ -130,16 +168,51 @@ const RecentList = () => {
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {filtered.map((chat) => (
-                  <ChatButton key={chat.id} chat={chat} />
-                ))}
+                <AnimatePresence initial={true}>
+                  {filtered.map((chat) => (
+                    <ChatButton key={chat.id} chat={chat} />
+                  ))}
+                </AnimatePresence>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
         );
       })}
-    </>
+    </motion.div>
   );
+};
+
+// Animation variants for the chat items
+const chatItemVariants = {
+  initial: {
+    opacity: 0,
+    x: -20,
+    height: 0,
+    marginBottom: 0,
+  },
+  animate: {
+    opacity: 1,
+    x: 0,
+    height: "auto",
+    marginBottom: 4,
+    transition: {
+      duration: 0.3,
+      ease: "easeOut",
+      height: {
+        duration: 0.2,
+      },
+    },
+  },
+  exit: {
+    opacity: 0,
+    x: -20,
+    height: 0,
+    marginBottom: 0,
+    transition: {
+      duration: 0.2,
+      ease: "easeIn",
+    },
+  },
 };
 
 const ChatButton = ({ chat }: { chat: ChatType }) => {
