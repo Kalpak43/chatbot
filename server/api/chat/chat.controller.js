@@ -6,7 +6,8 @@ import { generateTitle } from "../../utils/langchain/title-generator.js";
 import { escapeJsonString } from "../../utils/string-formatter.util.js";
 
 const streamResponse = asyncHandler(async (req, res) => {
-  const { history, id, uid, model, web_search } = req.body;
+  const { history, id, model, web_search } = req.body;
+  const { uid } = req.user;
 
   console.log(history, id, uid, model);
 
@@ -21,6 +22,7 @@ const streamResponse = asyncHandler(async (req, res) => {
   res.setHeader("Connection", "keep-alive");
 
   const { memory, streamable: aiResponseStream } = await setupLangChain(
+    uid,
     history,
     id,
     model,
@@ -48,6 +50,8 @@ const streamResponse = asyncHandler(async (req, res) => {
           res.write(`think: \"${escapeJsonString(word)}\"\n`)
         } else {
           res.write(`msg: \"${escapeJsonString(word)}\"\n`);
+          await new Promise((resolve) => setTimeout(resolve, 5));
+
         }
       }
 

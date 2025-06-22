@@ -114,6 +114,9 @@ export const createRAGPromptTemplate = () => {
     [
       "system",
       `${PERSONALIZED_PROMPT}
+
+  You may have access to user details below. If they are available and relevant, use them to personalize your responses:
+  {userDetails}
   
   You have access to the following documents/images. Use them to assist the user effectively.
   

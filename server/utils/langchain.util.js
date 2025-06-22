@@ -5,6 +5,7 @@ import { createRAGChain } from "./langchain/runner.js";
 import { llms } from "./llms.util.js";
 
 import dotenv from "dotenv"
+import { getUserDetails } from "./langchain/user-details.js";
 dotenv.config()
 
 
@@ -14,7 +15,7 @@ const searchTool = {
 
 const tools = [searchTool];
 
-export const setupLangChain = async (history, chatId, llmModel, useWeb = false) => {
+export const setupLangChain = async (uid, history, chatId, llmModel, useWeb = false) => {
   let model = llms[llmModel] || llms["sarvam-ai"];
   if (useWeb)
     model = model.bindTools(tools);
@@ -42,12 +43,13 @@ export const setupLangChain = async (history, chatId, llmModel, useWeb = false) 
 
   const retriever = (await getDocumentStoreForChat(chatId)).asRetriever({ k: 20 });
   const chatHistory = (await memory.loadMemoryVariables({})).history || [];
+  const userDetails = await getUserDetails(uid);
 
   const formattedHistory = chatHistory.map((msg) =>
     `${msg.role === "user" ? "Human" : "Assistant"}: ${msg.content}`
   ).join("\n");
 
-  const ragChain = await createRAGChain(model, retriever, formattedHistory, lastMessage.text);
+  const ragChain = await createRAGChain(model, retriever,userDetails, formattedHistory, lastMessage.text);
   return {
     memory,
     streamable: await ragChain.stream(),
