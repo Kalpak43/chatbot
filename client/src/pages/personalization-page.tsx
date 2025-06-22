@@ -32,8 +32,10 @@ function PersonalizationPage() {
       setUserDetailsLoading(true);
       const data = await getUserDetails();
 
-      setUserDetails(data.data.details);
-      console.log(data.data.details);
+      if (data.data && data.data.details) {
+        setUserDetails(data.data.details);
+      }
+
       setUserDetailsLoading(false);
     }
 
@@ -50,10 +52,8 @@ function PersonalizationPage() {
 
       {loading || userDetailsLoading ? (
         <p>Loading...</p>
-      ) : userDetails ? (
-        <PersonalizationForm userDetails={userDetails} />
       ) : (
-        <p>Loading...</p>
+        <PersonalizationForm userDetails={userDetails ?? {}} />
       )}
     </section>
   );
@@ -82,6 +82,7 @@ function PersonalizationForm({
       });
 
       if (success) {
+        formik.dirty = false;
         toast.success("Saved user preference");
       } else {
         toast.error("Failed to save user preference");
