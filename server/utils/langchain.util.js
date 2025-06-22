@@ -41,7 +41,8 @@ export const setupLangChain = async (uid, history, chatId, llmModel, useWeb = fa
     }
   }
 
-  const retriever = (await getDocumentStoreForChat(chatId)).asRetriever({ k: 20 });
+  const retriever = (await getDocumentStoreForChat(chatId)).asRetriever({ k: 5 });
+  // const retriever = null;
   const chatHistory = (await memory.loadMemoryVariables({})).history || [];
   const userDetails = await getUserDetails(uid);
 
@@ -49,7 +50,7 @@ export const setupLangChain = async (uid, history, chatId, llmModel, useWeb = fa
     `${msg.role === "user" ? "Human" : "Assistant"}: ${msg.content}`
   ).join("\n");
 
-  const ragChain = await createRAGChain(model, retriever,userDetails, formattedHistory, lastMessage.text);
+  const ragChain = await createRAGChain(model, retriever, userDetails, formattedHistory, lastMessage.text);
   return {
     memory,
     streamable: await ragChain.stream(),

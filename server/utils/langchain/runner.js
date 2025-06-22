@@ -11,7 +11,18 @@ export async function createRAGChain(model, retriever, userDetails, chatHistory,
   return RunnableSequence.from([
     {
       question: async () => lastPrompt,
-      context: async () => retriever.getRelevantDocuments(lastPrompt),
+      context: async () => {
+        // Handle case when retriever is null (no documents available)
+        if (!retriever) {
+          return []; // Return empty array when no retriever available
+        }
+        try {
+          return await retriever.getRelevantDocuments(lastPrompt);
+        } catch (error) {
+          console.error("Error retrieving documents:", error);
+          return []; // Return empty array on error
+        }
+      },
       chatHistory: async () => chatHistory,
       userDetails: async () => userDetails
     },
