@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { Github, Globe2, Linkedin, Mail, Twitter } from "lucide-react";
 import { useEffect } from "react";
+import { FaEnvelope, FaGithub, FaLinkedin, FaXTwitter } from "react-icons/fa6";
+import { MdWeb } from "react-icons/md";
 
 function ContactUsPage() {
   useEffect(() => {
@@ -17,26 +18,37 @@ function ContactUsPage() {
       </div>
 
       <div className="grid grid-cols-2 gap-x-2 gap-y-4">
-        <Button variant="outline" className="w-full">
-          <Github /> Github
+        <Button variant="outline" className="w-full" asChild>
+          <a href="https://github.com/Kalpak43" target="_blank">
+            <FaGithub /> Github
+          </a>
         </Button>
-        <Button variant="outline" className="w-full">
-          <Mail /> Email
+        <Button variant="outline" className="w-full" asChild>
+          <a href="mailto:kalpakgoshikwar123@gmail.com" target="_blank">
+            <FaEnvelope /> Email
+          </a>
         </Button>
-        <Button variant="outline" className="w-full">
-          <Twitter /> X (Twitter)
+        <Button variant="outline" className="w-full" asChild>
+          <a href="https://x.com/kalpak935992463" target="_blank">
+            <FaXTwitter /> X (Twitter)
+          </a>
         </Button>
-        <Button variant="outline" className="w-full">
-          <Linkedin /> Linkedin
+        <Button variant="outline" className="w-full" asChild>
+          <a
+            href="https://www.linkedin.com/in/kalpakgoshikwar/"
+            target="_blank"
+          >
+            <FaLinkedin /> Linkedin
+          </a>
         </Button>
       </div>
 
       <div className="space-y-2">
-        <h4 className="font-newsreader text-xl font-[400]">
-          Also Explore
-        </h4>
-        <Button variant="outline" className="w-full">
-          <Globe2 /> Portfolio
+        <h4 className="font-newsreader text-xl font-[400]">Also Explore</h4>
+        <Button variant="outline" className="w-full" asChild>
+          <a href="https://kalpak-goshikwar.vercel.app/" target="_blank">
+            <MdWeb /> Portfolio
+          </a>
         </Button>
       </div>
     </section>

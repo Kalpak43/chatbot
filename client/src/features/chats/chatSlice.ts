@@ -76,10 +76,10 @@ const chatSlice = createSlice({
       })
       .addMatcher(
         isAnyOf(
-          createNewChat.pending,
+          // createNewChat.pending,
           getChats.pending,
-          updateChat.pending,
-          deleteChat.pending
+          // updateChat.pending,
+          // deleteChat.pending
         ),
         (state) => {
           state.loading = true;
@@ -88,10 +88,8 @@ const chatSlice = createSlice({
       )
       .addMatcher(
         isAnyOf(
-          createNewChat.rejected,
+          // createNewChat.rejected,
           getChats.rejected,
-          updateChat.rejected,
-          deleteChat.rejected
         ),
         (state, action) => {
           state.loading = false;

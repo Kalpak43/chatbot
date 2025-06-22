@@ -1,11 +1,4 @@
-import {
-  Edit,
-  Loader2,
-  MoreHorizontal,
-  Plus,
-  RotateCw,
-  Trash,
-} from "lucide-react";
+import { Edit, Loader2, MoreHorizontal, Plus, Trash } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -155,6 +148,7 @@ const RecentList = () => {
       transition={{
         duration: 0.5,
       }}
+      key={"chats"}
     >
       {groups.map(({ label, filter }) => {
         const filtered = chats
@@ -180,39 +174,6 @@ const RecentList = () => {
       })}
     </motion.div>
   );
-};
-
-// Animation variants for the chat items
-const chatItemVariants = {
-  initial: {
-    opacity: 0,
-    x: -20,
-    height: 0,
-    marginBottom: 0,
-  },
-  animate: {
-    opacity: 1,
-    x: 0,
-    height: "auto",
-    marginBottom: 4,
-    transition: {
-      duration: 0.3,
-      ease: "easeOut",
-      height: {
-        duration: 0.2,
-      },
-    },
-  },
-  exit: {
-    opacity: 0,
-    x: -20,
-    height: 0,
-    marginBottom: 0,
-    transition: {
-      duration: 0.2,
-      ease: "easeIn",
-    },
-  },
 };
 
 const ChatButton = ({ chat }: { chat: ChatType }) => {

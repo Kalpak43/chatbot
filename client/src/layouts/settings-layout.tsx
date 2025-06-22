@@ -83,9 +83,9 @@ function SettingsLayout() {
           </Button>
         </div>
       </header>
-      <div className="grid grid-cols-4 gap-8">
+      <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-8">
         <UserInfo />
-        <Tabs value={activeTab} className="space-y-8 col-span-3 w-full">
+        <Tabs value={activeTab} className="space-y-8 md:col-span-2 lg:col-span-3 w-full">
           <TabsList className="w-full">
             {tabs.map((tab) => (
               <TabsTrigger
@@ -96,7 +96,7 @@ function SettingsLayout() {
               </TabsTrigger>
             ))}
           </TabsList>
-          <TabsContent value={activeTab} className="px-4">
+          <TabsContent value={activeTab} className="md:px-4">
             <Outlet />
           </TabsContent>
         </Tabs>
