@@ -101,3 +101,23 @@ export async function saveUserDetails({
 
   return { success };
 }
+
+export const getTime = (resetTime: number) => {
+  // Create a base date at Unix epoch
+  const date = new Date(0);
+  date.setSeconds(resetTime); // Adds resetTime seconds (e.g., 86356 = 11:59:16 PM)
+
+  // Local time zone methods
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const seconds = date.getSeconds();
+
+  // Format to 12-hour AM/PM
+  const period = hours >= 12 ? "PM" : "AM";
+  const hour12 = hours % 12 === 0 ? 12 : hours % 12;
+
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const timeString = `${hour12}:${pad(minutes)}:${pad(seconds)} ${period}`;
+
+  return timeString;
+};

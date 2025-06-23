@@ -1,5 +1,6 @@
 import { auth } from "@/firebase";
 import axios from "axios";
+import { toast } from "sonner";
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const sendPrompt = async ({
@@ -60,9 +61,16 @@ export const sendPrompt = async ({
     const remaining = response.headers.get("Ratelimit-Remaining");
     const reset = response.headers.get("Ratelimit-Reset");
 
-    console.log(response.headers);
+    if (limit !== null) localStorage.setItem("Ratelimit-Limit", limit);
+    if (remaining !== null)
+      localStorage.setItem("Ratelimit-Remaining", remaining);
+    if (reset !== null) localStorage.setItem("Ratelimit-Reset", reset);
 
     onRateLimitUpdate?.({ limit, remaining, reset });
+
+    if(Number(remaining) == 0) {
+      toast.info("You have reached the limit")
+    }
 
     const reader = response.body?.getReader();
     const decoder = new TextDecoder();

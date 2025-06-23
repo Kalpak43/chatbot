@@ -17,23 +17,40 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import useMediaQuery from "@/hooks/use-media-query";
-import { useEffect } from "react";
-import { checkLimit } from "@/services/ai-service";
 import { useTheme } from "@/hooks/use-theme";
 import { themes } from "@/static/themes";
+import { useEffect } from "react";
+import { getTime } from "@/lib/utils";
 
 const UserOptions = () => {
   const isMobile = useMediaQuery("(max-width: 768px)");
+
   const user = useAppSelector((state) => state.auth.user);
   const loading = useAppSelector((state) => state.auth.loading);
   const rateLimit = useAppSelector((state) => state.prompt.rateLimit);
+
   const dispatch = useAppDispatch();
 
   const { theme, setTheme } = useTheme();
 
   useEffect(() => {
-    checkLimit();
-  }, [user]);
+    if (Number(rateLimit?.remaining) === 0) {
+      user
+        ? toast.info(
+            `You have hit the limit. Your limit will reset on ${getTime(
+              Number(rateLimit?.reset)
+            )}`
+          )
+        : toast.info("You have hit the limit. Sign in to reset your limit.");
+    } else if (
+      Number(rateLimit?.remaining) > 0 &&
+      Number(rateLimit?.remaining) == 9
+    ) {
+      toast.info(
+        `You are nearing your limit. Only ${rateLimit?.remaining} messages left.`
+      );
+    }
+  }, [rateLimit, user]);
 
   return (
     <>
@@ -71,7 +88,7 @@ const UserOptions = () => {
                   </p>
                   {rateLimit && (
                     <p className="text-xs leading-none text-muted-foreground">
-                      Remaining Chats:{" "}
+                      Messages Remaining:{" "}
                       <span>
                         {rateLimit?.remaining} / {rateLimit?.limit}
                       </span>

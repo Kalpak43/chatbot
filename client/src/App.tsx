@@ -13,10 +13,12 @@ import PersonalizationPage from "./pages/personalization-page";
 import SettingsLayout from "./layouts/settings-layout";
 import ProctectedRoute from "./components/auth/protected-route";
 import ContactUsPage from "./pages/contact-us-page";
+import { updateLimit } from "./features/prompt/promptSlice";
 
 function App() {
   const dispatch = useAppDispatch();
 
+  const user = useAppSelector((state) => state.auth.user);
   const error = useAppSelector((state) => state.auth.error);
 
   useEffect(() => {
@@ -26,6 +28,14 @@ function App() {
   useEffect(() => {
     dispatch(checkLogin());
   }, [dispatch]);
+
+  useEffect(() => {
+    const limit = localStorage.getItem("Ratelimit-Limit") ?? (user ? 30 : 10);
+    const remaining = localStorage.getItem("Ratelimit-Remaining") ?? (user ? 30 : 10);
+    const reset = localStorage.getItem("Ratelimit-Reset");
+
+    dispatch(updateLimit({ limit, remaining, reset }));
+  }, [dispatch, user]);
 
   useEffect(() => {
     if (error) toast.error(error);

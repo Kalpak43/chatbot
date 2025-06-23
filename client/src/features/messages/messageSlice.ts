@@ -49,7 +49,7 @@ const messageSlice = createSlice({
           (msg) => msg.id == action.payload.messageId
         );
 
-        state.messages = state.messages.slice(0, index - 1);
+        state.messages = state.messages.slice(0, index + 1);
       })
       .addCase(deleteMessage.fulfilled, (state, action) => {
         // Avoid duplicates by checking message id before adding

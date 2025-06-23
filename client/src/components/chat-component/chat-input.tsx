@@ -493,7 +493,7 @@ function ModelInput() {
 
   useEffect(() => {
     if (webSearch && model.startsWith("sarvam-ai")) {
-      dispatch(setModel("gemini-2.0-flash"));
+      dispatch(setModel("gemini-2.5-flash-lite"));
     }
   }, [webSearch]);
 

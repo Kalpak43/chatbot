@@ -1,7 +1,9 @@
 import { useAppSelector } from "@/app/hooks";
 import { Progress } from "./ui/progress";
+import { getTime } from "@/lib/utils";
 function UserInfo() {
   const user = useAppSelector((state) => state.auth.user);
+  const rateLimit = useAppSelector((state) => state.prompt.rateLimit);
 
   if (!user) return null;
 
@@ -24,18 +26,31 @@ function UserInfo() {
       <div className="bg-card rounded-md border border-secondary/10 shadow px-4 py-8 space-y-4">
         <p className="text-xs leading-none text-muted-foreground">
           <span className="font-semibold">Messages Used:</span>
-          <span> 3 / 10</span>
+          <span>
+            {" "}
+            {Number(rateLimit?.limit ?? 0) -
+              Number(rateLimit?.remaining ?? 0)}{" "}
+            / {rateLimit?.limit ?? 0}
+          </span>
         </p>
-        <Progress value={30} />
+        <Progress
+          value={
+            rateLimit && rateLimit.limit
+              ? ((Number(rateLimit.limit) - Number(rateLimit.remaining)) /
+                  Number(rateLimit.limit)) *
+                100
+              : 0
+          }
+        />
         <div className="space-y-2">
           <p className="text-sm leading-none text-muted-foreground">
             <span className="font-semibold">Messages Remaining:</span>
-            <span> 7</span>
+            <span> {rateLimit?.remaining}</span>
           </p>
 
           <p className="text-xs leading-none text-muted-foreground">
             <span className="font-semibold">Limit Resets on:</span>
-            <span> 5:31 AM</span>
+            <span> {getTime(Number(rateLimit?.reset ?? 0))}</span>
           </p>
         </div>
       </div>

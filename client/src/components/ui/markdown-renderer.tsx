@@ -86,10 +86,10 @@ function MarkdownRenderer({
             </Card>
           ),
           ul: ({ node, ...props }) => (
-            <ul className="my-6 ml-6 list-disc [&>li]:mt-2" {...props} />
+            <ul className="my-6 ml-6 list-disc [&>li]:mt-4" {...props} />
           ),
           ol: ({ node, ...props }) => (
-            <ol className="my-6 ml-6 list-decimal [&>li]:mt-2" {...props} />
+            <ol className="my-6 ml-6 list-decimal [&>li]:mt-4" {...props} />
           ),
           li: ({ node, ...props }) => <li {...props} />,
           a: ({ node, ...props }) => (
