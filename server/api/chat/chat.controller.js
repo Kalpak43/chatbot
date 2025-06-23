@@ -7,7 +7,12 @@ import { escapeJsonString } from "../../utils/string-formatter.util.js";
 
 const streamResponse = asyncHandler(async (req, res) => {
   const { history, id, model, web_search } = req.body;
-  const { uid } = req.user;
+  const { user } = req;
+
+  let uid = null;
+  if (user) {
+    uid = user.uid;
+  }
 
   console.log(history, id, uid, model);
 
