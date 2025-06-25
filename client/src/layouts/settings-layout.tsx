@@ -13,10 +13,11 @@ import { useTheme } from "@/hooks/use-theme";
 import { themes } from "@/static/themes";
 import { ArrowLeft, Check, Palette } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, Outlet, useNavigate } from "react-router";
+import { Link, Outlet, useLocation, useNavigate } from "react-router";
 
 function SettingsLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useAppDispatch();
   const { theme, setTheme } = useTheme();
 
@@ -34,8 +35,9 @@ function SettingsLayout() {
   ];
 
   useEffect(() => {
-    navigate(activeTab);
-  }, [activeTab]);
+    const path = location.pathname.split("/").pop();
+    setActiveTab(path || "personalization");
+  }, [location.pathname]);
 
   return (
     <main className="max-w-7xl mx-auto p-8 space-y-8">
@@ -85,12 +87,15 @@ function SettingsLayout() {
       </header>
       <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-8">
         <UserInfo />
-        <Tabs value={activeTab} className="space-y-8 md:col-span-2 lg:col-span-3 w-full">
+        <Tabs
+          value={activeTab}
+          className="space-y-8 md:col-span-2 lg:col-span-3 w-full"
+        >
           <TabsList className="w-full">
             {tabs.map((tab) => (
               <TabsTrigger
                 value={tab.value}
-                onClick={() => setActiveTab(tab.value)}
+                onClick={() => navigate(`/settings/${tab.value}`)}
               >
                 {tab.name}
               </TabsTrigger>

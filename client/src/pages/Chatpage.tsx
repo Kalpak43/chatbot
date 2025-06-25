@@ -7,10 +7,12 @@ import { setMessages } from "@/features/messages/messageSlice";
 import { getMessages } from "@/features/messages/messageThunk";
 import { AnimatePresence } from "motion/react";
 import { useEffect } from "react";
-import { useParams } from "react-router";
+import { useParams, useSearchParams } from "react-router";
 
 function Chatpage() {
   const { chatId } = useParams();
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get("q");
 
   const dispatch = useAppDispatch();
 
@@ -28,7 +30,7 @@ function Chatpage() {
     <div className="w-full flex-1 overflow-y-auto flex flex-col">
       <div className="h-full overflow-y-hidden relative">
         <AnimatePresence initial>
-          {chatId ? (
+          {query ? null : chatId ? (
             <ChatArea key={chatId} chatId={chatId} />
           ) : (
             <ChatIntro key="intro" />
@@ -37,7 +39,7 @@ function Chatpage() {
         <div className="absolute top-0 bg-gradient-to-b from-background to-transparent w-full h-4"></div>
         <div className="absolute bottom-0 bg-gradient-to-t from-background to-transparent w-full h-4"></div>
       </div>
-      <ChatInput chatId={chatId} />
+      <ChatInput chatId={chatId} query={query ? query : undefined} />
     </div>
   );
 }

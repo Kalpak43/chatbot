@@ -50,11 +50,23 @@ import { modelList } from "@/static/models";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import AttachmentCard from "../attachment-card";
 
-export function ChatInput({ chatId }: { chatId?: string }) {
+export function ChatInput({
+  chatId,
+  query,
+}: {
+  chatId?: string;
+  query?: string;
+}) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messages = useAppSelector((state) => state.messages.messages);
+
+  useEffect(() => {
+    if (query && !!query?.trim()) {
+      handleSend(query, []);
+    }
+  }, [query]);
 
   const user = useAppSelector((state) => state.auth.user);
 

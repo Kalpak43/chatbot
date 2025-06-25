@@ -231,7 +231,7 @@ function CommandPalette({
               <CommandGroup heading="Actions">
                 <CommandItem
                   onSelect={() => {
-                    onNavigate("/chat");
+                    onNavigate(`/chat?q=${encodeURIComponent(search)}`);
                     dispatch(setPrompt(search));
                     setSearch("");
                     setOpen(false);
