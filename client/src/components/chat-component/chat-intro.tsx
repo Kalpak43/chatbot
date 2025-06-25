@@ -33,7 +33,7 @@ export function ChatIntro() {
       transition: {
         duration: 0.3,
         staggerChildren: 0.1,
-        delayChildren: 0.2,
+        delayChildren: 0.1,
       },
     },
   };
@@ -49,7 +49,7 @@ export function ChatIntro() {
       y: 0,
       scale: 1,
       transition: {
-        duration: 0.2,
+        duration: 0.1,
         ease: "easeOut",
       },
     },
@@ -61,7 +61,7 @@ export function ChatIntro() {
       opacity: 1,
       y: 0,
       transition: {
-        duration: 0.3,
+        duration: 0.1,
         ease: "easeOut",
       },
     },

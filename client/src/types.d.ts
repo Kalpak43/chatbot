@@ -5,6 +5,8 @@ type Status = "done" | "pending" | "failed" | "typing" | "deleted";
 interface Attachment {
   url: string;
   type: "image" | "file";
+  name: string;
+  size: number;
 }
 
 interface MessageType {

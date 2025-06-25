@@ -4,6 +4,7 @@ import MarkdownRenderer from "./markdown-renderer";
 import React from "react";
 import { Textarea } from "./textarea";
 import { motion } from "motion/react";
+import AttachmentCard from "../attachment-card";
 
 export interface ChatBubbleProps {
   id: string;
@@ -40,11 +41,6 @@ const ChatBubble = React.memo(
               "justify-end",
               className
             )}
-            // layout
-            // initial={{ opacity: 0 }}
-            // animate={{ opacity: 1 }}
-            // // exit={{ opacity: 0, y: -20 }}
-            // transition={{ duration: 0.3 }}
           >
             <div
               className={cn(
@@ -54,28 +50,9 @@ const ChatBubble = React.memo(
               )}
             >
               {attachments && attachments.length > 0 && (
-                <Card className="px-1 py-1 bg-secondary/50 text-secondary-foreground rounded-br flex flex-row gap-2 items-center overflow-x-auto">
+                <Card className="px-1 py-1 bg-secondary/50 text-secondary-foreground rounded-br flex flex-row gap-1 items-center overflow-x-auto">
                   {attachments.map((attachment, idx) => (
-                    <div
-                      key={idx}
-                      className={cn(
-                        "w-30 aspect-square rounded-xl [box-shadow:0px_0px_3px_#e3e3e320] bg-card",
-                        "relative before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-linear-to-t before:from-black/40 before:to-transparent"
-                      )}
-                    >
-                      {attachment.type === "image" ? (
-                        <img
-                          src={attachment.url}
-                          alt="attachment"
-                          className="object-cover w-full h-full rounded-xl"
-                        />
-                      ) : (
-                        <span className="text-xs text-center px-1 h-full flex items-center justify-center">
-                          {attachment.url.split(".").pop()?.split("?")[0] ||
-                            "FILE"}
-                        </span>
-                      )}
-                    </div>
+                    <AttachmentCard key={idx} attachment={attachment} />
                   ))}
                 </Card>
               )}

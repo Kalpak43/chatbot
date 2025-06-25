@@ -48,6 +48,14 @@ const MessageSchema = new mongoose.Schema(
           type: String,
           required: false,
         },
+        name: {
+          type: String,
+          required: false,
+        },
+        size: {
+          type: Number,
+          required: false,
+        },
       },
     ],
   },

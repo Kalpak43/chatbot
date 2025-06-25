@@ -18,7 +18,6 @@ import {
   Paperclip,
   SendHorizonal,
   StopCircle,
-  X,
 } from "lucide-react";
 import VoiceToText from "../voice-to-text";
 import {
@@ -49,6 +48,7 @@ import {
 } from "@/components/ui/select";
 import { modelList } from "@/static/models";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import AttachmentCard from "../attachment-card";
 
 export function ChatInput({ chatId }: { chatId?: string }) {
   const navigate = useNavigate();
@@ -105,6 +105,8 @@ export function ChatInput({ chatId }: { chatId?: string }) {
     const newAttachment: Attachment = {
       url: url,
       type: file.type.startsWith("image") ? "image" : "file",
+      name: file.name,
+      size: file.size,
     };
 
     dispatch(setAttachments([...attachments, newAttachment]));
@@ -339,43 +341,15 @@ export function ChatInput({ chatId }: { chatId?: string }) {
       {attachments.length > 0 && (
         <div className="absolute inset-x-0 bottom-full md:mx-6 bg-card/50 backdrop-blur-md rounded-t-xl -z-1 [box-shadow:0px_-2px_4px_#e3e3e320] p-4 flex items-center gap-2">
           {attachments.map((attachment, idx) => (
-            <div
+            <AttachmentCard
               key={idx}
-              className={cn(
-                "w-12 aspect-square rounded-md [box-shadow:0px_0px_3px_#e3e3e320]",
-                "relative before:content-[''] before:absolute before:inset-0 before:rounded-[inherit] before:bg-linear-to-t before:from-black/40 before:to-transparent"
-              )}
-            >
-              <Button
-                variant="destructive"
-                size={"icon"}
-                className={cn(
-                  "px-1 py-1 w-fit h-auto text-xs [&_svg:not([class*='size-'])]:size-2 bg-destructive/40",
-                  "absolute top-0 right-0 translate-x-1/4 -translate-y-1/4"
-                )}
-                onClick={() => {
-                  dispatch(
-                    setAttachments((prev: Attachment[]) =>
-                      prev.filter((_, i) => i !== idx)
-                    )
-                  );
-                }}
-              >
-                <X size={10} />
-              </Button>
-
-              {attachment.type === "image" ? (
-                <img
-                  src={attachment.url}
-                  alt="attachment"
-                  className="object-cover w-full h-full rounded-md"
-                />
-              ) : (
-                <span className="text-xs text-center px-1 h-full flex items-center justify-center">
-                  {attachment.url.split(".").pop()?.split("?")[0] || "FILE"}
-                </span>
-              )}
-            </div>
+              attachment={attachment}
+              onRemove={() => {
+                dispatch(
+                  setAttachments(attachments.filter((_, i) => i !== idx))
+                );
+              }}
+            />
           ))}
         </div>
       )}
