@@ -162,7 +162,7 @@ const RecentList = () => {
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                <AnimatePresence initial={true}>
+                <AnimatePresence mode="popLayout" initial={true}>
                   {filtered.map((chat) => (
                     <ChatButton key={chat.id} chat={chat} />
                   ))}
@@ -199,89 +199,101 @@ const ChatButton = ({ chat }: { chat: ChatType }) => {
   };
 
   return (
-    <SidebarMenuItem key={chat.id}>
-      {editing ? (
-        <div className="relative">
-          <Input
-            type="text"
-            value={title}
-            autoFocus
-            ref={(input) => {
-              if (input) input.focus();
-            }}
-            onChange={(e) => setTitle(e.target.value)}
-            onKeyDown={async (e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
+    <motion.div
+      layout
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{
+        duration: 0.1,
+        ease: "easeInOut",
+        layout: { duration: 0.2 },
+      }}
+    >
+      <SidebarMenuItem key={chat.id}>
+        {editing ? (
+          <div className="relative">
+            <Input
+              type="text"
+              value={title}
+              autoFocus
+              ref={(input) => {
+                if (input) input.focus();
+              }}
+              onChange={(e) => setTitle(e.target.value)}
+              onKeyDown={async (e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
 
-                if (chat.title.trim() == title.trim()) {
+                  if (chat.title.trim() == title.trim()) {
+                    setEditing(false);
+                    return;
+                  }
+
+                  await dispatch(
+                    updateChat({
+                      chatId: chat.id,
+                      data: {
+                        title: title,
+                      },
+                    })
+                  );
+
                   setEditing(false);
-                  return;
                 }
+              }}
+              className="pr-10"
+            />
 
-                await dispatch(
-                  updateChat({
-                    chatId: chat.id,
-                    data: {
-                      title: title,
-                    },
-                  })
-                );
-
-                setEditing(false);
-              }
-            }}
-            className="pr-10"
-          />
-
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
-            <kbd className="inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
-              <span className="text-xs">↵</span>
-            </kbd>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
+              <kbd className="inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+                <span className="text-xs">↵</span>
+              </kbd>
+            </div>
           </div>
-        </div>
-      ) : (
-        <>
-          <SidebarMenuButton asChild>
-            <Link
-              to={`/chat/${chat.id}`}
-              className={cn(
-                "relative group",
-                location.pathname == `/chat/${chat.id}` && "bg-accent/50"
-              )}
-            >
-              <span>{!title.trim() ? "New Chat" : title}</span>
-            </Link>
-          </SidebarMenuButton>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <SidebarMenuAction>
-                <MoreHorizontal />
-              </SidebarMenuAction>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="right" align="start">
-              <DropdownMenuItem>
-                <button
-                  className="inline-flex items-center gap-2"
-                  onClick={() => setEditing(true)}
-                >
-                  <Edit />
-                  <span>Edit Title</span>
-                </button>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <button
-                  className="inline-flex items-center gap-2"
-                  onClick={handleDelete}
-                >
-                  <Trash />
-                  <span>Delete Chat</span>
-                </button>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </>
-      )}
-    </SidebarMenuItem>
+        ) : (
+          <>
+            <SidebarMenuButton asChild>
+              <Link
+                to={`/chat/${chat.id}`}
+                className={cn(
+                  "relative group",
+                  location.pathname == `/chat/${chat.id}` && "bg-accent/50"
+                )}
+              >
+                <span>{!title.trim() ? "New Chat" : title}</span>
+              </Link>
+            </SidebarMenuButton>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuAction>
+                  <MoreHorizontal />
+                </SidebarMenuAction>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="right" align="start">
+                <DropdownMenuItem>
+                  <button
+                    className="inline-flex items-center gap-2"
+                    onClick={() => setEditing(true)}
+                  >
+                    <Edit />
+                    <span>Edit Title</span>
+                  </button>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <button
+                    className="inline-flex items-center gap-2"
+                    onClick={handleDelete}
+                  >
+                    <Trash />
+                    <span>Delete Chat</span>
+                  </button>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
+        )}
+      </SidebarMenuItem>
+    </motion.div>
   );
 };
