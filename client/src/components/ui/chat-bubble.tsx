@@ -40,11 +40,11 @@ const ChatBubble = React.memo(
               "justify-end",
               className
             )}
-            layout
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            // exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
+            // layout
+            // initial={{ opacity: 0 }}
+            // animate={{ opacity: 1 }}
+            // // exit={{ opacity: 0, y: -20 }}
+            // transition={{ duration: 0.3 }}
           >
             <div
               className={cn(
@@ -105,7 +105,6 @@ const ChatBubble = React.memo(
         );
       }
 
-      // For ai, no motion.div
       return (
         <div
           ref={ref}

@@ -48,6 +48,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { modelList } from "@/static/models";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export function ChatInput({ chatId }: { chatId?: string }) {
   const navigate = useNavigate();
@@ -406,43 +407,61 @@ export function ChatInput({ chatId }: { chatId?: string }) {
               <ModelInput />
             </div>
             <div className="space-x-2">
-              <Button
-                type="button"
-                variant={"outline"}
-                size={"icon"}
-                className={cn(
-                  "relative",
-                  webSearch && "bg-accent/80 dark:bg-accent/30"
-                )}
-                // disabled={!user}
-                onClick={() => {
-                  dispatch(toggleWebSearch());
-                }}
-              >
-                <Globe />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button
+                    type="button"
+                    variant={"outline"}
+                    size={"icon"}
+                    className={cn(
+                      "relative",
+                      webSearch && "bg-accent/80 dark:bg-accent/30"
+                    )}
+                    // disabled={!user}
+                    onClick={() => {
+                      dispatch(toggleWebSearch());
+                    }}
+                  >
+                    <Globe />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs">
+                    {webSearch ? "Web search is enabled" : "Enable web search"}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
 
-              <Button
-                type="button"
-                variant={"outline"}
-                size={"icon"}
-                className="relative"
-                disabled={!user}
-              >
-                <Paperclip />
-                <input
-                  type="file"
-                  // accept=""
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button
+                    type="button"
+                    variant={"outline"}
+                    size={"icon"}
+                    className="relative"
+                    disabled={!user}
+                  >
+                    <Paperclip />
+                    <input
+                      type="file"
+                      // accept=""
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
 
-                    if (file) {
-                      handleUpload(file);
-                    }
-                  }}
-                />
-              </Button>
+                        if (file) {
+                          handleUpload(file);
+                        }
+                      }}
+                    />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs">
+                    {user ? "Attach a file" : "Please log in to attach files"}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
 
               {isStreaming ? (
                 <Button

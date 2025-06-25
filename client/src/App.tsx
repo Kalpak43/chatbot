@@ -14,6 +14,8 @@ import SettingsLayout from "./layouts/settings-layout";
 import ProctectedRoute from "./components/auth/protected-route";
 import ContactUsPage from "./pages/contact-us-page";
 import { updateLimit } from "./features/prompt/promptSlice";
+import { AnimatePresence } from "motion/react";
+import PageTransition from "./components/page-transition";
 
 function App() {
   const dispatch = useAppDispatch();
@@ -31,7 +33,8 @@ function App() {
 
   useEffect(() => {
     const limit = localStorage.getItem("Ratelimit-Limit") ?? (user ? 30 : 10);
-    const remaining = localStorage.getItem("Ratelimit-Remaining") ?? (user ? 30 : 10);
+    const remaining =
+      localStorage.getItem("Ratelimit-Remaining") ?? (user ? 30 : 10);
     const reset = localStorage.getItem("Ratelimit-Reset");
 
     dispatch(updateLimit({ limit, remaining, reset }));
@@ -43,27 +46,66 @@ function App() {
 
   return (
     <Suspense>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Chatpage />} />
-          <Route path="/chat/:chatId?" element={<Chatpage />} />
-        </Route>
-        <Route element={<ProctectedRoute />}>
-          <Route path="/settings" element={<SettingsLayout />}>
+      <AnimatePresence mode="wait">
+        <Routes>
+          <Route element={<Layout />}>
             <Route
-              path="personalization"
+              path="/"
               element={
-                <Suspense fallback={<>Loading...</>}>
-                  <PersonalizationPage />
-                </Suspense>
+                <PageTransition>
+                  <Chatpage />
+                </PageTransition>
               }
             />
-            <Route path="contact-us" element={<ContactUsPage />} />
+            <Route
+              path="/chat/:chatId?"
+              element={
+                <PageTransition>
+                  <Chatpage />
+                </PageTransition>
+              }
+            />
           </Route>
-        </Route>
-        <Route path="/login" element={<Loginpage />} />
-        <Route path="/signup" element={<Signuppage />} />
-      </Routes>
+          <Route element={<ProctectedRoute />}>
+            <Route path="/settings" element={<SettingsLayout />}>
+              <Route
+                path="personalization"
+                element={
+                  <Suspense fallback={<>Loading...</>}>
+                    <PageTransition>
+                      <PersonalizationPage />
+                    </PageTransition>
+                  </Suspense>
+                }
+              />
+              <Route
+                path="contact-us"
+                element={
+                  <PageTransition>
+                    <ContactUsPage />
+                  </PageTransition>
+                }
+              />
+            </Route>
+          </Route>
+          <Route
+            path="/login"
+            element={
+              <PageTransition>
+                <Loginpage />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <PageTransition>
+                <Signuppage />
+              </PageTransition>
+            }
+          />
+        </Routes>
+      </AnimatePresence>
     </Suspense>
   );
 }

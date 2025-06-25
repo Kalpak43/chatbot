@@ -42,13 +42,6 @@ const UserOptions = () => {
             )}`
           )
         : toast.info("You have hit the limit. Sign in to reset your limit.");
-    } else if (
-      Number(rateLimit?.remaining) > 0 &&
-      Number(rateLimit?.remaining) == 9
-    ) {
-      toast.info(
-        `You are nearing your limit. Only ${rateLimit?.remaining} messages left.`
-      );
     }
   }, [rateLimit, user]);
 

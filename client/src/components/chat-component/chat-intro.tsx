@@ -1,3 +1,5 @@
+"use client";
+
 import { useAppDispatch } from "@/app/hooks";
 import { setPrompt } from "@/features/prompt/promptSlice";
 import { Button } from "../ui/button";
@@ -23,21 +25,72 @@ export function ChatIntro() {
     dispatch(setPrompt(prompt));
   };
 
+  // Animation variants for staggered effect
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.3,
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: {
+      opacity: 0,
+      y: 20,
+      scale: 0.95,
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.2,
+        ease: "easeOut",
+      },
+    },
+  };
+
+  const titleVariants = {
+    hidden: { opacity: 0, y: -20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.3,
+        ease: "easeOut",
+      },
+    },
+  };
+
   return (
     <motion.div
-      
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
       className="h-full overflow-y-auto"
     >
       <div className="max-w-3xl mx-auto px-4 md:px-8 flex flex-col justify-center h-full space-y-4">
-        <h1 className="text-3xl font-[500] font-newsreader">
+        <motion.h1
+          variants={titleVariants}
+          className="text-3xl font-[500] font-newsreader"
+        >
           Hello, What can I help you with?
-        </h1>
-        <ul className="flex flex-col w-full divide-y divide-accent/60">
-          {prompts.map((prompt) => (
-            <li key={prompt}>
+        </motion.h1>
+        <motion.ul
+          variants={containerVariants}
+          className="flex flex-col w-full divide-y divide-accent/60"
+        >
+          {prompts.map((prompt, _) => (
+            <motion.li
+              key={prompt}
+              variants={itemVariants}
+              whileTap={{ scale: 0.98 }}
+            >
               <Button
                 variant="ghost"
                 className="w-full justify-start italic font-400 my-1"
@@ -45,9 +98,9 @@ export function ChatIntro() {
               >
                 {prompt}
               </Button>
-            </li>
+            </motion.li>
           ))}
-        </ul>
+        </motion.ul>
       </div>
     </motion.div>
   );
