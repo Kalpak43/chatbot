@@ -1,5 +1,6 @@
 import {
   Hash,
+  Headset,
   MessageSquare,
   Monitor,
   Moon,
@@ -42,7 +43,7 @@ const routes = [
     id: "contact-us",
     title: "Contact Us",
     path: "/settings/contact-us",
-    icon: Settings2,
+    icon: Headset,
     description: "Contact us for support",
   },
 ];

@@ -50,9 +50,13 @@ const ChatBubble = React.memo(
               )}
             >
               {attachments && attachments.length > 0 && (
-                <Card className="px-1 py-1 bg-secondary/50 text-secondary-foreground rounded-br flex flex-row gap-1 items-center overflow-x-auto">
+                <Card className="px-1 py-1 bg-secondary/50 text-secondary-foreground rounded-br flex max-md:flex-col flex-row gap-1 md:items-center overflow-x-auto">
                   {attachments.map((attachment, idx) => (
-                    <AttachmentCard key={idx} attachment={attachment} />
+                    <AttachmentCard
+                      key={idx}
+                      attachment={attachment}
+                      downloadable
+                    />
                   ))}
                 </Card>
               )}

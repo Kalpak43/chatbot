@@ -469,6 +469,7 @@ export function ChatInput({
                   </Button>
                 </VoiceToText>
               ) : !prompt.trim() ? (
+                
                 <VoiceToText
                   isListening={isListening}
                   onListeningChange={setIsListening}

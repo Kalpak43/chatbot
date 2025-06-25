@@ -1,4 +1,4 @@
-import { X, File } from "lucide-react";
+import { X, File, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,7 @@ interface Attachment {
 interface AttachmentCardProps {
   attachment: Attachment;
   onRemove?: () => void;
+  downloadable?: boolean;
 }
 
 function formatFileSize(bytes: number): string {
@@ -28,9 +29,20 @@ function formatFileSize(bytes: number): string {
 export default function AttachmentCard({
   attachment,
   onRemove,
+  downloadable = false,
 }: AttachmentCardProps) {
+  const handleDownload = () => {
+    const link = document.createElement("a");
+    link.href = attachment.url;
+    link.target = "_blank";
+    link.download = attachment.name;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
-    <Card className="relative overflow-hidden group hover:shadow-sm transition-shadow p-4 border-primary/10">
+    <Card className="relative overflow-hidden group hover:shadow-sm transition-shadow p-4 border-primary/10 rounded-lg">
       {onRemove && (
         <Button
           variant="destructive"
@@ -45,7 +57,7 @@ export default function AttachmentCard({
       <CardContent className="px-0!">
         <div className="flex items-center gap-3">
           {/* Small Preview Section */}
-          <div className="h-10 w-10 bg-muted/30 rounded flex items-center justify-center flex-shrink-0 overflow-hidden">
+          <div className="h-10 w-10 bg-muted/30 border border-secondary/50 rounded flex items-center justify-center flex-shrink-0 overflow-hidden">
             {attachment.type === "image" ? (
               <img
                 src={attachment.url || "/placeholder.svg"}
@@ -80,6 +92,19 @@ export default function AttachmentCard({
               )}
             </div>
           </div>
+
+          {/* Download Button */}
+          {downloadable && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 flex-shrink-0"
+              onClick={handleDownload}
+              title="Download file"
+            >
+              <Download className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

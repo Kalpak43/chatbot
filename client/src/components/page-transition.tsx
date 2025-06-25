@@ -41,7 +41,7 @@ export default function PageTransition({
       exit="out"
       variants={pageVariants}
       transition={pageTransition}
-      className={cn("w-full h-full flex flex-col", className)}
+      className={cn("w-full flex-1 overflow-y-auto flex flex-col", className)}
     >
       {children}
     </motion.div>
