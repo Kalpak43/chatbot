@@ -1,4 +1,10 @@
-import { Edit, Loader2, MoreHorizontal, Plus, Trash } from "lucide-react";
+import {
+  Edit,
+  Loader2,
+  MoreHorizontal,
+  Plus,
+  Trash,
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -29,6 +35,8 @@ import { cn } from "@/lib/utils";
 import UserOptions from "./user-options";
 import { useSync } from "@/hooks/use-sync";
 import { AnimatePresence, motion } from "motion/react";
+import SyncIndicator from "./sync-indicator";
+import CommandPalette from "./command-palette";
 
 function AppSidebar() {
   const navigate = useNavigate();
@@ -64,7 +72,28 @@ function AppSidebar() {
       </SidebarHeader>
 
       <div className="h-full overflow-y-hidden relative">
-        <SidebarContent className="h-full overflow-y-auto">
+        <SidebarContent className="h-full overflow-y-auto gap-0">
+          <div className="px-2 flex items-center justify-between">
+            <SidebarGroupLabel className="text-secondary font-newsreader text-sm">
+              Chats
+            </SidebarGroupLabel>
+            <div className="flex items-center">
+              <CommandPalette
+                onNavigate={(navigateTo: string) => {
+                  if (navigateTo.startsWith("/chat/")) {
+                    const chatId = navigateTo.split("/")[2];
+                    navigate(`/chat/${chatId}`);
+                  } else {
+                    navigate(navigateTo);
+                  }
+                }}
+                onSelectChat={(chatId: string) => {
+                  navigate(`/chat/${chatId}`);
+                }}
+              />
+              <SyncIndicator />
+            </div>
+          </div>
           <AnimatePresence>
             <RecentList />
           </AnimatePresence>
