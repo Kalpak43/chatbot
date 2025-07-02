@@ -7,9 +7,19 @@ export const llms = {
         maxOutputTokens: 2048,
         streaming: true,
     }),
+    "gemini-2.0-flash": new ChatGoogleGenerativeAI({
+        model: "gemini-2.0-flash",
+        maxOutputTokens: 4096,
+        streaming: true,
+    }),
     "gemini-2.5-flash": new ChatGoogleGenerativeAI({
         model: "gemini-2.5-flash",
-        maxOutputTokens: 2048,
+        maxOutputTokens: 4096,
+        streaming: true,
+    }),
+    "gemini-2.5-flash": new ChatGoogleGenerativeAI({
+        model: "gemini-2.5-flash",
+        maxOutputTokens: 4096,
         streaming: true,
     }),
     "gemini-2.5-pro": new ChatGoogleGenerativeAI({

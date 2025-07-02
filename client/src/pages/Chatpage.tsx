@@ -30,7 +30,9 @@ function Chatpage() {
     <div className="w-full flex-1 overflow-y-auto flex flex-col">
       <div className="h-full overflow-y-hidden relative">
         <AnimatePresence initial>
-          {query ? null : chatId ? (
+          {query ? (
+            <div className="h-full" />
+          ) : chatId ? (
             <ChatArea key={chatId} chatId={chatId} />
           ) : (
             <ChatIntro key="intro" />

@@ -101,6 +101,20 @@ export function ChatIntro() {
             </motion.li>
           ))}
         </motion.ul>
+
+        <motion.p
+          variants={titleVariants}
+          className="text-sm text-muted-foreground mt-4 text-center"
+        >
+          Use{" "}
+          <kbd className="px-1 py-0.5 bg-accent/20 border rounded text-xs">
+            {typeof window !== "undefined" && navigator.platform.includes("Mac")
+              ? "⌘"
+              : "Ctrl"}{" "}
+            + K
+          </kbd>{" "}
+          to search globally.
+        </motion.p>
       </div>
     </motion.div>
   );
