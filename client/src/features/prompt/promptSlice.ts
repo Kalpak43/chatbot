@@ -17,7 +17,7 @@ const initialState: PromptState = {
   prompt: "",
   attachments: [],
   abortController: null,
-  model: "sarvam-ai",
+  model: "gemini-2.5-flash-lite",
   webSearch: false,
   rateLimit: null,
 };

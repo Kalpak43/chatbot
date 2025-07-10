@@ -16,7 +16,6 @@ import ContactUsPage from "./pages/contact-us-page";
 import { updateLimit } from "./features/prompt/promptSlice";
 import { AnimatePresence } from "motion/react";
 import PageTransition from "./components/page-transition";
-import FeaturesCard from "./components/features-card";
 import Homepage from "./pages/home-page";
 
 function App() {

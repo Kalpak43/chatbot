@@ -2,6 +2,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
+import useMediaQuery from "@/hooks/use-media-query";
+import { Button } from "./ui/button";
+import { Link } from "react-router";
 
 const questions = [
   {
@@ -35,12 +38,18 @@ function FeaturesCard() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [progress, setProgress] = useState(0);
 
+  const isLarge = useMediaQuery("(min-width: 1200px)");
+
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const totalItems = questions.length;
   const angleStep = 360 / totalItems;
-  const radius = 460; // Distance from center
+  const radius = isLarge ? 460 : 400; // Distance from center
+
+  useEffect(() => {
+    console.log(radius);
+  }, [radius]);
 
   const startIntervals = () => {
     clearIntervals();
@@ -74,11 +83,11 @@ function FeaturesCard() {
   };
 
   return (
-    <Card className="w-full max-w-7xl h-fit lg:h-full border-primary/12 overflow-hidden relative">
+    <Card className="w-full max-w-7xl h-fit lg:h-full border-primary/12 overflow-hidden relative max-lg:max-h-[800px]">
       <CardHeader>
         <CardTitle>
           <motion.h1
-            className="font-newsreader text-4xl"
+            className="font-newsreader text-2xl md:text-4xl"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -88,7 +97,7 @@ function FeaturesCard() {
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="grid lg:grid-cols-2 h-full gap-8">
+      <CardContent className="grid lg:grid-cols-2 h-full gap-8 px-8 relative">
         <div className="h-full w-full flex items-center">
           <motion.ul layout className="space-y-6 flex-1">
             {questions.map((question, i) => (
@@ -199,7 +208,7 @@ function FeaturesCard() {
         </div>
 
         {/* <DonutCarousel /> */}
-        <div className="max-lg:hidden h-full w-full relative p-4">
+        <div className="max-lg:hidden h-full w-full relative -z-1 p-4">
           <div
             className="relative w-full h-full transition-transform duration-700 ease-in-out translate-x-5/6"
             style={{
@@ -217,7 +226,7 @@ function FeaturesCard() {
               return (
                 <div
                   key={q.q}
-                  className="h-100 w-100 bg-background rounded-xl border-2 absolute cursor-pointer transition-all duration-700 delay-100 overflow-hidden"
+                  className="lg:h-80 lg:w-80 2xl:h-100 2xl:w-100 bg-background rounded-xl border-2 absolute cursor-pointer transition-all duration-700 delay-100 overflow-hidden"
                   style={{
                     left: `calc(50% + ${x}px)`,
                     top: `calc(50% + ${y}px)`,
@@ -247,6 +256,10 @@ function FeaturesCard() {
             })}
           </div>
         </div>
+
+        <Button className="w-fit" asChild>
+          <Link to={"/chat"}>Start Chatting Now</Link>
+        </Button>
       </CardContent>
 
       {/* Background grid with enhanced animation */}
