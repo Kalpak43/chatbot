@@ -2,12 +2,12 @@ import { Suspense, useEffect } from "react";
 import "./App.css";
 import { Route, Routes } from "react-router";
 import Layout from "./layouts/chat-layout";
-import Chatpage from "./pages/Chatpage";
-import Loginpage from "./pages/Loginpage";
+import Chatpage from "./pages/chat-page";
+import Loginpage from "./pages/login-page";
 import { useAppDispatch, useAppSelector } from "./app/hooks";
 import { toast } from "sonner";
 import { checkLogin } from "./features/auth/authThunk";
-import Signuppage from "./pages/Signuppage";
+import Signuppage from "./pages/signup-page";
 import { getChats } from "./features/chats/chatThunk";
 import PersonalizationPage from "./pages/personalization-page";
 import SettingsLayout from "./layouts/settings-layout";
@@ -16,6 +16,8 @@ import ContactUsPage from "./pages/contact-us-page";
 import { updateLimit } from "./features/prompt/promptSlice";
 import { AnimatePresence } from "motion/react";
 import PageTransition from "./components/page-transition";
+import FeaturesCard from "./components/features-card";
+import Homepage from "./pages/home-page";
 
 function App() {
   const dispatch = useAppDispatch();
@@ -53,7 +55,7 @@ function App() {
               path="/"
               element={
                 <PageTransition>
-                  <Chatpage />
+                  <Homepage />
                 </PageTransition>
               }
             />

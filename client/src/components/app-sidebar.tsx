@@ -1,10 +1,4 @@
-import {
-  Edit,
-  Loader2,
-  MoreHorizontal,
-  Plus,
-  Trash,
-} from "lucide-react";
+import { Edit, Loader2, MoreHorizontal, Plus, Trash } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
